@@ -91,15 +91,34 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
 
           {/* Opening Burst Effect */}
           {isOpening && (
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: 'radial-gradient(circle, rgba(91, 160, 133, 0.6) 0%, transparent 70%)',
-                filter: 'blur(30px)',
-                animation: 'pulseGlow 0.5s ease-out',
-                zIndex: 15,
-              }}
-            />
+            <>
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: 'radial-gradient(circle, rgba(91, 160, 133, 0.6) 0%, transparent 70%)',
+                  filter: 'blur(30px)',
+                  animation: 'pulseGlow 0.5s ease-out',
+                  zIndex: 15,
+                }}
+              />
+              <div
+                className="absolute inset-0 pointer-events-none rounded-lg"
+                style={{
+                  border: '3px solid rgba(91, 160, 133, 0.8)',
+                  animation: 'expandRing 0.6s ease-out',
+                  zIndex: 14,
+                }}
+              />
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background: 'radial-gradient(circle, rgba(255, 215, 0, 0.4) 0%, transparent 60%)',
+                  filter: 'blur(20px)',
+                  animation: 'intensePulse 0.5s ease-out',
+                  zIndex: 13,
+                }}
+              />
+            </>
           )}
 
           {/* Bottom Shadow */}
@@ -123,11 +142,37 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
         )}
       </button>
 
-      {/* Additional CSS Animation for Spin */}
+      {/* Additional CSS Animations */}
       <style>{`
         @keyframes spin {
           from { transform: translate(-50%, -50%) rotate(0deg); }
           to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        @keyframes expandRing {
+          from {
+            transform: scale(1);
+            opacity: 1;
+          }
+          to {
+            transform: scale(1.5);
+            opacity: 0;
+          }
+        }
+        
+        @keyframes intensePulse {
+          0% {
+            opacity: 0.6;
+            transform: scale(0.8);
+          }
+          50% {
+            opacity: 0.4;
+            transform: scale(1);
+          }
+          100% {
+            opacity: 0;
+            transform: scale(1.3);
+          }
         }
       `}</style>
     </div>

@@ -157,8 +157,65 @@ export default function Home() {
     createCustomerMutation.mutate(data);
   };
 
+  // Play celebration sound effects
+  const playCelebrationSounds = () => {
+    // Create audio context
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    // Box opening sound (short burst)
+    const openOscillator = audioContext.createOscillator();
+    const openGain = audioContext.createGain();
+    openOscillator.connect(openGain);
+    openGain.connect(audioContext.destination);
+    openOscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+    openOscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.1);
+    openGain.gain.setValueAtTime(0.3, audioContext.currentTime);
+    openGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    openOscillator.start(audioContext.currentTime);
+    openOscillator.stop(audioContext.currentTime + 0.1);
+
+    // Celebration chime sounds (multiple pitches)
+    setTimeout(() => {
+      const chimes = [800, 1000, 1200];
+      chimes.forEach((freq, index) => {
+        setTimeout(() => {
+          const osc = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          osc.connect(gain);
+          gain.connect(audioContext.destination);
+          osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+          gain.gain.setValueAtTime(0.2, audioContext.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+          osc.start(audioContext.currentTime);
+          osc.stop(audioContext.currentTime + 0.3);
+        }, index * 100);
+      });
+    }, 200);
+
+    // Victory fanfare (longer tone)
+    setTimeout(() => {
+      const fanfare = audioContext.createOscillator();
+      const fanGain = audioContext.createGain();
+      fanfare.connect(fanGain);
+      fanGain.connect(audioContext.destination);
+      fanfare.frequency.setValueAtTime(1000, audioContext.currentTime);
+      fanfare.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.5);
+      fanGain.gain.setValueAtTime(0.2, audioContext.currentTime);
+      fanGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+      fanfare.start(audioContext.currentTime);
+      fanfare.stop(audioContext.currentTime + 0.5);
+    }, 600);
+  };
+
   const handleOpen = () => {
     setIsOpening(true);
+
+    // Play celebration sounds
+    try {
+      playCelebrationSounds();
+    } catch (e) {
+      // Audio context might not be available in some browsers
+    }
 
     // Generate random reward amount (1-5 rupees)
     const reward = Math.floor(Math.random() * 5) + 1;
