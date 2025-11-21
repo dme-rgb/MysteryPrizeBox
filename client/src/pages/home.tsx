@@ -52,6 +52,13 @@ export default function Home() {
     refetchInterval: 1000, // Refetch every second to show latest status
   });
 
+  // Fetch total verified amount for customer
+  const { data: totalVerifiedData } = useQuery<{ totalAmount: number }>({
+    queryKey: ['/api/vehicles', customerData?.vehicleNumber, 'total-verified-amount'],
+    enabled: !!customerData?.vehicleNumber,
+    refetchInterval: 1000,
+  });
+
   // Create customer mutation
   const createCustomerMutation = useMutation({
     mutationFn: async (data: { name: string; phoneNumber: string; vehicleNumber: string }) => {
@@ -225,7 +232,7 @@ export default function Home() {
       {/* Stats Header */}
       <StatsHeader 
         totalWinners={stats?.totalVerifiedRewards || 0}
-        customerVerified={customerData?.isVerified && customerData?.rewardAmount ? customerData.rewardAmount : 0}
+        customerVerified={totalVerifiedData?.totalAmount || 0}
         verificationTimeLeft={verificationTimeLeft}
       />
 

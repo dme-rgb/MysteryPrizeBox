@@ -148,6 +148,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get total verified amount for a customer by vehicle number
+  app.get("/api/vehicles/:vehicleNumber/total-verified-amount", async (req, res) => {
+    try {
+      const totalAmount = await googleSheetsService.getTotalVerifiedAmountByVehicle(req.params.vehicleNumber);
+      res.json({ totalAmount });
+    } catch (error: any) {
+      console.error("Get total verified amount error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Update customer with reward (1-5 rupees)
   app.patch("/api/customers/:id/reward", async (req, res) => {
     try {

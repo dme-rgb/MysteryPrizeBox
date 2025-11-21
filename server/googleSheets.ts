@@ -148,6 +148,16 @@ export class GoogleSheetsService {
     return data.count || 0;
   }
 
+  async getTotalVerifiedAmountByVehicle(vehicleNumber: string): Promise<number> {
+    const response = await fetch(`${this.webhookUrl}?action=getTotalVerifiedAmount&vehicleNumber=${encodeURIComponent(vehicleNumber)}`, {
+      method: 'GET',
+    });
+
+    const text = await this.checkResponse(response);
+    const data = JSON.parse(text);
+    return data.totalAmount || 0;
+  }
+
   getIsConfigured(): boolean | null {
     return this.isConfigured;
   }

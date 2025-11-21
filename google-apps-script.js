@@ -176,6 +176,25 @@ function doGet(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
     
+    if (action === "getTotalVerifiedAmount") {
+      const vehicleNumber = e.parameter.vehicleNumber;
+      const dataRange = sheet.getDataRange();
+      const values = dataRange.getValues();
+      let totalAmount = 0;
+      
+      // Sum all verified rewards for this vehicle
+      for (let i = 1; i < values.length; i++) {
+        if (values[i][3] === vehicleNumber && values[i][5] === "Yes" && values[i][2] !== "") {
+          const prize = parseInt(values[i][2]) || 0;
+          totalAmount += prize;
+        }
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        totalAmount: totalAmount
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
   } catch (error) {
     return ContentService.createTextOutput(JSON.stringify({
       status: "error",
