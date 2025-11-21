@@ -52,10 +52,10 @@ export default function Home() {
     staleTime: Infinity, // Don't refetch automatically
   });
 
-  // Fetch total verified amount for customer
+  // Fetch total verified amount for customer - only for existing customers
   const { data: totalVerifiedData } = useQuery<{ totalAmount: number }>({
     queryKey: ['/api/vehicles', customerData?.vehicleNumber, 'total-verified-amount'],
-    enabled: !!customerData?.vehicleNumber,
+    enabled: !!customerData?.vehicleNumber && !!customerData?.alreadyPlayedToday,
     staleTime: Infinity, // Don't refetch automatically
   });
 
@@ -232,10 +232,10 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Stats Header */}
+      {/* Stats Header - only show for existing customers with previous wins */}
       <StatsHeader 
         totalWinners={stats?.totalVerifiedRewards || 0}
-        customerVerified={totalVerifiedData?.totalAmount || 0}
+        customerVerified={customerData?.alreadyPlayedToday ? (totalVerifiedData?.totalAmount || 0) : 0}
         verificationTimeLeft={verificationTimeLeft}
       />
 
