@@ -172,101 +172,24 @@ export default function Home() {
     setIsVerified(false);
   };
 
-  // Show setup screen if Google Sheets is not configured
-  if (healthData && !healthData.googleSheets) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-8">
-        <Card className="w-full max-w-3xl p-8 space-y-6">
-          <div className="flex items-start gap-4">
-            <div className="bg-yellow-500/20 p-3 rounded-lg">
-              <AlertTriangle className="w-8 h-8 text-yellow-500" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-foreground mb-2">
-                Setup Required: Google Sheets Integration
-              </h2>
-              <p className="text-muted-foreground">
-                This mystery box contest requires Google Sheets to store customer data and enforce game rules (vehicle validation, daily limits, and verified rewards).
-              </p>
-            </div>
-          </div>
-
-          <div className="border-t border-border pt-6 space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold text-foreground mb-3">Quick Setup (5 minutes)</h3>
-              <ol className="space-y-4 text-sm">
-                <li className="flex gap-3">
-                  <Badge className="h-6 w-6 flex items-center justify-center flex-shrink-0">1</Badge>
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">Open your Google Sheet named "Customer detail"</p>
-                    <p className="text-muted-foreground mt-1">Add columns: name, number, prize, vehicleNumber, timestamp, verified</p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <Badge className="h-6 w-6 flex items-center justify-center flex-shrink-0">2</Badge>
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">Go to Extensions → Apps Script</p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <Badge className="h-6 w-6 flex items-center justify-center flex-shrink-0">3</Badge>
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">Copy code from <code className="bg-muted px-2 py-1 rounded text-xs">google-apps-script.js</code></p>
-                    <p className="text-muted-foreground mt-1">Delete existing code and paste the new code</p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <Badge className="h-6 w-6 flex items-center justify-center flex-shrink-0">4</Badge>
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">Deploy → New deployment → Web app</p>
-                    <p className="text-muted-foreground mt-1">Execute as: Me | Who has access: Anyone</p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <Badge className="h-6 w-6 flex items-center justify-center flex-shrink-0">5</Badge>
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">Authorize and deploy</p>
-                    <p className="text-muted-foreground mt-1">Click through the authorization prompts</p>
-                  </div>
-                </li>
-                <li className="flex gap-3">
-                  <Badge className="h-6 w-6 flex items-center justify-center flex-shrink-0">6</Badge>
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground">Refresh this page</p>
-                    <p className="text-muted-foreground mt-1">The app will automatically detect the configuration</p>
-                  </div>
-                </li>
-              </ol>
-            </div>
-
-            <Alert>
-              <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Need detailed instructions?</AlertTitle>
-              <AlertDescription>
-                See <code className="bg-muted px-2 py-1 rounded text-xs">GOOGLE_SHEETS_SETUP.md</code> in the project files for complete setup instructions with screenshots and troubleshooting tips.
-              </AlertDescription>
-            </Alert>
-
-            <div className="flex justify-end">
-              <Button 
-                onClick={() => window.location.reload()} 
-                className="gap-2"
-                data-testid="button-refresh"
-              >
-                <RotateCcw className="w-4 h-4" />
-                I've completed setup - Refresh
-              </Button>
-            </div>
-          </div>
-        </Card>
-      </div>
-    );
-  }
+  const isGoogleSheetsConfigured = healthData?.googleSheets ?? true;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Stats Header */}
       <StatsHeader totalWinners={stats?.totalVerifiedRewards || 0} />
+
+      {/* Google Sheets Setup Banner */}
+      {!isGoogleSheetsConfigured && (
+        <Alert className="rounded-none border-x-0 border-t-0 bg-yellow-500/10 border-yellow-500/20">
+          <AlertTriangle className="h-4 w-4 text-yellow-500" />
+          <AlertTitle className="text-yellow-500">Google Sheets Not Configured</AlertTitle>
+          <AlertDescription className="text-yellow-500/90 text-xs">
+            To use this contest, please set up Google Sheets integration. See{" "}
+            <code className="bg-yellow-500/20 px-1 py-0.5 rounded text-xs">GOOGLE_SHEETS_SETUP.md</code> for instructions.
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden relative">
