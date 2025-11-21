@@ -320,17 +320,27 @@ export default function Home() {
                         </div>
 
                         {/* Verification Status */}
-                        <div className="pt-4">
+                        <div className="pt-4 space-y-3">
                           {isVerified ? (
                             <Badge className="bg-green-500/20 text-green-500 border-green-500 px-4 py-2 text-base" data-testid="badge-verified">
                               <CheckCircle className="w-4 h-4 mr-2" />
                               Verified
                             </Badge>
                           ) : (
-                            <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500 px-4 py-2 text-base" data-testid="badge-pending">
-                              <AlertCircle className="w-4 h-4 mr-2" />
-                              Pending Verification
-                            </Badge>
+                            <>
+                              <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500 px-4 py-2 text-base" data-testid="badge-pending">
+                                <AlertCircle className="w-4 h-4 mr-2" />
+                                Pending Verification
+                              </Badge>
+                              {verificationTimeLeft !== null && (
+                                <div className="text-center">
+                                  <p className="text-sm font-medium text-muted-foreground mb-1">Time Left:</p>
+                                  <p className="text-3xl font-bold text-primary" data-testid="text-verification-timer">
+                                    {verificationTimeLeft}s
+                                  </p>
+                                </div>
+                              )}
+                            </>
                           )}
                         </div>
                       </div>
