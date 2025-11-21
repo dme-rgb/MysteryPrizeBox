@@ -49,14 +49,14 @@ export default function Home() {
   const { data: customerData } = useQuery<Customer>({
     queryKey: ['/api/customers', customerId],
     enabled: !!customerId,
-    refetchInterval: 1000, // Refetch every second to show latest status
+    staleTime: Infinity, // Don't refetch automatically
   });
 
   // Fetch total verified amount for customer
   const { data: totalVerifiedData } = useQuery<{ totalAmount: number }>({
     queryKey: ['/api/vehicles', customerData?.vehicleNumber, 'total-verified-amount'],
     enabled: !!customerData?.vehicleNumber,
-    refetchInterval: 1000,
+    staleTime: Infinity, // Don't refetch automatically
   });
 
   // Create customer mutation
