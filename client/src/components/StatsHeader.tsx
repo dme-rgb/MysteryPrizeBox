@@ -8,9 +8,23 @@ interface StatsHeaderProps {
 }
 
 export default function StatsHeader({ totalWinners, customerVerified = 0, verificationTimeLeft }: StatsHeaderProps) {
-  // Don't show any header when customer is playing (customerVerified > 0)
+  // Show customer's total prize amount when they're playing
   if (customerVerified > 0) {
-    return null;
+    return (
+      <div className="w-full bg-card border-b border-border py-4 px-6">
+        <div className="max-w-7xl mx-auto flex items-center justify-center gap-3">
+          <p className="text-lg font-medium text-foreground">
+            Total Prize Won:
+          </p>
+          <Badge 
+            className="bg-primary text-primary-foreground text-lg px-4 py-1 font-bold"
+            data-testid="badge-customer-total"
+          >
+            ₹{customerVerified}
+          </Badge>
+        </div>
+      </div>
+    );
   }
 
   // Show total verified rewards when no customer is playing (registration screen)
