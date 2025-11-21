@@ -78,10 +78,13 @@ export default function Home() {
     },
     onSuccess: (data) => {
       setCustomerId(data.id);
-      toast({
-        title: "Registration Successful!",
-        description: "Click the mystery box to reveal your reward!",
-      });
+      // Only show success toast for new customers, not for existing ones
+      if (!data.alreadyPlayedToday) {
+        toast({
+          title: "Registration Successful!",
+          description: "Click the mystery box to reveal your reward!",
+        });
+      }
     },
     onError: (error: Error) => {
       toast({
