@@ -76,6 +76,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const validatedData = insertCustomerSchema.parse(req.body);
 
       // Validate against Google Sheets
+      let alreadyPlayedToday = false;
       const existingCustomer = await googleSheetsService.getCustomerByVehicle(validatedData.vehicleNumber);
       if (existingCustomer) {
         const nameMatch = existingCustomer.name.toLowerCase() === validatedData.name.toLowerCase();
@@ -89,14 +90,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
         const todayEntry = await googleSheetsService.getTodaysCustomerByVehicle(validatedData.vehicleNumber);
         if (todayEntry) {
-          return res.status(400).json({
-            error: "You have already played today. Come back tomorrow!",
-          });
+          // Allow registration but mark as already played
+          alreadyPlayedToday = true;
         }
       }
 
       // Create in local storage
       const customer = await storage.createCustomer(validatedData);
+      
+      // Mark as already played if applicable
+      let finalCustomer = customer;
+      if (alreadyPlayedToday) {
+        finalCustomer = await storage.markAlreadyPlayedToday(customer.id);
+      }
 
       // Add to Google Sheets
       await googleSheetsService.addCustomer({
@@ -108,7 +114,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         verified: false,
       });
 
-      res.json(customer);
+      res.json(finalCustomer);
     } catch (error: any) {
       console.error("Create customer error:", error);
       

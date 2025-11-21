@@ -24,6 +24,7 @@ export const customers = pgTable("customers", {
   vehicleNumber: text("vehicle_number").notNull(),
   rewardAmount: integer("reward_amount"),
   verified: boolean("verified").default(false),
+  alreadyPlayedToday: boolean("already_played_today").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

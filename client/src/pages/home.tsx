@@ -19,6 +19,7 @@ interface Customer {
   vehicleNumber: string;
   rewardAmount: number | null;
   isVerified: boolean;
+  alreadyPlayedToday: boolean;
 }
 
 export default function Home() {
@@ -266,13 +267,22 @@ export default function Home() {
                 Mystery Box
               </h1>
               <p className="text-lg text-muted-foreground" data-testid="text-game-subtitle">
-                {!showReward ? 'Click the box to reveal your cashback reward!' : 'Congratulations!'}
+                {!showReward ? (customerData?.alreadyPlayedToday ? 'You have already played today. Come back tomorrow!' : 'Click the box to reveal your cashback reward!') : 'Congratulations!'}
               </p>
+              {customerData?.alreadyPlayedToday && (
+                <Alert className="bg-yellow-500/10 border-yellow-500/20">
+                  <AlertCircle className="h-4 w-4 text-yellow-500" />
+                  <AlertTitle className="text-yellow-500">Already Played Today</AlertTitle>
+                  <AlertDescription className="text-yellow-500/90">
+                    You can enter the contest again tomorrow.
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
 
             <div className="relative flex items-center justify-center min-h-[400px]">
               {!showReward ? (
-                <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} />
+                <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} disabled={customerData?.alreadyPlayedToday || false} />
               ) : rewardAmount ? (
                 <div className="animate-in fade-in zoom-in duration-500">
                   <div className="relative">

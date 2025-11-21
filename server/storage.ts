@@ -10,6 +10,7 @@ export interface IStorage {
   getCustomer(id: string): Promise<Customer | undefined>;
   updateCustomerReward(id: string, rewardAmount: number): Promise<Customer>;
   verifyCustomerReward(id: string): Promise<Customer>;
+  markAlreadyPlayedToday(id: string): Promise<Customer>;
   getTotalVerifiedRewards(): Promise<number>;
   getAllCustomers(): Promise<Customer[]>;
 }
@@ -47,6 +48,7 @@ export class MemStorage implements IStorage {
       id,
       rewardAmount: null,
       verified: false,
+      alreadyPlayedToday: false,
       createdAt: new Date(),
     };
     this.customers.set(id, customer);
@@ -73,6 +75,16 @@ export class MemStorage implements IStorage {
       throw new Error("Customer not found");
     }
     const updated = { ...customer, verified: true };
+    this.customers.set(id, updated);
+    return updated;
+  }
+
+  async markAlreadyPlayedToday(id: string): Promise<Customer> {
+    const customer = this.customers.get(id);
+    if (!customer) {
+      throw new Error("Customer not found");
+    }
+    const updated = { ...customer, alreadyPlayedToday: true };
     this.customers.set(id, updated);
     return updated;
   }

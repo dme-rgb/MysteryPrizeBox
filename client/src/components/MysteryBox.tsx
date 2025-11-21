@@ -5,9 +5,10 @@ interface MysteryBoxProps {
   onOpen: () => void;
   isOpening: boolean;
   isOpened: boolean;
+  disabled?: boolean;
 }
 
-export default function MysteryBox({ onOpen, isOpening, isOpened }: MysteryBoxProps) {
+export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = false }: MysteryBoxProps) {
   const [isHovered, setIsHovered] = useState(false);
 
   return (
@@ -16,7 +17,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened }: MysteryBoxPr
         onClick={onOpen}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        disabled={isOpening || isOpened}
+        disabled={isOpening || isOpened || disabled}
         className="relative focus:outline-none focus:ring-4 focus:ring-primary/50 rounded-lg transition-all disabled:cursor-not-allowed"
         style={{
           transformStyle: 'preserve-3d',
