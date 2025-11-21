@@ -12,6 +12,15 @@ import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle } from 
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 
+interface Customer {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  vehicleNumber: string;
+  rewardAmount: number | null;
+  isVerified: boolean;
+}
+
 export default function Home() {
   const { toast } = useToast();
   const [customerId, setCustomerId] = useState<string | null>(null);
@@ -22,6 +31,7 @@ export default function Home() {
   const [showReward, setShowReward] = useState(false);
   const [particleTrigger, setParticleTrigger] = useState(0);
   const [confettiTrigger, setConfettiTrigger] = useState(0);
+  const [verificationTimeLeft, setVerificationTimeLeft] = useState<number | null>(null);
 
   // Health check for Google Sheets
   const { data: healthData } = useQuery<{ googleSheets: boolean; message: string }>({
@@ -32,6 +42,13 @@ export default function Home() {
   // Fetch stats
   const { data: stats } = useQuery<{ totalVerifiedRewards: number }>({
     queryKey: ['/api/stats'],
+  });
+
+  // Fetch current customer data
+  const { data: customerData } = useQuery<Customer>({
+    queryKey: ['/api/customers', customerId],
+    enabled: !!customerId,
+    refetchInterval: 1000, // Refetch every second to show latest status
   });
 
   // Create customer mutation
@@ -170,14 +187,46 @@ export default function Home() {
     setShowReward(false);
     setRewardAmount(null);
     setIsVerified(false);
+    setVerificationTimeLeft(null);
   };
+
+  // 45-second verification timeout
+  useEffect(() => {
+    if (!showReward || isVerified) {
+      return;
+    }
+
+    setVerificationTimeLeft(45);
+    
+    const interval = setInterval(() => {
+      setVerificationTimeLeft((prev) => {
+        if (prev === null || prev <= 1) {
+          // Time's up - reset
+          handleReset();
+          toast({
+            title: "Time's Up!",
+            description: "Verification window closed. Please try again.",
+            variant: "destructive",
+          });
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [showReward, isVerified]);
 
   const isGoogleSheetsConfigured = healthData?.googleSheets ?? true;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Stats Header */}
-      <StatsHeader totalWinners={stats?.totalVerifiedRewards || 0} />
+      <StatsHeader 
+        totalWinners={stats?.totalVerifiedRewards || 0}
+        customerVerified={customerData?.isVerified && customerData?.rewardAmount ? customerData.rewardAmount : 0}
+        verificationTimeLeft={verificationTimeLeft}
+      />
 
       {/* Google Sheets Setup Banner */}
       {!isGoogleSheetsConfigured && (

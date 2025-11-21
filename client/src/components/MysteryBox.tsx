@@ -59,7 +59,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened }: MysteryBoxPr
               <div
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] pointer-events-none"
                 style={{
-                  background: 'radial-gradient(circle, transparent 40%, rgba(91, 160, 133, 0.2) 50%, transparent 60%)',
+                  background: 'radial-gradient(circle, transparent 80%, rgba(91, 160, 133, 0.2) 50%, transparent 70%)',
                   animation: 'spin 8s linear infinite',
                   zIndex: 8,
                 }}
