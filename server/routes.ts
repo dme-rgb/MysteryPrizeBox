@@ -79,11 +79,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let alreadyPlayedToday = false;
       const existingCustomer = await googleSheetsService.getCustomerByVehicle(validatedData.vehicleNumber);
       if (existingCustomer) {
-        // Normalize strings for comparison (trim whitespace, lowercase)
-        const existingNameNormalized = existingCustomer.name.trim().toLowerCase();
-        const incomingNameNormalized = validatedData.name.trim().toLowerCase();
-        const existingPhoneNormalized = existingCustomer.number.trim();
-        const incomingPhoneNormalized = validatedData.phoneNumber.trim();
+        // Normalize strings for comparison (trim whitespace, lowercase, handle null/undefined)
+        const existingNameNormalized = String(existingCustomer.name || '').trim().toLowerCase();
+        const incomingNameNormalized = String(validatedData.name || '').trim().toLowerCase();
+        const existingPhoneNormalized = String(existingCustomer.number || '').trim();
+        const incomingPhoneNormalized = String(validatedData.phoneNumber || '').trim();
 
         const nameMatch = existingNameNormalized === incomingNameNormalized;
         const phoneMatch = existingPhoneNormalized === incomingPhoneNormalized;
