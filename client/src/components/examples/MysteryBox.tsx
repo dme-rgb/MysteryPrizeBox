@@ -6,10 +6,12 @@ export default function MysteryBoxExample() {
   const [isOpened, setIsOpened] = useState(false);
 
   const handleOpen = () => {
+    console.log('Opening mystery box...');
     setIsOpening(true);
     setTimeout(() => {
       setIsOpening(false);
       setIsOpened(true);
+      console.log('Box opened!');
     }, 800);
   };
 

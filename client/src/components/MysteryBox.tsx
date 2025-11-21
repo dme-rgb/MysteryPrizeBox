@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Gift, Sparkles } from 'lucide-react';
+import boxImage from '@assets/download_1763703442522-removebg-preview_1763722762444.png';
 
 interface MysteryBoxProps {
   onOpen: () => void;
@@ -11,114 +11,124 @@ export default function MysteryBox({ onOpen, isOpening, isOpened }: MysteryBoxPr
   const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <div className="relative flex items-center justify-center" style={{ perspective: '1000px' }}>
+    <div className="relative flex items-center justify-center" style={{ perspective: '1200px' }}>
       <button
         onClick={onOpen}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         disabled={isOpening || isOpened}
-        className="relative focus:outline-none focus:ring-4 focus:ring-primary/50 rounded-lg transition-transform disabled:cursor-not-allowed"
+        className="relative focus:outline-none focus:ring-4 focus:ring-primary/50 rounded-lg transition-all disabled:cursor-not-allowed"
         style={{
           transformStyle: 'preserve-3d',
-          transform: isHovered && !isOpening && !isOpened ? 'scale(1.05)' : 'scale(1)',
+          transform: isHovered && !isOpening && !isOpened ? 'scale(1.08) translateY(-5px)' : 'scale(1)',
+          transition: 'transform 0.3s ease-out',
         }}
         data-testid="button-mystery-box"
       >
-        {/* Box Container */}
-        <div
-          className="relative"
-          style={{
-            transformStyle: 'preserve-3d',
-            width: '280px',
-            height: '280px',
-          }}
-        >
-          {/* Box Lid */}
-          <div
-            className="absolute inset-x-0 top-0 h-20 rounded-t-lg transition-all duration-800"
+        {/* Main Box Image */}
+        <div className="relative" style={{ width: '350px', height: '350px' }}>
+          <img
+            src={boxImage}
+            alt="Mystery Box"
+            className="w-full h-full object-contain relative z-10 pointer-events-none select-none"
             style={{
-              background: 'linear-gradient(135deg, #5ba085 0%, #41886e 50%, #2d5f4a 100%)',
-              transformOrigin: 'bottom',
+              filter: isOpened ? 'brightness(1.3) saturate(1.2)' : 'brightness(1)',
+              transition: 'filter 0.3s ease',
+              animation: isOpening ? 'lidOpen 0.8s ease-out forwards' : 'none',
               transformStyle: 'preserve-3d',
-              animation: isOpening ? 'lidOpen 0.8s ease-out forwards' : isOpened ? 'none' : 'boxGlow 1.5s ease-in-out infinite',
-              transform: isOpened ? 'rotateX(-120deg) translateY(-80px) translateZ(40px)' : 'rotateX(0deg)',
-              boxShadow: isOpened ? 'none' : '0 4px 20px rgba(65, 136, 110, 0.3)',
-            }}
-          >
-            {/* Lid Top Face */}
-            <div className="absolute inset-0 rounded-t-lg border-2 border-[#2d5f4a] flex items-center justify-center">
-              <Sparkles className="w-8 h-8 text-[#ffd700]" />
-            </div>
-            
-            {/* Lid Front Face */}
-            <div
-              className="absolute bottom-0 left-0 right-0 h-6"
-              style={{
-                background: 'linear-gradient(180deg, #2d5f4a 0%, #1a3d2e 100%)',
-                transformOrigin: 'top',
-                transform: 'rotateX(-90deg)',
-              }}
-            />
-          </div>
-
-          {/* Box Body */}
-          <div
-            className="absolute inset-x-0 bottom-0 rounded-b-lg"
-            style={{
-              height: '200px',
-              background: 'linear-gradient(135deg, #5ba085 0%, #41886e 50%, #2d5f4a 100%)',
-              transformStyle: 'preserve-3d',
-              border: '2px solid #2d5f4a',
-              animation: !isOpened ? 'boxGlow 1.5s ease-in-out infinite' : 'none',
-            }}
-          >
-            {/* Lock/Clasp */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gradient-to-br from-[#ffd700] to-[#d4af37] rounded-lg flex items-center justify-center shadow-lg">
-              <Gift className="w-8 h-8 text-[#2d5f4a]" />
-            </div>
-
-            {/* Decorative Lines */}
-            <div className="absolute top-1/2 left-0 right-0 h-0.5 bg-[#ffd700] opacity-50" />
-            <div className="absolute top-0 bottom-0 left-1/2 w-0.5 bg-[#ffd700] opacity-50" />
-
-            {/* Bottom shadow */}
-            <div
-              className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3/4 h-4 rounded-full"
-              style={{
-                background: 'radial-gradient(ellipse, rgba(0,0,0,0.3) 0%, transparent 70%)',
-                filter: 'blur(8px)',
-              }}
-            />
-          </div>
-
-          {/* Side Faces for 3D effect */}
-          <div
-            className="absolute top-20 left-0 h-[200px] w-8"
-            style={{
-              background: 'linear-gradient(90deg, #2d5f4a 0%, #1a3d2e 100%)',
-              transformOrigin: 'right',
-              transform: 'rotateY(-90deg)',
+              transform: isOpened ? 'rotateX(-15deg) translateY(-30px)' : 'rotateX(0deg)',
             }}
           />
+
+          {/* Magical Glow Overlay - Pulsing */}
+          {!isOpened && (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: 'radial-gradient(circle at 50% 50%, rgba(91, 160, 133, 0.4) 0%, transparent 60%)',
+                filter: 'blur(20px)',
+                animation: 'boxGlow 1.5s ease-in-out infinite',
+                zIndex: 5,
+              }}
+            />
+          )}
+
+          {/* Green Energy Swirls - Rotating */}
+          {!isOpened && (
+            <>
+              <div
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] pointer-events-none"
+                style={{
+                  background: 'radial-gradient(circle, transparent 40%, rgba(91, 160, 133, 0.2) 50%, transparent 60%)',
+                  animation: 'spin 8s linear infinite',
+                  zIndex: 8,
+                }}
+              />
+              <div
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] pointer-events-none"
+                style={{
+                  background: 'radial-gradient(circle, transparent 45%, rgba(65, 136, 110, 0.3) 55%, transparent 65%)',
+                  animation: 'spin 6s linear infinite reverse',
+                  zIndex: 7,
+                }}
+              />
+            </>
+          )}
+
+          {/* Golden Sparkles on Hover */}
+          {isHovered && !isOpening && !isOpened && (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: 'radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.2) 0%, transparent 50%)',
+                filter: 'blur(15px)',
+                animation: 'pulseGlow 1s ease-in-out infinite',
+                zIndex: 9,
+              }}
+            />
+          )}
+
+          {/* Opening Burst Effect */}
+          {isOpening && (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: 'radial-gradient(circle, rgba(91, 160, 133, 0.6) 0%, transparent 70%)',
+                filter: 'blur(30px)',
+                animation: 'pulseGlow 0.5s ease-out',
+                zIndex: 15,
+              }}
+            />
+          )}
+
+          {/* Bottom Shadow */}
           <div
-            className="absolute top-20 right-0 h-[200px] w-8"
+            className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-[80%] h-6 rounded-full"
             style={{
-              background: 'linear-gradient(90deg, #1a3d2e 0%, #2d5f4a 100%)',
-              transformOrigin: 'left',
-              transform: 'rotateY(90deg)',
+              background: 'radial-gradient(ellipse, rgba(0,0,0,0.5) 0%, transparent 70%)',
+              filter: 'blur(12px)',
+              zIndex: 1,
             }}
           />
         </div>
 
         {/* Hover Prompt */}
         {!isOpening && !isOpened && (
-          <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap">
-            <p className="text-sm font-medium text-muted-foreground animate-pulse">
+          <div className="absolute -bottom-16 left-1/2 -translate-x-1/2 whitespace-nowrap">
+            <p className="text-base font-medium text-foreground animate-pulse" data-testid="text-click-prompt">
               Click to Open
             </p>
           </div>
         )}
       </button>
+
+      {/* Additional CSS Animation for Spin */}
+      <style>{`
+        @keyframes spin {
+          from { transform: translate(-50%, -50%) rotate(0deg); }
+          to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
