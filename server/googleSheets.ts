@@ -1,4 +1,4 @@
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbx27qhwRz4fBO5URWjiWsIC2R7qtXN4RhS534vJI9YHG78PsNhqei7YIzaIz__pEXHE/exec";
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzXq3up_wE6fjX2goRcPBfWqdWkYLIBFxoDhzREVuvJHivBmp2hLDvqPRXSQcvQUq4/exec";
 
 export interface SheetCustomer {
   name: string;
