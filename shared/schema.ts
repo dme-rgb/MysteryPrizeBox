@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, timestamp, integer } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, timestamp, integer, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -22,9 +22,8 @@ export const customers = pgTable("customers", {
   name: text("name").notNull(),
   phoneNumber: text("phone_number").notNull(),
   vehicleNumber: text("vehicle_number").notNull(),
-  prizeId: text("prize_id"),
-  prizeName: text("prize_name"),
-  prizeRarity: text("prize_rarity"),
+  rewardAmount: integer("reward_amount"),
+  verified: boolean("verified").default(false),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

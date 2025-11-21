@@ -2,15 +2,122 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCustomerSchema } from "@shared/schema";
+import { googleSheetsService, GoogleSheetsNotConfiguredError } from "./googleSheets";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check for Google Sheets
+  app.get("/api/health", async (req, res) => {
+    try {
+      const isConfigured = await googleSheetsService.healthCheck();
+      res.json({ 
+        googleSheets: isConfigured,
+        message: isConfigured 
+          ? "Google Sheets is configured and working" 
+          : "Google Sheets is not configured. Please set up the Apps Script code."
+      });
+    } catch (error: any) {
+      res.status(503).json({ 
+        googleSheets: false,
+        message: "Google Sheets health check failed",
+        error: error.message 
+      });
+    }
+  });
+
+  // Validate customer registration
+  app.post("/api/customers/validate", async (req, res) => {
+    try {
+      const { name, phoneNumber, vehicleNumber } = req.body;
+
+      // Check if vehicle exists in Google Sheets
+      const existingCustomer = await googleSheetsService.getCustomerByVehicle(vehicleNumber);
+
+      if (existingCustomer) {
+        // Vehicle exists - check if name and phone match
+        const nameMatch = existingCustomer.name.toLowerCase() === name.toLowerCase();
+        const phoneMatch = existingCustomer.number === phoneNumber;
+
+        if (!nameMatch || !phoneMatch) {
+          return res.status(400).json({
+            error: "vehicle_exists",
+            message: "This vehicle number is already registered with different details. Please use the same name and phone number, or use a different vehicle number.",
+          });
+        }
+
+        // Check if customer already played today
+        const todayEntry = await googleSheetsService.getTodaysCustomerByVehicle(vehicleNumber);
+        if (todayEntry) {
+          return res.status(400).json({
+            error: "already_played_today",
+            message: "You have already played today. Come back tomorrow!",
+          });
+        }
+      }
+
+      // Validation passed
+      res.json({ valid: true });
+    } catch (error: any) {
+      console.error("Validation error:", error);
+      
+      if (error instanceof GoogleSheetsNotConfiguredError) {
+        return res.status(503).json({ 
+          error: "google_sheets_not_configured",
+          message: "Google Sheets is not configured. Please complete the setup first." 
+        });
+      }
+      
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Create customer entry
   app.post("/api/customers", async (req, res) => {
     try {
       const validatedData = insertCustomerSchema.parse(req.body);
+
+      // Validate against Google Sheets
+      const existingCustomer = await googleSheetsService.getCustomerByVehicle(validatedData.vehicleNumber);
+      if (existingCustomer) {
+        const nameMatch = existingCustomer.name.toLowerCase() === validatedData.name.toLowerCase();
+        const phoneMatch = existingCustomer.number === validatedData.phoneNumber;
+
+        if (!nameMatch || !phoneMatch) {
+          return res.status(400).json({
+            error: "This vehicle number is already registered with different details. Please use the same name and phone number, or use a different vehicle number.",
+          });
+        }
+
+        const todayEntry = await googleSheetsService.getTodaysCustomerByVehicle(validatedData.vehicleNumber);
+        if (todayEntry) {
+          return res.status(400).json({
+            error: "You have already played today. Come back tomorrow!",
+          });
+        }
+      }
+
+      // Create in local storage
       const customer = await storage.createCustomer(validatedData);
+
+      // Add to Google Sheets
+      await googleSheetsService.addCustomer({
+        name: validatedData.name,
+        number: validatedData.phoneNumber,
+        prize: null,
+        vehicleNumber: validatedData.vehicleNumber,
+        timestamp: new Date().toISOString(),
+        verified: false,
+      });
+
       res.json(customer);
     } catch (error: any) {
+      console.error("Create customer error:", error);
+      
+      if (error instanceof GoogleSheetsNotConfiguredError) {
+        return res.status(503).json({ 
+          error: "Google Sheets is not configured. Please complete the setup first." 
+        });
+      }
+      
       res.status(400).json({ error: error.message });
     }
   });
@@ -28,21 +135,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update customer with prize
-  app.patch("/api/customers/:id/prize", async (req, res) => {
+  // Update customer with reward (1-5 rupees)
+  app.patch("/api/customers/:id/reward", async (req, res) => {
     try {
-      const { prizeId, prizeName, prizeRarity } = req.body;
-      if (!prizeId || !prizeName || !prizeRarity) {
-        return res.status(400).json({ error: "Missing prize data" });
+      const { rewardAmount } = req.body;
+      
+      if (!rewardAmount || rewardAmount < 1 || rewardAmount > 5) {
+        return res.status(400).json({ error: "Reward amount must be between 1 and 5 rupees" });
       }
-      const customer = await storage.updateCustomerPrize(
+
+      const customer = await storage.getCustomer(req.params.id);
+      if (!customer) {
+        return res.status(404).json({ error: "Customer not found" });
+      }
+
+      // Update in local storage
+      const updatedCustomer = await storage.updateCustomerReward(
         req.params.id,
-        prizeId,
-        prizeName,
-        prizeRarity
+        rewardAmount
       );
-      res.json(customer);
+
+      // Update in Google Sheets
+      await googleSheetsService.updateReward(customer.vehicleNumber, rewardAmount);
+
+      res.json(updatedCustomer);
     } catch (error: any) {
+      console.error("Update reward error:", error);
+      
+      if (error instanceof GoogleSheetsNotConfiguredError) {
+        return res.status(503).json({ 
+          error: "Google Sheets is not configured. Please complete the setup first." 
+        });
+      }
+      
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Verify reward
+  app.patch("/api/customers/:id/verify", async (req, res) => {
+    try {
+      const customer = await storage.getCustomer(req.params.id);
+      if (!customer) {
+        return res.status(404).json({ error: "Customer not found" });
+      }
+
+      // Update in local storage
+      const updatedCustomer = await storage.verifyCustomerReward(req.params.id);
+
+      // Update in Google Sheets
+      await googleSheetsService.verifyReward(customer.vehicleNumber);
+
+      res.json(updatedCustomer);
+    } catch (error: any) {
+      console.error("Verify reward error:", error);
+      
+      if (error instanceof GoogleSheetsNotConfiguredError) {
+        return res.status(503).json({ 
+          error: "Google Sheets is not configured. Please complete the setup first." 
+        });
+      }
+      
       res.status(500).json({ error: error.message });
     }
   });
@@ -50,9 +203,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get stats
   app.get("/api/stats", async (req, res) => {
     try {
-      const totalWithPrizes = await storage.getTotalCustomersWithPrizes();
-      res.json({ totalCustomersWithPrizes: totalWithPrizes });
+      // Get verified rewards count from Google Sheets
+      const verifiedCount = await googleSheetsService.getVerifiedRewardsCount();
+      res.json({ totalVerifiedRewards: verifiedCount });
     } catch (error: any) {
+      console.error("Get stats error:", error);
+      
+      if (error instanceof GoogleSheetsNotConfiguredError) {
+        // Return 0 when not configured (setup screen will be shown)
+        return res.json({ totalVerifiedRewards: 0 });
+      }
+      
       res.status(500).json({ error: error.message });
     }
   });

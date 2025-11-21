@@ -11,7 +11,7 @@ export default function StatsHeader({ totalWinners }: StatsHeaderProps) {
       <div className="max-w-7xl mx-auto flex items-center justify-center gap-3">
         <Trophy className="w-6 h-6 text-primary" />
         <p className="text-lg font-medium text-foreground">
-          Total Customers Receiving Rewards:
+          Total Verified Rewards:
         </p>
         <Badge 
           className="bg-primary text-primary-foreground text-lg px-4 py-1 font-bold"
