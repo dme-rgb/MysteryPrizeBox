@@ -79,8 +79,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let alreadyPlayedToday = false;
       const existingCustomer = await googleSheetsService.getCustomerByVehicle(validatedData.vehicleNumber);
       if (existingCustomer) {
-        const nameMatch = existingCustomer.name.toLowerCase() === validatedData.name.toLowerCase();
-        const phoneMatch = existingCustomer.number === validatedData.phoneNumber;
+        // Normalize strings for comparison (trim whitespace, lowercase)
+        const existingNameNormalized = existingCustomer.name.trim().toLowerCase();
+        const incomingNameNormalized = validatedData.name.trim().toLowerCase();
+        const existingPhoneNormalized = existingCustomer.number.trim();
+        const incomingPhoneNormalized = validatedData.phoneNumber.trim();
+
+        const nameMatch = existingNameNormalized === incomingNameNormalized;
+        const phoneMatch = existingPhoneNormalized === incomingPhoneNormalized;
 
         if (!nameMatch || !phoneMatch) {
           return res.status(400).json({
@@ -88,9 +94,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           });
         }
 
+        // Same details - check if already played today
         const todayEntry = await googleSheetsService.getTodaysCustomerByVehicle(validatedData.vehicleNumber);
         if (todayEntry) {
-          // Allow registration but mark as already played
+          // Same vehicle, same details, but already played today - allow registration but mark as already played
           alreadyPlayedToday = true;
         }
       }
