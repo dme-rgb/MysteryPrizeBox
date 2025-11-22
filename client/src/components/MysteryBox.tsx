@@ -160,50 +160,52 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
               />
 
               {/* Magical Burst Shooting Upward */}
-              {[...Array(12)].map((_, i) => (
+              {[...Array(16)].map((_, i) => (
                 <div
                   key={`burst-${i}`}
                   className="absolute pointer-events-none"
                   style={{
                     left: '50%',
                     top: '50%',
-                    width: '6px',
-                    height: '40px',
-                    background: `linear-gradient(to top, rgba(63, 166, 130, 0.9), rgba(255, 215, 0, 0.7), transparent)`,
+                    width: '8px',
+                    height: '60px',
+                    background: `linear-gradient(to top, rgba(63, 166, 130, 0.9), rgba(255, 215, 0, 0.8), transparent)`,
                     borderRadius: '4px',
-                    transform: `rotate(${i * 30}deg) translateY(-80px)`,
-                    animation: 'magicalBurstUp 0.8s ease-out',
-                    animationDelay: `${i * 0.03}s`,
+                    transform: `rotate(${i * 22.5}deg) translateY(-80px)`,
+                    animation: 'magicalBurstUp 1.8s ease-out',
+                    animationDelay: `${i * 0.06}s`,
                     zIndex: 15,
-                    filter: 'blur(1px)',
+                    filter: 'blur(0.5px)',
+                    boxShadow: '0 0 8px rgba(63, 166, 130, 0.6)',
                   }}
                 />
               ))}
 
               {/* Swirling Magical Threads */}
-              {[...Array(8)].map((_, i) => (
+              {[...Array(12)].map((_, i) => (
                 <div
                   key={`thread-${i}`}
                   className="absolute pointer-events-none"
                   style={{
                     left: '50%',
                     top: '50%',
-                    width: '3px',
-                    height: '60px',
-                    background: `linear-gradient(to bottom, rgba(63, 166, 130, 0.8), transparent)`,
-                    borderRadius: '2px',
+                    width: '4px',
+                    height: '80px',
+                    background: `linear-gradient(to bottom, rgba(63, 166, 130, 0.9), rgba(255, 215, 0, 0.5), transparent)`,
+                    borderRadius: '3px',
                     transformOrigin: 'top center',
-                    animation: 'swirlThread 1.2s ease-out',
-                    animationDelay: `${i * 0.08}s`,
-                    transform: `rotate(${i * 45}deg)`,
+                    animation: 'swirlThread 2.2s ease-out',
+                    animationDelay: `${i * 0.1}s`,
+                    transform: `rotate(${i * 30}deg)`,
                     zIndex: 14,
+                    boxShadow: '0 0 6px rgba(63, 166, 130, 0.5)',
                   }}
                 />
               ))}
 
               {/* Flying Coins */}
-              {[...Array(6)].map((_, i) => {
-                const angle = (i * 60) * (Math.PI / 180);
+              {[...Array(10)].map((_, i) => {
+                const angle = (i * 36) * (Math.PI / 180);
                 const distance = 180;
                 const offsetX = Math.cos(angle) * distance;
                 const offsetY = Math.sin(angle) * distance - 100;
@@ -215,14 +217,14 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
                     style={{
                       left: '50%',
                       top: '50%',
-                      width: '24px',
-                      height: '24px',
+                      width: '40px',
+                      height: '40px',
                       borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #FFD700 100%)',
-                      border: '2px solid rgba(255, 215, 0, 0.8)',
-                      boxShadow: '0 0 10px rgba(255, 215, 0, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.4)',
-                      animation: `coinFly-${i} 1s ease-out`,
-                      animationDelay: `${i * 0.1}s`,
+                      background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 40%, #FFD700 100%)',
+                      border: '3px solid rgba(255, 215, 0, 0.9)',
+                      boxShadow: '0 0 15px rgba(255, 215, 0, 0.8), inset 0 2px 6px rgba(255, 255, 255, 0.5), 0 4px 8px rgba(0, 0, 0, 0.3)',
+                      animation: `coinFly-${i % 6} 2.5s ease-out`,
+                      animationDelay: `${i * 0.15}s`,
                       zIndex: 16,
                       '--coin-x': `${offsetX}px`,
                       '--coin-y': `${offsetY}px`,
@@ -235,10 +237,10 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
-                        fontSize: '14px',
+                        fontSize: '22px',
                         fontWeight: 'bold',
                         color: '#8B4513',
-                        textShadow: '0 1px 2px rgba(255, 255, 255, 0.5)',
+                        textShadow: '0 1px 3px rgba(255, 255, 255, 0.6)',
                       }}
                     >
                       ₹
@@ -378,12 +380,15 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
             opacity: 0;
             transform: translateX(-50%) translateY(0) scale(0.5);
           }
-          20% {
+          15% {
             opacity: 1;
+          }
+          85% {
+            opacity: 0.8;
           }
           100% {
             opacity: 0;
-            transform: translateX(-50%) translateY(-200px) scale(1.5);
+            transform: translateX(-50%) translateY(-280px) scale(1.8);
           }
         }
 
@@ -392,44 +397,53 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
             opacity: 0;
             transform: translateX(-50%) translateY(0) rotate(0deg) scale(0);
           }
-          30% {
+          20% {
             opacity: 1;
+          }
+          80% {
+            opacity: 0.7;
           }
           100% {
             opacity: 0;
-            transform: translateX(-50%) translateY(-150px) rotate(720deg) scale(1);
+            transform: translateX(-50%) translateY(-220px) rotate(1080deg) scale(1.2);
           }
         }
 
         @keyframes coinFly-0 {
           0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
-          20% { opacity: 1; }
-          100% { opacity: 0; transform: translate(-50%, -50%) translateX(180px) translateY(-200px) rotate(480deg) scale(1.2); }
+          15% { opacity: 1; transform: translate(-50%, -50%) rotate(120deg) scale(1); }
+          85% { opacity: 0.9; }
+          100% { opacity: 0; transform: translate(-50%, -50%) translateX(220px) translateY(-260px) rotate(720deg) scale(1.3); }
         }
         @keyframes coinFly-1 {
           0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
-          20% { opacity: 1; }
-          100% { opacity: 0; transform: translate(-50%, -50%) translateX(90px) translateY(-256px) rotate(600deg) scale(1.2); }
+          15% { opacity: 1; transform: translate(-50%, -50%) rotate(120deg) scale(1); }
+          85% { opacity: 0.9; }
+          100% { opacity: 0; transform: translate(-50%, -50%) translateX(120px) translateY(-300px) rotate(840deg) scale(1.3); }
         }
         @keyframes coinFly-2 {
           0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
-          20% { opacity: 1; }
-          100% { opacity: 0; transform: translate(-50%, -50%) translateX(-90px) translateY(-256px) rotate(720deg) scale(1.2); }
+          15% { opacity: 1; transform: translate(-50%, -50%) rotate(120deg) scale(1); }
+          85% { opacity: 0.9; }
+          100% { opacity: 0; transform: translate(-50%, -50%) translateX(-120px) translateY(-300px) rotate(960deg) scale(1.3); }
         }
         @keyframes coinFly-3 {
           0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
-          20% { opacity: 1; }
-          100% { opacity: 0; transform: translate(-50%, -50%) translateX(-180px) translateY(-200px) rotate(840deg) scale(1.2); }
+          15% { opacity: 1; transform: translate(-50%, -50%) rotate(120deg) scale(1); }
+          85% { opacity: 0.9; }
+          100% { opacity: 0; transform: translate(-50%, -50%) translateX(-220px) translateY(-260px) rotate(1080deg) scale(1.3); }
         }
         @keyframes coinFly-4 {
           0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
-          20% { opacity: 1; }
-          100% { opacity: 0; transform: translate(-50%, -50%) translateX(-90px) translateY(-100px) rotate(960deg) scale(1.2); }
+          15% { opacity: 1; transform: translate(-50%, -50%) rotate(120deg) scale(1); }
+          85% { opacity: 0.9; }
+          100% { opacity: 0; transform: translate(-50%, -50%) translateX(-120px) translateY(-150px) rotate(1200deg) scale(1.3); }
         }
         @keyframes coinFly-5 {
           0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
-          20% { opacity: 1; }
-          100% { opacity: 0; transform: translate(-50%, -50%) translateX(90px) translateY(-100px) rotate(1080deg) scale(1.2); }
+          15% { opacity: 1; transform: translate(-50%, -50%) rotate(120deg) scale(1); }
+          85% { opacity: 0.9; }
+          100% { opacity: 0; transform: translate(-50%, -50%) translateX(120px) translateY(-150px) rotate(1320deg) scale(1.3); }
         }
       `}</style>
     </div>

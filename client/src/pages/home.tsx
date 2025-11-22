@@ -290,12 +290,12 @@ export default function Home() {
       setIsOpened(true);
       setParticleTrigger((prev) => prev + 1);
 
-      // Show reward after burst
+      // Show reward after all celebration animations complete
       setTimeout(() => {
         setShowReward(true);
         setConfettiTrigger((prev) => prev + 1);
-      }, 300);
-    }, 800);
+      }, 1200);
+    }, 1600);
   };
 
   const handleVerify = () => {
