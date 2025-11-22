@@ -364,9 +364,6 @@ export default function Home() {
               <h1 className="text-5xl font-bold text-foreground tracking-tight" data-testid="text-title">
                 Mystery Box Contest
               </h1>
-              <p className="text-lg text-muted-foreground" data-testid="text-subtitle">
-                Enter your details for a chance to win!
-              </p>
             </div>
             <CustomerForm
               onSubmit={handleFormSubmit}

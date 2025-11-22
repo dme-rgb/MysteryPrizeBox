@@ -53,7 +53,7 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
             name="phoneNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Phone Number</FormLabel>
+                <FormLabel></FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -75,7 +75,7 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
             name="vehicleNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Vehicle Number</FormLabel>
+                <FormLabel></FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Car className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
