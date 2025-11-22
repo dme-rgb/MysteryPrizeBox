@@ -289,7 +289,6 @@ export default function Home() {
         customerVerified={0}
         verificationTimeLeft={verificationTimeLeft}
       />
-
       {/* Google Sheets Setup Banner */}
       {!isGoogleSheetsConfigured && (
         <Alert className="rounded-none border-x-0 border-t-0 bg-yellow-500/10 border-yellow-500/20">
@@ -301,12 +300,11 @@ export default function Home() {
           </AlertDescription>
         </Alert>
       )}
-
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden relative">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden relative bg-[#23252f] pl-[35px] pr-[35px] pt-[34px] pb-[34px]">
         {!customerId ? (
           // Registration Form
-          <div className="space-y-8 text-center">
+          (<div className="space-y-8 text-center">
             <div className="space-y-4">
               <h1 className="text-5xl font-bold text-foreground tracking-tight" data-testid="text-title">
                 Mystery Box Contest
@@ -319,10 +317,10 @@ export default function Home() {
               onSubmit={handleFormSubmit}
               isSubmitting={createCustomerMutation.isPending}
             />
-          </div>
+          </div>)
         ) : (
           // Game Screen
-          <>
+          (<>
             <div className="text-center mb-12 space-y-4">
               <h1 className="text-5xl font-bold text-foreground tracking-tight" data-testid="text-game-title">
                 Mystery Box
@@ -340,7 +338,6 @@ export default function Home() {
                 </Alert>
               )}
             </div>
-
             <div className="relative flex items-center justify-center min-h-[400px]">
               {!showReward ? (
                 <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} disabled={customerData?.alreadyPlayedToday || false} />
@@ -422,7 +419,6 @@ export default function Home() {
                 key={`confetti-${confettiTrigger}`}
               />
             </div>
-
             {/* Action Buttons */}
             {showReward && (
               <div className="mt-12 flex gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -450,7 +446,7 @@ export default function Home() {
                 </Button>
               </div>
             )}
-          </>
+          </>)
         )}
 
         {/* Decorative Background Glow */}
