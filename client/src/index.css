@@ -399,3 +399,31 @@
     inset: -1px;
   }
 }
+
+/* === Particle Animations === */
+@keyframes particleBurst {
+  from { transform: translate(0,0) scale(1); opacity: 1; }
+  to { transform: translate(var(--tx), var(--ty)) scale(0.2); opacity: 0; }
+}
+
+@keyframes confettiFall {
+  from { transform: translate(0,0) rotate(0deg); opacity: 1; }
+  to { transform: translate(var(--tx), var(--ty)) rotate(720deg); opacity: 0; }
+}
+
+@keyframes starBurst {
+  0% { transform: translate(0,0) scale(0); opacity: 0; }
+  40% { transform: translate(var(--tx), var(--ty)) scale(1); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+}
+
+@keyframes ringExpand {
+  from { transform: translate(-50%,-50%) scale(0); opacity: 0.8; }
+  to { transform: translate(-50%,-50%) scale(3); opacity: 0; }
+}
+
+@keyframes sparkleBlink {
+  0% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0); }
+}

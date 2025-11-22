@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import boxImage from '@assets/download_1763703442522-removebg-preview_1763722762444.png';
+import boxImage from '@assets/box.png';
+import LidImage from '@assets/lid.png';
 
 interface MysteryBoxProps {
   onOpen: () => void;
@@ -38,46 +39,49 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
           }}
         >
           {/* Box Base/Body */}
-          <div 
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              transformStyle: 'preserve-3d',
-              transform: isOpened ? 'translateY(20px)' : 'translateY(0px)',
-              transition: isOpening ? 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.3s ease-out',
-            }}
-          >
-            <img
-              src={boxImage}
-              alt="Mystery Box Base"
-              className="w-full h-full object-contain relative pointer-events-none select-none"
+          <div className="relative w-[350px] h-[350px] flex items-center justify-center">
+
+            {/* Box Base */}
+            <div
+              className="absolute bottom-0 w-full h-full flex items-center justify-center z-10 pointer-events-none"
               style={{
-                filter: isOpened ? 'brightness(0.8) saturate(0.9)' : 'brightness(1)',
-                transition: 'filter 0.4s ease',
-                opacity: isOpened ? 0.6 : 1,
+                animation: isOpening ? 'boxBaseBounce 0.8s ease-out' : 'none',
               }}
-            />
+            >
+              <img
+                src={boxImage}
+                alt="Mystery Box Base"
+                className="w-full h-full object-contain drop-shadow-2xl select-none"
+                style={{
+                  filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.6))',
+                  opacity: isOpened ? 0.6 : 1,
+                  transition: 'opacity 0.4s ease',
+                }}
+              />
+            </div>
+
+            {/* Box Lid */}
+            <div
+              className="absolute top-0 w-full h-full flex items-center justify-center z-20 pointer-events-none"
+              style={{
+                transformOrigin: 'bottom left',
+                transformStyle: 'preserve-3d',
+                animation: isOpening ? 'lidFlip 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
+              }}
+            >
+              <img
+                src={LidImage}
+                alt="Mystery Box Lid"
+                className="w-full h-full object-contain drop-shadow-2xl select-none"
+                style={{
+                  filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.6))',
+                  transform: 'translateY(-50px)',
+                }}
+              />
+            </div>
+
           </div>
 
-          {/* Box Lid - Opens and rotates */}
-          <div 
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              transformStyle: 'preserve-3d',
-              transform: isOpening || isOpened ? 'rotateX(-120deg) translateY(-60px) translateZ(80px)' : 'rotateX(0deg) translateY(0px)',
-              transition: isOpening ? 'transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.3s ease-out',
-              transformOrigin: 'center top',
-            }}
-          >
-            <img
-              src={boxImage}
-              alt="Mystery Box Lid"
-              className="w-full h-full object-contain relative pointer-events-none select-none"
-              style={{
-                filter: isOpened ? 'brightness(1.2) saturate(1.3)' : 'brightness(1)',
-                transition: 'filter 0.4s ease',
-              }}
-            />
-          </div>
 
           {/* Inner Glow - Light from inside */}
           {(isOpening || isOpened) && (
@@ -258,6 +262,40 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
           to {
             opacity: 1;
             filter: blur(15px);
+          }
+        }
+
+        @keyframes boxGlow {
+          0%, 100% {
+            opacity: 0.3;
+            filter: blur(20px);
+          }
+          50% {
+            opacity: 0.6;
+            filter: blur(25px);
+          }
+        }
+
+        @keyframes lidFlip {
+          0% {
+            transform: translateY(-20px) translateX(0) rotateX(0) rotateZ(0);
+            z-index: 20;
+          }
+          100% {
+            transform: translateY(-100px) translateX(-50px) rotateX(-70deg) rotateZ(-15deg);
+            z-index: 100;
+          }
+        }
+
+        @keyframes boxBaseBounce {
+          0% {
+            transform: scale(1) translateY(0);
+          }
+          50% {
+            transform: scale(1.05) translateY(-5px);
+          }
+          100% {
+            transform: scale(1) translateY(20px);
           }
         }
       `}</style>
