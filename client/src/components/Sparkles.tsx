@@ -32,9 +32,19 @@ export default function Sparkles({
   noise = 0,
 }: SparklesProps) {
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
+  const [boxCenterX, setBoxCenterX] = useState(0);
+  const [boxCenterY, setBoxCenterY] = useState(0);
 
   useEffect(() => {
     if (!trigger) return;
+
+    // Get box position
+    const boxElement = document.querySelector('[data-testid="button-mystery-box"]') as HTMLElement;
+    if (boxElement) {
+      const rect = boxElement.getBoundingClientRect();
+      setBoxCenterX(rect.left + rect.width / 2);
+      setBoxCenterY(rect.top + rect.height / 2);
+    }
 
     const newSparkles: Sparkle[] = [];
     const duration = 1 / (speed + 0.1) * 1000;
@@ -66,7 +76,16 @@ export default function Sparkles({
   if (sparkles.length === 0) return null;
 
   return (
-    <div className="absolute inset-0 pointer-events-none overflow-visible flex items-center justify-center">
+    <div 
+      className="fixed pointer-events-none overflow-visible"
+      style={{
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        zIndex: 9999,
+      }}
+    >
       {sparkles.map((sparkle) => (
         <div
           key={sparkle.id}
@@ -74,14 +93,14 @@ export default function Sparkles({
           style={{
             width: `${sparkle.size}px`,
             height: `${sparkle.size}px`,
-            left: '50%',
-            top: '50%',
+            left: `${boxCenterX}px`,
+            top: `${boxCenterY}px`,
             marginLeft: `${-sparkle.size / 2}px`,
             marginTop: `${-sparkle.size / 2}px`,
             borderRadius: '50%',
             backgroundColor: color,
-            opacity: opacity,
-            boxShadow: `0 0 ${sparkle.size}px ${color}`,
+            boxShadow: `0 0 ${sparkle.size * 1.5}px ${color}, 0 0 ${sparkle.size * 2.5}px ${color}aa`,
+            filter: `drop-shadow(0 0 ${sparkle.size}px ${color})`,
             animation: `sparkleShoot ${sparkle.duration}ms ease-out forwards`,
             animationDelay: `${sparkle.delay}ms`,
             // @ts-ignore
@@ -96,8 +115,11 @@ export default function Sparkles({
             transform: translate(0, 0) scale(1);
             opacity: 1;
           }
+          50% {
+            opacity: 0.8;
+          }
           100% {
-            transform: translate(var(--tx), var(--ty)) scale(0);
+            transform: translate(var(--tx), var(--ty)) scale(0.1);
             opacity: 0;
           }
         }
