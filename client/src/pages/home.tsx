@@ -366,15 +366,15 @@ export default function Home() {
           (<div className="space-y-8 text-center relative z-10">
             <div className="space-y-4">
               <h1 
-                className="text-6xl font-black text-primary tracking-tight" 
+                className="text-6xl font-black text-white tracking-tight" 
                 data-testid="text-title"
                 style={{
                   animation: 'neonPulse 2s ease-in-out infinite',
                   textShadow: `
-                    0 0 10px rgba(180, 255, 100, 0.8),
-                    0 0 20px rgba(180, 255, 100, 0.6),
-                    0 0 30px rgba(180, 255, 100, 0.4),
-                    0 0 40px rgba(180, 255, 100, 0.2)
+                    0 0 10px rgba(255, 255, 255, 0.6),
+                    0 0 20px rgba(255, 255, 255, 0.4),
+                    0 0 30px rgba(180, 255, 100, 0.3),
+                    0 0 40px rgba(180, 255, 100, 0.15)
                   `,
                 }}
               >
@@ -407,15 +407,15 @@ export default function Home() {
             )}
             <div className="text-center mb-12 space-y-4 relative z-10">
               <h1 
-                className="text-6xl font-black text-primary tracking-tight" 
+                className="text-6xl font-black text-white tracking-tight" 
                 data-testid="text-game-title"
                 style={{
                   animation: 'neonPulse 2s ease-in-out infinite',
                   textShadow: `
-                    0 0 10px rgba(180, 255, 100, 0.8),
-                    0 0 20px rgba(180, 255, 100, 0.6),
-                    0 0 30px rgba(180, 255, 100, 0.4),
-                    0 0 40px rgba(180, 255, 100, 0.2)
+                    0 0 10px rgba(255, 255, 255, 0.6),
+                    0 0 20px rgba(255, 255, 255, 0.4),
+                    0 0 30px rgba(180, 255, 100, 0.3),
+                    0 0 40px rgba(180, 255, 100, 0.15)
                   `,
                 }}
               >
@@ -558,7 +558,7 @@ export default function Home() {
                   <Button
                     onClick={handleVerify}
                     size="lg"
-                    className="gap-2 px-8 py-6 text-lg font-medium bg-green-600 hover:bg-green-700 animate-pulse"
+                    className="gap-2 px-8 py-6 text-lg font-medium bg-green-35 hover:bg-green-50 animate-pulse"
                     disabled={verifyRewardMutation.isPending}
                     data-testid="button-verify"
                   >
