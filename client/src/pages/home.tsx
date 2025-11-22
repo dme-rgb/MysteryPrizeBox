@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import MysteryBox from '@/components/MysteryBox';
+import Sparkles from '@/components/Sparkles';
 import ParticleEffect from '@/components/ParticleEffect';
 import CustomerForm from '@/components/CustomerForm';
 import StatsHeader from '@/components/StatsHeader';
@@ -33,6 +34,7 @@ export default function Home() {
   const [particleTrigger, setParticleTrigger] = useState(0);
   const [confettiTrigger, setConfettiTrigger] = useState(0);
   const [verificationTimeLeft, setVerificationTimeLeft] = useState<number | null>(null);
+  const [prizeCardSparkles, setPrizeCardSparkles] = useState(false);
 
   // Health check for Google Sheets
   const { data: healthData } = useQuery<{ googleSheets: boolean; message: string }>({
@@ -51,6 +53,17 @@ export default function Home() {
     enabled: !!customerId,
     staleTime: Infinity, // Don't refetch automatically
   });
+
+  // Trigger sparkles when reward card appears
+  useEffect(() => {
+    if (showReward) {
+      setPrizeCardSparkles(true);
+      const timeout = setTimeout(() => {
+        setPrizeCardSparkles(false);
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [showReward]);
 
 
   // Create customer mutation
@@ -343,6 +356,26 @@ export default function Home() {
                 <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} disabled={customerData?.alreadyPlayedToday || false} />
               ) : rewardAmount ? (
                 <div className="animate-in fade-in zoom-in duration-500">
+                  {/* Sparkles for prize card */}
+                  <Sparkles 
+                    trigger={prizeCardSparkles} 
+                    count={80} 
+                    scale={5} 
+                    size={7} 
+                    speed={0.3} 
+                    opacity={0.6} 
+                    color="#5ba085"
+                  />
+                  <Sparkles 
+                    trigger={prizeCardSparkles} 
+                    count={50} 
+                    scale={3.5} 
+                    size={9} 
+                    speed={0.2} 
+                    opacity={0.4} 
+                    color="#5ba085"
+                    noise={0.4}
+                  />
                   <div className="relative">
                     {/* Reward Card */}
                     <div className="bg-gradient-to-br from-primary/20 via-card to-primary/10 p-12 rounded-lg border-2 border-primary">
