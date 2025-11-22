@@ -54,6 +54,13 @@ export default function Home() {
     staleTime: Infinity, // Don't refetch automatically
   });
 
+  // Fetch customer's total verified cashback
+  const { data: customerVerifiedData } = useQuery<{ totalAmount: number }>({
+    queryKey: ['/api/vehicles', customerData?.vehicleNumber, 'total-verified-amount'],
+    enabled: !!customerData?.vehicleNumber,
+    staleTime: 0, // Always fresh when invalidated
+  });
+
   // Trigger sparkles when reward card appears
   useEffect(() => {
     if (showReward) {
@@ -146,6 +153,9 @@ export default function Home() {
     onSuccess: () => {
       setIsVerified(true);
       queryClient.invalidateQueries({ queryKey: ['/api/stats'] });
+      if (customerData?.vehicleNumber) {
+        queryClient.invalidateQueries({ queryKey: ['/api/vehicles', customerData.vehicleNumber, 'total-verified-amount'] });
+      }
       toast({
         title: "Reward Verified!",
         description: "Your cashback has been confirmed.",
@@ -328,18 +338,18 @@ export default function Home() {
         ) : (
           // Game Screen
           (<>
-            {/* Total Verified Rewards - Only on mystery box screen */}
-            {!showReward && stats && stats.totalVerifiedRewards > 0 && (
+            {/* Customer's Total Verified Rewards - Only on mystery box screen */}
+            {!showReward && customerVerifiedData && customerVerifiedData.totalAmount > 0 && (
               <div className="w-full bg-card border-b border-border py-4 px-6 mb-8 -m-8 mb-8">
                 <div className="flex items-center justify-center gap-3">
                   <p className="text-lg font-medium text-foreground">
-                    Total Verified Cashback:
+                    Your Total Verified Cashback:
                   </p>
                   <Badge 
                     className="bg-primary text-primary-foreground text-lg px-4 py-1 font-bold"
                     data-testid="badge-total-verified"
                   >
-                    ₹{stats.totalVerifiedRewards}
+                    ₹{customerVerifiedData.totalAmount}
                   </Badge>
                 </div>
               </div>
