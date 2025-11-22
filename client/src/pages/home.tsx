@@ -9,6 +9,7 @@ import Sparkles from '@/components/Sparkles';
 import ParticleEffect from '@/components/ParticleEffect';
 import CustomerForm from '@/components/CustomerForm';
 import StatsHeader from '@/components/StatsHeader';
+import BackgroundStars from '@/components/BackgroundStars';
 import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -343,7 +344,10 @@ export default function Home() {
   const isGoogleSheetsConfigured = healthData?.googleSheets ?? true;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background flex flex-col relative">
+      {/* Animated Background Stars */}
+      <BackgroundStars />
+      
       {/* Google Sheets Setup Banner */}
       {!isGoogleSheetsConfigured && (
         <Alert className="rounded-none border-x-0 border-t-0 bg-yellow-500/10 border-yellow-500/20">
@@ -359,9 +363,21 @@ export default function Home() {
       <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden relative bg-background pl-[35px] pr-[35px] pt-[34px] pb-[34px]">
         {!customerId ? (
           // Registration Form
-          (<div className="space-y-8 text-center">
+          (<div className="space-y-8 text-center relative z-10">
             <div className="space-y-4">
-              <h1 className="text-5xl font-bold text-foreground tracking-tight" data-testid="text-title">
+              <h1 
+                className="text-6xl font-black text-primary tracking-tight" 
+                data-testid="text-title"
+                style={{
+                  animation: 'neonPulse 2s ease-in-out infinite',
+                  textShadow: `
+                    0 0 10px rgba(180, 255, 100, 0.8),
+                    0 0 20px rgba(180, 255, 100, 0.6),
+                    0 0 30px rgba(180, 255, 100, 0.4),
+                    0 0 40px rgba(180, 255, 100, 0.2)
+                  `,
+                }}
+              >
                 Mystery Box Contest
               </h1>
             </div>
@@ -389,8 +405,20 @@ export default function Home() {
                 </div>
               </div>
             )}
-            <div className="text-center mb-12 space-y-4">
-              <h1 className="text-5xl font-bold text-foreground tracking-tight" data-testid="text-game-title">
+            <div className="text-center mb-12 space-y-4 relative z-10">
+              <h1 
+                className="text-6xl font-black text-primary tracking-tight" 
+                data-testid="text-game-title"
+                style={{
+                  animation: 'neonPulse 2s ease-in-out infinite',
+                  textShadow: `
+                    0 0 10px rgba(180, 255, 100, 0.8),
+                    0 0 20px rgba(180, 255, 100, 0.6),
+                    0 0 30px rgba(180, 255, 100, 0.4),
+                    0 0 40px rgba(180, 255, 100, 0.2)
+                  `,
+                }}
+              >
                 Mystery Box
               </h1>
               <p className="text-lg text-muted-foreground" data-testid="text-game-subtitle">
