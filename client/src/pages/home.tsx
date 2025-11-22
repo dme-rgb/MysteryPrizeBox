@@ -493,7 +493,7 @@ export default function Home() {
                   onClick={handleReset}
                   size="lg"
                   variant="outline"
-                  className="gap-2 px-8 py-6 text-lg font-medium"
+                  className="gap-2 px-8 py-6 text-lg font-medium pt-[0px] pb-[0px] pl-[0px] pr-[0px]"
                   data-testid="button-try-again"
                 >
                   <RotateCcw className="w-5 h-5" />
