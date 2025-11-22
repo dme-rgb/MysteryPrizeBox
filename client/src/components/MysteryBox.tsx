@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import boxImage from '@assets/box.png';
-import LidImage from '@assets/lid.png';
 import Sparkles from './Sparkles';
 
 interface MysteryBoxProps {
@@ -23,66 +21,220 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
         className="relative focus:outline-none focus:ring-4 focus:ring-primary/50 transition-all disabled:cursor-not-allowed"
         style={{
           transformStyle: 'preserve-3d',
-          transform: isHovered && !isOpening && !isOpened ? 'scale(1.12) translateY(-8px) rotateY(5deg)' : 'scale(1)',
-          transition: 'transform 0.3s ease-out',
+          transform: isHovered && !isOpening && !isOpened ? 'scale(1.08) translateY(-10px)' : 'scale(1)',
+          transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
         }}
         data-testid="button-mystery-box"
       >
-        {/* 3D Box Container */}
+        {/* 3D Gift Box Container */}
         <div 
           className="relative"
           style={{ 
-            width: '350px', 
-            height: '350px',
+            width: '300px', 
+            height: '300px',
             transformStyle: 'preserve-3d',
-            transform: isOpening ? 'rotateX(10deg) rotateY(-5deg)' : 'rotateX(0deg)',
-            transition: 'transform 0.1s ease-out',
           }}
         >
-          {/* Box Base/Body */}
-          <div className="relative w-[350px] h-[350px] flex items-center justify-center">
-
-            {/* Box Base */}
+          {/* Box Base (Green Cube) */}
+          <div
+            className="absolute left-1/2 top-1/2"
+            style={{
+              width: '200px',
+              height: '200px',
+              transformStyle: 'preserve-3d',
+              transform: 'translate(-50%, -50%)',
+              animation: isOpening ? 'boxBaseBounce 0.8s ease-out' : 'none',
+            }}
+          >
+            {/* Front face */}
             <div
-              className="absolute bottom-0 w-full h-full flex items-center justify-center z-10 pointer-events-none"
+              className="absolute w-full h-full"
               style={{
-                animation: isOpening ? 'boxBaseBounce 0.8s ease-out' : 'none',
+                background: 'linear-gradient(135deg, #41886e 0%, #2d5f4a 100%)',
+                transform: 'rotateY(0deg) translateZ(100px)',
+                border: '2px solid rgba(45, 95, 74, 0.5)',
+                borderRadius: '8px',
               }}
-            >
-              <img
-                src={boxImage}
-                alt="Mystery Box Base"
-                className="w-full h-full object-contain drop-shadow-2xl select-none"
-                style={{
-                  filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.6))',
-                  opacity: isOpened ? 0.6 : 1,
-                  transition: 'opacity 0.4s ease',
-                }}
-              />
-            </div>
-
-            {/* Box Lid */}
+            />
+            {/* Back face */}
             <div
-              className="absolute top-0 w-full h-full flex items-center justify-center z-20 pointer-events-none"
+              className="absolute w-full h-full"
               style={{
-                transformOrigin: 'top right',
-                transformStyle: 'preserve-3d',
-                animation: isOpening ? 'lidFlip 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
+                background: 'linear-gradient(135deg, #2d5f4a 0%, #1e3e31 100%)',
+                transform: 'rotateY(180deg) translateZ(100px)',
+                border: '2px solid rgba(30, 62, 49, 0.5)',
+                borderRadius: '8px',
               }}
-            >
-              <img
-                src={LidImage}
-                alt="Mystery Box Lid"
-                className="w-full h-full object-contain drop-shadow-2xl select-none"
-                style={{
-                  filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.6))',
-                  transform: 'translateY(-50px)',
-                }}
-              />
-            </div>
-
+            />
+            {/* Right face */}
+            <div
+              className="absolute w-full h-full"
+              style={{
+                background: 'linear-gradient(135deg, #3a7460 0%, #2a5347 100%)',
+                transform: 'rotateY(90deg) translateZ(100px)',
+                border: '2px solid rgba(42, 83, 71, 0.5)',
+                borderRadius: '8px',
+              }}
+            />
+            {/* Left face */}
+            <div
+              className="absolute w-full h-full"
+              style={{
+                background: 'linear-gradient(135deg, #3a7460 0%, #2a5347 100%)',
+                transform: 'rotateY(-90deg) translateZ(100px)',
+                border: '2px solid rgba(42, 83, 71, 0.5)',
+                borderRadius: '8px',
+              }}
+            />
+            {/* Top face */}
+            <div
+              className="absolute w-full h-full"
+              style={{
+                background: 'linear-gradient(135deg, #4a9377 0%, #3a7460 100%)',
+                transform: 'rotateX(90deg) translateZ(100px)',
+                border: '2px solid rgba(58, 116, 96, 0.5)',
+                borderRadius: '8px',
+              }}
+            />
+            {/* Bottom face */}
+            <div
+              className="absolute w-full h-full"
+              style={{
+                background: 'linear-gradient(135deg, #1e3e31 0%, #152b23 100%)',
+                transform: 'rotateX(-90deg) translateZ(100px)',
+                borderRadius: '8px',
+              }}
+            />
           </div>
 
+          {/* Horizontal Ribbon (wraps around box) */}
+          <div
+            className="absolute left-1/2 top-1/2"
+            style={{
+              width: '220px',
+              height: '50px',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 5,
+              pointerEvents: 'none',
+            }}
+          >
+            <div
+              className="absolute w-full h-full"
+              style={{
+                background: 'linear-gradient(180deg, #ffd966 0%, #e6c24d 50%, #cca833 100%)',
+                border: '2px solid #b8941f',
+                borderRadius: '4px',
+                boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.3), 0 4px 8px rgba(0,0,0,0.3)',
+              }}
+            />
+          </div>
+
+          {/* Vertical Ribbon */}
+          <div
+            className="absolute left-1/2 top-1/2"
+            style={{
+              width: '50px',
+              height: '220px',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 6,
+              pointerEvents: 'none',
+            }}
+          >
+            <div
+              className="absolute w-full h-full"
+              style={{
+                background: 'linear-gradient(90deg, #ffd966 0%, #e6c24d 50%, #cca833 100%)',
+                border: '2px solid #b8941f',
+                borderRadius: '4px',
+                boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.3), 0 4px 8px rgba(0,0,0,0.3)',
+              }}
+            />
+          </div>
+
+
+          {/* 3D Bow on Top */}
+          <div
+            className="absolute left-1/2 top-1/2"
+            style={{
+              width: '120px',
+              height: '80px',
+              transform: 'translate(-50%, -50%) translateY(-100px) translateZ(110px)',
+              transformStyle: 'preserve-3d',
+              zIndex: 10,
+              pointerEvents: 'none',
+              animation: isOpening ? 'bowLift 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards' : 'none',
+            }}
+          >
+            {/* Bow Center Knot */}
+            <div
+              className="absolute left-1/2 top-1/2"
+              style={{
+                width: '30px',
+                height: '35px',
+                transform: 'translate(-50%, -50%)',
+                background: 'linear-gradient(135deg, #ffd966 0%, #cca833 100%)',
+                border: '2px solid #b8941f',
+                borderRadius: '6px',
+                boxShadow: 'inset 0 2px 4px rgba(255,255,255,0.4), 0 4px 12px rgba(0,0,0,0.3)',
+              }}
+            />
+            
+            {/* Left Bow Loop */}
+            <div
+              className="absolute left-1/2 top-1/2"
+              style={{
+                width: '50px',
+                height: '45px',
+                transform: 'translate(-100%, -50%) rotateY(-25deg)',
+                background: 'linear-gradient(135deg, #ffd966 0%, #e6c24d 50%, #cca833 100%)',
+                border: '3px solid #b8941f',
+                borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                boxShadow: 'inset -2px 2px 4px rgba(255,255,255,0.3), 0 4px 12px rgba(0,0,0,0.3)',
+              }}
+            />
+            
+            {/* Right Bow Loop */}
+            <div
+              className="absolute left-1/2 top-1/2"
+              style={{
+                width: '50px',
+                height: '45px',
+                transform: 'translate(50%, -50%) rotateY(25deg)',
+                background: 'linear-gradient(135deg, #ffd966 0%, #e6c24d 50%, #cca833 100%)',
+                border: '3px solid #b8941f',
+                borderRadius: '50% 50% 50% 50% / 60% 60% 40% 40%',
+                boxShadow: 'inset 2px 2px 4px rgba(255,255,255,0.3), 0 4px 12px rgba(0,0,0,0.3)',
+              }}
+            />
+            
+            {/* Left Ribbon Tail */}
+            <div
+              className="absolute left-1/2 top-1/2"
+              style={{
+                width: '25px',
+                height: '40px',
+                transform: 'translate(-150%, 20%) rotateZ(-35deg)',
+                background: 'linear-gradient(180deg, #e6c24d 0%, #cca833 100%)',
+                border: '2px solid #b8941f',
+                borderRadius: '4px 4px 0 80%',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+              }}
+            />
+            
+            {/* Right Ribbon Tail */}
+            <div
+              className="absolute left-1/2 top-1/2"
+              style={{
+                width: '25px',
+                height: '40px',
+                transform: 'translate(250%, 20%) rotateZ(35deg)',
+                background: 'linear-gradient(180deg, #e6c24d 0%, #cca833 100%)',
+                border: '2px solid #b8941f',
+                borderRadius: '4px 4px 80% 0',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.3)',
+              }}
+            />
+          </div>
 
           {/* Inner Glow - Light from inside */}
           {(isOpening || isOpened) && (
@@ -267,26 +419,26 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
           }
         }
 
-        @keyframes lidFlip {
+        @keyframes bowLift {
           0% {
-            transform: translateY(-20px) translateX(0) rotateX(0) rotateZ(0);
-            z-index: 20;
+            transform: translate(-50%, -50%) translateY(-100px) translateZ(110px);
+            opacity: 1;
           }
           100% {
-            transform: translateY(-100px) translateX(-50px) rotateX(-70deg) rotateZ(-15deg);
-            z-index: 100;
+            transform: translate(-50%, -50%) translateY(-250px) translateZ(110px) rotateZ(20deg);
+            opacity: 0.3;
           }
         }
 
         @keyframes boxBaseBounce {
           0% {
-            transform: scale(1) translateY(0);
+            transform: translate(-50%, -50%) scale(1) translateY(0);
           }
           50% {
-            transform: scale(1.05) translateY(-5px);
+            transform: translate(-50%, -50%) scale(1.05) translateY(-10px);
           }
           100% {
-            transform: scale(1) translateY(20px);
+            transform: translate(-50%, -50%) scale(1) translateY(0);
           }
         }
       `}</style>
