@@ -410,7 +410,12 @@ export default function Home() {
               {!showReward ? (
                 <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} disabled={customerData?.alreadyPlayedToday || false} />
               ) : rewardAmount ? (
-                <div className="animate-in fade-in zoom-in duration-500">
+                <div 
+                  className="relative"
+                  style={{
+                    animation: 'prizeCardEmerge 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  }}
+                >
                   {/* Sparkles for prize card */}
                   <Sparkles 
                     trigger={prizeCardSparkles} 
