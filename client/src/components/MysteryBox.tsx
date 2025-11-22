@@ -149,14 +149,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
           {isOpening && (
             <>
               {/* Expanding ring */}
-              <div
-                className="absolute inset-0 pointer-events-none rounded-lg"
-                style={{
-                  border: '4px solid rgba(91, 160, 133, 0.9)',
-                  animation: 'expandRingBox 0.7s ease-out forwards',
-                  zIndex: 14,
-                }}
-              />
+            
               
               {/* Shockwave */}
               <div
@@ -170,22 +163,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
               />
 
               {/* Particle burst lines */}
-              <div
-                className="absolute top-0 left-1/2 w-1 h-full pointer-events-none"
-                style={{
-                  background: 'linear-gradient(to bottom, rgba(91, 160, 133, 0.8), transparent)',
-                  animation: 'burstLine 0.6s ease-out',
-                  zIndex: 11,
-                }}
-              />
-              <div
-                className="absolute left-0 top-1/2 w-full h-1 pointer-events-none"
-                style={{
-                  background: 'linear-gradient(to right, rgba(91, 160, 133, 0.8), transparent)',
-                  animation: 'burstLine 0.6s ease-out',
-                  zIndex: 11,
-                }}
-              />
+              
             </>
           )}
 
@@ -265,16 +243,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
           }
         }
 
-        @keyframes burstLine {
-          from {
-            opacity: 1;
-            transform: scaleY(1);
-          }
-          to {
-            opacity: 0;
-            transform: scaleY(1.2);
-          }
-        }
+        
 
         @keyframes innerGlow {
           from {

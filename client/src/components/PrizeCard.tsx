@@ -62,7 +62,7 @@ export default function ParticleEffect({ trigger, type }: ParticleEffectProps) {
           key={particle.id}
           className="absolute"
           style={{
-            width: type === 'burst' ? '8px' : '12px',
+            width: type === 'burst' ? '8px' : '40px',
             height: type === 'burst' ? '8px' : '12px',
             backgroundColor: particle.color,
             borderRadius: type === 'burst' ? '50%' : '2px',

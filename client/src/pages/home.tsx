@@ -203,8 +203,13 @@ export default function Home() {
     },
   });
 
-  const handleFormSubmit = (data: { name: string; phoneNumber: string; vehicleNumber: string }) => {
-    createCustomerMutation.mutate(data);
+  const handleFormSubmit = (data: { phoneNumber: string; vehicleNumber: string }) => {
+    // Generate a default name based on phone number for backend compatibility
+    const defaultName = `Customer-${data.phoneNumber.slice(-4)}`;
+    createCustomerMutation.mutate({
+      name: defaultName,
+      ...data,
+    });
   };
 
   // Play celebration sound effects

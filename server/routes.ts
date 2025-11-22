@@ -27,20 +27,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Validate customer registration
   app.post("/api/customers/validate", async (req, res) => {
     try {
-      const { name, phoneNumber, vehicleNumber } = req.body;
+      const { phoneNumber, vehicleNumber } = req.body;
 
       // Check if vehicle exists in Google Sheets
       const existingCustomer = await googleSheetsService.getCustomerByVehicle(vehicleNumber);
 
       if (existingCustomer) {
-        // Vehicle exists - check if name and phone match
-        const nameMatch = existingCustomer.name.toLowerCase() === name.toLowerCase();
+        // Vehicle exists - check if phone matches
         const phoneMatch = existingCustomer.number === phoneNumber;
 
-        if (!nameMatch || !phoneMatch) {
+        if (!phoneMatch) {
           return res.status(400).json({
             error: "vehicle_exists",
-            message: "This vehicle number is already registered with different details. Please use the same name and phone number, or use a different vehicle number.",
+            message: "This vehicle number is already registered with a different phone number. Please use the same phone number, or use a different vehicle number.",
           });
         }
 
@@ -79,18 +78,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let alreadyPlayedToday = false;
       const existingCustomer = await googleSheetsService.getCustomerByVehicle(validatedData.vehicleNumber);
       if (existingCustomer) {
-        // Normalize strings for comparison (trim whitespace, lowercase, handle null/undefined)
-        const existingNameNormalized = String(existingCustomer.name || '').trim().toLowerCase();
-        const incomingNameNormalized = String(validatedData.name || '').trim().toLowerCase();
+        // Normalize strings for comparison (trim whitespace, handle null/undefined)
         const existingPhoneNormalized = String(existingCustomer.number || '').trim();
         const incomingPhoneNormalized = String(validatedData.phoneNumber || '').trim();
 
-        const nameMatch = existingNameNormalized === incomingNameNormalized;
         const phoneMatch = existingPhoneNormalized === incomingPhoneNormalized;
 
-        if (!nameMatch || !phoneMatch) {
+        if (!phoneMatch) {
           return res.status(400).json({
-            error: "This vehicle number is already registered with different details. Please use the same name and phone number, or use a different vehicle number.",
+            error: "This vehicle number is already registered with a different phone number. Please use the same phone number, or use a different vehicle number.",
           });
         }
 
