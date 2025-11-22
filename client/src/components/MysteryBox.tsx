@@ -65,7 +65,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
             <div
               className="absolute top-0 w-full h-full flex items-center justify-center z-20 pointer-events-none"
               style={{
-                transformOrigin: 'bottom left',
+                transformOrigin: 'top right',
                 transformStyle: 'preserve-3d',
                 animation: isOpening ? 'lidFlip 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'none',
               }}

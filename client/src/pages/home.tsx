@@ -12,6 +12,8 @@ import StatsHeader from '@/components/StatsHeader';
 import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+// @ts-ignore - canvas-confetti doesn't have TypeScript types but works fine
+import confetti from 'canvas-confetti';
 
 interface Customer {
   id: string;
@@ -69,6 +71,37 @@ export default function Home() {
         setPrizeCardSparkles(false);
       }, 2000);
       return () => clearTimeout(timeout);
+    }
+  }, [showReward]);
+
+  // Trigger confetti when prize card appears
+  useEffect(() => {
+    if (showReward) {
+      const duration = 3000;
+      const end = Date.now() + duration;
+
+      const frame = () => {
+        confetti({
+          particleCount: 2,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: ['#ffd700', '#41886e', '#ffffff']
+        });
+        confetti({
+          particleCount: 2,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: ['#ffd700', '#41886e', '#ffffff']
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      };
+
+      frame();
     }
   }, [showReward]);
 
