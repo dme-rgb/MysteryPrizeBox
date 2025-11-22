@@ -89,7 +89,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                background: 'radial-gradient(ellipse at center, rgba(180, 255, 100, 0.8) 0%, rgba(180, 255, 100, 0.3) 40%, transparent 70%)',
+                background: 'radial-gradient(ellipse at center, rgba(180, 255, 100, 0.3) 0%, rgba(180, 255, 100, 0.1) 40%, transparent 70%)',
                 filter: 'blur(25px)',
                 animation: 'innerGlow 0.8s ease-out',
                 zIndex: 10,
@@ -102,7 +102,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                background: 'radial-gradient(circle at 50% 50%, rgba(180, 255, 100, 0.5) 0%, transparent 60%)',
+                background: 'radial-gradient(circle at 50% 50%, rgba(180, 255, 100, 0.15) 0%, transparent 60%)',
                 filter: 'blur(20px)',
                 animation: 'boxGlow 1.5s ease-in-out infinite',
                 zIndex: 5,
@@ -116,7 +116,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
               <div
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] pointer-events-none"
                 style={{
-                  background: 'radial-gradient(circle, transparent 80%, rgba(180, 255, 100, 0.3) 50%, transparent 70%)',
+                  background: 'radial-gradient(circle, transparent 80%, rgba(180, 255, 100, 0.1) 50%, transparent 70%)',
                   animation: 'spin 8s linear infinite',
                   zIndex: 8,
                 }}
@@ -124,7 +124,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
               <div
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] pointer-events-none"
                 style={{
-                  background: 'radial-gradient(circle, transparent 45%, rgba(140, 235, 80, 0.4) 55%, transparent 65%)',
+                  background: 'radial-gradient(circle, transparent 45%, rgba(140, 235, 80, 0.12) 55%, transparent 65%)',
                   animation: 'spin 6s linear infinite reverse',
                   zIndex: 7,
                 }}
@@ -137,7 +137,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                background: 'radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.2) 0%, transparent 50%)',
+                background: 'radial-gradient(circle at 50% 50%, rgba(255, 215, 0, 0.08) 0%, transparent 50%)',
                 filter: 'blur(15px)',
                 animation: 'pulseGlow 1s ease-in-out infinite',
                 zIndex: 9,
@@ -152,7 +152,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
               <div
                 className="absolute inset-0 pointer-events-none"
                 style={{
-                  background: 'radial-gradient(circle, rgba(255, 215, 0, 0.6) 0%, transparent 70%)',
+                  background: 'radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%)',
                   filter: 'blur(15px)',
                   animation: 'shockwave 0.6s ease-out',
                   zIndex: 12,

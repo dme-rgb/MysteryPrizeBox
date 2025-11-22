@@ -370,10 +370,8 @@ export default function Home() {
                 style={{
                   animation: 'neonPulse 2s ease-in-out infinite',
                   textShadow: `
-                    0 0 10px rgba(255, 255, 255, 0.6),
-                    0 0 20px rgba(255, 255, 255, 0.4),
-                    0 0 30px rgba(180, 255, 100, 0.3),
-                    0 0 40px rgba(180, 255, 100, 0.15)
+                    0 0 8px rgba(255, 255, 255, 0.2),
+                    0 0 12px rgba(180, 255, 100, 0.1)
                   `,
                 }}
               >
@@ -411,10 +409,8 @@ export default function Home() {
                 style={{
                   animation: 'neonPulse 2s ease-in-out infinite',
                   textShadow: `
-                    0 0 10px rgba(255, 255, 255, 0.6),
-                    0 0 20px rgba(255, 255, 255, 0.4),
-                    0 0 30px rgba(180, 255, 100, 0.3),
-                    0 0 40px rgba(180, 255, 100, 0.15)
+                    0 0 8px rgba(255, 255, 255, 0.2),
+                    0 0 12px rgba(180, 255, 100, 0.1)
                   `,
                 }}
               >
