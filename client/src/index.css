@@ -7,46 +7,50 @@
   --button-outline: rgba(0,0,0, .10);
   --badge-outline: rgba(0,0,0, .05);
   --opaque-button-border-intensity: -8;
-  --elevate-1: rgba(0,0,0, .03);
-  --elevate-2: rgba(0,0,0, .08);
-  --background: 0 0% 10%;
-  --foreground: 0 0% 100%;
-  --border: 0 0% 20%;
-  --card: 0 0% 14%;
-  --card-foreground: 0 0% 100%;
-  --card-border: 0 0% 18%;
-  --sidebar: 0 0% 14%;
-  --sidebar-foreground: 0 0% 100%;
-  --sidebar-border: 0 0% 18%;
-  --sidebar-primary: 158 36% 39%;
+  --elevate-1: rgba(0,0,0, .05);
+  --elevate-2: rgba(0,0,0, .10);
+  --background: 220 18% 8%;
+  --foreground: 158 25% 95%;
+  --border: 158 15% 25%;
+  --card: 220 15% 12%;
+  --card-foreground: 158 25% 96%;
+  --card-border: 158 20% 22%;
+  --sidebar: 220 15% 12%;
+  --sidebar-foreground: 158 25% 94%;
+  --sidebar-border: 158 15% 25%;
+  --sidebar-primary: 158 45% 45%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 0 0% 18%;
-  --sidebar-accent-foreground: 0 0% 100%;
-  --sidebar-ring: 158 36% 39%;
-  --popover: 0 0% 14%;
-  --popover-foreground: 0 0% 100%;
-  --popover-border: 0 0% 18%;
-  --primary: 158 36% 39%;
+  --sidebar-accent: 158 15% 20%;
+  --sidebar-accent-foreground: 158 25% 94%;
+  --sidebar-ring: 158 45% 45%;
+  --popover: 220 15% 14%;
+  --popover-foreground: 158 25% 95%;
+  --popover-border: 158 20% 26%;
+  --primary: 158 45% 45%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 20%;
-  --secondary-foreground: 0 0% 100%;
-  --muted: 0 0% 22%;
-  --muted-foreground: 0 0% 70%;
-  --accent: 158 6% 18%;
-  --accent-foreground: 0 0% 100%;
-  --destructive: 0 72% 45%;
+  --secondary: 220 12% 25%;
+  --secondary-foreground: 158 25% 96%;
+  --muted: 220 10% 28%;
+  --muted-foreground: 158 15% 75%;
+  --accent: 45 85% 58%;
+  --accent-foreground: 220 18% 10%;
+  --destructive: 0 72% 50%;
   --destructive-foreground: 0 0% 100%;
-  --input: 0 0% 30%;
-  --ring: 158 36% 39%;
-  --chart-1: 158 36% 35%;
-  --chart-2: 45 90% 48%;
-  --chart-3: 210 70% 42%;
-  --chart-4: 280 60% 50%;
-  --chart-5: 25 80% 55%;
+  --input: 158 12% 32%;
+  --ring: 158 45% 45%;
+  --chart-1: 158 45% 55%;
+  --chart-2: 45 92% 65%;
+  --chart-3: 210 75% 62%;
+  --chart-4: 280 65% 70%;
+  --chart-5: 25 85% 68%;
   --font-sans: Poppins, sans-serif;
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
   --radius: .5rem;
+  
+  /* Gamified effect colors */
+  --glow-primary: 63, 166, 130;
+  --glow-gold: 237, 207, 55;
   --shadow-2xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
   --shadow-sm: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
@@ -91,42 +95,42 @@
   --button-outline: rgba(255,255,255, .10);
   --badge-outline: rgba(255,255,255, .05);
   --opaque-button-border-intensity: 9;
-  --elevate-1: rgba(255,255,255, .04);
-  --elevate-2: rgba(255,255,255, .09);
-  --background: 0 0% 10%;
-  --foreground: 158 20% 88%;
-  --border: 0 0% 18%;
-  --card: 0 0% 12%;
-  --card-foreground: 158 20% 90%;
-  --card-border: 0 0% 15%;
-  --sidebar: 0 0% 14%;
-  --sidebar-foreground: 158 20% 92%;
-  --sidebar-border: 0 0% 18%;
-  --sidebar-primary: 158 36% 39%;
-  --sidebar-primary-foreground: 158 36% 98%;
-  --sidebar-accent: 158 8% 18%;
-  --sidebar-accent-foreground: 158 20% 92%;
-  --sidebar-ring: 158 36% 39%;
-  --popover: 0 0% 16%;
-  --popover-foreground: 158 20% 94%;
-  --popover-border: 0 0% 20%;
-  --primary: 158 36% 39%;
-  --primary-foreground: 158 36% 98%;
-  --secondary: 0 0% 20%;
-  --secondary-foreground: 158 20% 96%;
-  --muted: 158 4% 22%;
-  --muted-foreground: 158 8% 70%;
-  --accent: 158 6% 18%;
-  --accent-foreground: 158 20% 94%;
-  --destructive: 0 72% 45%;
-  --destructive-foreground: 0 72% 98%;
-  --input: 0 0% 30%;
-  --ring: 158 36% 39%;
-  --chart-1: 158 36% 65%;
-  --chart-2: 45 90% 70%;
-  --chart-3: 210 70% 68%;
-  --chart-4: 280 60% 75%;
-  --chart-5: 25 80% 72%;
+  --elevate-1: rgba(255,255,255, .06);
+  --elevate-2: rgba(255,255,255, .12);
+  --background: 220 18% 8%;
+  --foreground: 158 25% 95%;
+  --border: 158 15% 25%;
+  --card: 220 15% 12%;
+  --card-foreground: 158 25% 96%;
+  --card-border: 158 20% 22%;
+  --sidebar: 220 15% 12%;
+  --sidebar-foreground: 158 25% 94%;
+  --sidebar-border: 158 15% 25%;
+  --sidebar-primary: 158 45% 45%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 158 15% 20%;
+  --sidebar-accent-foreground: 158 25% 94%;
+  --sidebar-ring: 158 45% 45%;
+  --popover: 220 15% 14%;
+  --popover-foreground: 158 25% 95%;
+  --popover-border: 158 20% 26%;
+  --primary: 158 45% 45%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 220 12% 25%;
+  --secondary-foreground: 158 25% 96%;
+  --muted: 220 10% 28%;
+  --muted-foreground: 158 15% 75%;
+  --accent: 45 85% 58%;
+  --accent-foreground: 220 18% 10%;
+  --destructive: 0 72% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --input: 158 12% 32%;
+  --ring: 158 45% 45%;
+  --chart-1: 158 45% 55%;
+  --chart-2: 45 92% 65%;
+  --chart-3: 210 75% 62%;
+  --chart-4: 280 65% 70%;
+  --chart-5: 25 85% 68%;
   --shadow-2xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
   --shadow-xs: 0px 2px 0px 0px hsl(0 0% 0% / 0.00);
   --shadow-sm: 0px 2px 0px 0px hsl(0 0% 0% / 0.00), 0px 1px 2px -1px hsl(0 0% 0% / 0.00);
@@ -178,10 +182,10 @@
 /* Custom animations for mystery box game */
 @keyframes boxGlow {
   0%, 100% {
-    box-shadow: 0 0 20px rgba(65, 136, 110, 0.3), 0 0 40px rgba(65, 136, 110, 0.2);
+    box-shadow: 0 0 20px rgba(63, 166, 130, 0.4), 0 0 40px rgba(63, 166, 130, 0.25);
   }
   50% {
-    box-shadow: 0 0 30px rgba(65, 136, 110, 0.5), 0 0 60px rgba(65, 136, 110, 0.3);
+    box-shadow: 0 0 30px rgba(63, 166, 130, 0.6), 0 0 60px rgba(63, 166, 130, 0.4);
   }
 }
 
@@ -252,13 +256,13 @@
 
 @keyframes rainbowGlow {
   0% {
-    filter: drop-shadow(0 0 10px rgba(65, 136, 110, 0.8));
+    filter: drop-shadow(0 0 10px rgba(63, 166, 130, 0.9));
   }
   50% {
-    filter: drop-shadow(0 0 25px rgba(91, 160, 133, 1)) drop-shadow(0 0 15px rgba(65, 136, 110, 0.6));
+    filter: drop-shadow(0 0 25px rgba(63, 166, 130, 1)) drop-shadow(0 0 15px rgba(63, 166, 130, 0.7));
   }
   100% {
-    filter: drop-shadow(0 0 10px rgba(65, 136, 110, 0.8));
+    filter: drop-shadow(0 0 10px rgba(63, 166, 130, 0.9));
   }
 }
 
@@ -278,13 +282,13 @@
 
 @keyframes successFlash {
   0% {
-    background: rgba(65, 136, 110, 0);
+    background: rgba(63, 166, 130, 0);
   }
   50% {
-    background: rgba(65, 136, 110, 0.3);
+    background: rgba(63, 166, 130, 0.4);
   }
   100% {
-    background: rgba(65, 136, 110, 0);
+    background: rgba(63, 166, 130, 0);
   }
 }
 

@@ -41,9 +41,6 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
         <h2 className="text-3xl font-bold text-foreground" data-testid="text-form-title">
           Enter Contest
         </h2>
-        <p className="text-muted-foreground" data-testid="text-form-subtitle">
-          Fill in your details to unlock your mystery box
-        </p>
       </div>
 
       <Form {...form}>
@@ -53,7 +50,6 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
             name="phoneNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel></FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -61,6 +57,7 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
                       placeholder="Enter your phone number"
                       className="pl-10"
                       data-testid="input-phone"
+                      aria-label="Phone Number"
                       {...field}
                     />
                   </div>
@@ -75,7 +72,6 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
             name="vehicleNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel></FormLabel>
                 <FormControl>
                   <div className="relative">
                     <Car className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -83,6 +79,7 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
                       placeholder="Enter your vehicle number"
                       className="pl-10"
                       data-testid="input-vehicle"
+                      aria-label="Vehicle Number"
                       {...field}
                     />
                   </div>

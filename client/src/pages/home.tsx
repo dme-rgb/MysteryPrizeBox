@@ -356,7 +356,7 @@ export default function Home() {
         </Alert>
       )}
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden relative bg-[#23252f] pl-[35px] pr-[35px] pt-[34px] pb-[34px]">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden relative bg-background pl-[35px] pr-[35px] pt-[34px] pb-[34px]">
         {!customerId ? (
           // Registration Form
           (<div className="space-y-8 text-center">
@@ -455,7 +455,7 @@ export default function Home() {
                             <div 
                               className="absolute -inset-4 rounded-full pointer-events-none"
                               style={{
-                                background: 'radial-gradient(circle, rgba(65, 136, 110, 0.6) 0%, transparent 70%)',
+                                background: 'radial-gradient(circle, rgba(63, 166, 130, 0.7) 0%, transparent 70%)',
                                 filter: 'blur(20px)',
                                 zIndex: -1,
                               }}
@@ -497,7 +497,7 @@ export default function Home() {
                     <div
                       className="absolute inset-0 rounded-lg pointer-events-none"
                       style={{
-                        background: 'radial-gradient(circle, rgba(65, 136, 110, 0.3) 0%, transparent 70%)',
+                        background: 'radial-gradient(circle, rgba(63, 166, 130, 0.4) 0%, transparent 70%)',
                         filter: 'blur(40px)',
                         transform: 'scale(1.2)',
                       }}
@@ -553,7 +553,7 @@ export default function Home() {
           <div
             className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full"
             style={{
-              background: 'radial-gradient(circle, rgba(65, 136, 110, 0.1) 0%, transparent 70%)',
+              background: 'radial-gradient(circle, rgba(63, 166, 130, 0.15) 0%, transparent 70%)',
               filter: 'blur(60px)',
             }}
           />

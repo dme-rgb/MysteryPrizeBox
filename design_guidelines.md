@@ -18,13 +18,16 @@
   - UI Labels: base to lg, Regular
   - Button Text: lg, Medium
 
-## Color Palette (Strictly Defined)
-- **Primary Green**: #41886e (mystery box base, primary buttons)
+## Color Palette (Gamified Theme)
+- **Primary Green**: HSL(158 45% 45%) - Vibrant forest green for buttons, mystery box
 - **Light Green**: #5ba085 (highlights, hover states)
 - **Dark Green**: #2d5f4a (shadows, depth)
-- **Gold Accent**: #ffd700 (prizes, celebration effects, glowing)
-- **Background**: #1a1a1a (page background)
-- **Text**: #ffffff (all text content)
+- **Gold Accent**: HSL(45 85% 58%) - Bright gold for prizes, rewards, celebration effects
+- **Background**: HSL(220 18% 8%) - Deep blue-tinted dark for contrast
+- **Card/Surface**: HSL(220 15% 12%) - Slightly lighter than background
+- **Borders**: HSL(158 15% 25%) - Green-tinted borders for cohesion
+- **Text Primary**: HSL(158 25% 95%) - Bright, slightly green-tinted white
+- **Text Muted**: HSL(158 15% 75%) - Green-tinted gray for secondary text
 
 ## Layout System
 - **Spacing**: Tailwind units of 4, 6, 8, 12, 16 for consistent rhythm
