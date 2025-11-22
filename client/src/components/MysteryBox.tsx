@@ -28,6 +28,24 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
         }}
         data-testid="button-mystery-box"
       >
+        {/* Aura Ring - Breathing Effect */}
+        {!isOpened && !isOpening && (
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              width: '420px',
+              height: '420px',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              border: '3px solid rgba(180, 255, 100, 0.3)',
+              borderRadius: '50%',
+              animation: 'breathingRing 3s ease-in-out infinite',
+              zIndex: 3,
+            }}
+          />
+        )}
+
         {/* 3D Box Container */}
         <div 
           className="relative"
@@ -37,6 +55,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
             transformStyle: 'preserve-3d',
             transform: isOpening ? 'rotateX(10deg) rotateY(-5deg)' : 'rotateX(0deg)',
             transition: 'transform 0.1s ease-out',
+            animation: !isOpening && !isOpened ? 'boxBounce 2s ease-in-out infinite' : 'none',
           }}
         >
           {/* Box Base/Body */}
