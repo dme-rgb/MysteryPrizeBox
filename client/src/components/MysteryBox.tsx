@@ -21,7 +21,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
         className="relative focus:outline-none focus:ring-4 focus:ring-primary/50 transition-all disabled:cursor-not-allowed"
         style={{
           transformStyle: 'preserve-3d',
-          transform: isHovered && !isOpening && !isOpened ? 'scale(1.08) translateY(-5px)' : 'scale(1)',
+          transform: isHovered && !isOpening && !isOpened ? 'scale(1.12) translateY(-8px) rotateY(5deg)' : 'scale(1)',
           transition: 'transform 0.3s ease-out',
         }}
         data-testid="button-mystery-box"

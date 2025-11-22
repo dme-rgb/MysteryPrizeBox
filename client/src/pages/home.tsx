@@ -356,13 +356,25 @@ export default function Home() {
 
                         {/* Amount */}
                         <div>
-                          <p className="text-2xl font-medium text-muted-foreground mb-2">
+                          <p className="text-2xl font-medium text-muted-foreground mb-4">
                             You won
                           </p>
-                          <p className="text-7xl font-bold text-primary" data-testid="text-reward-amount">
-                            ₹{rewardAmount}
-                          </p>
-                          <p className="text-xl text-muted-foreground mt-2">
+                          <div className="relative inline-block">
+                            <p className="text-8xl font-black text-primary animate-bounce" style={{animationDuration: '1.5s'}} data-testid="text-reward-amount">
+                              ₹{rewardAmount}
+                            </p>
+                            {/* Glow effect */}
+                            <div 
+                              className="absolute -inset-4 rounded-full pointer-events-none"
+                              style={{
+                                background: 'radial-gradient(circle, rgba(65, 136, 110, 0.6) 0%, transparent 70%)',
+                                filter: 'blur(20px)',
+                                animation: 'pulseGlow 2s ease-in-out infinite',
+                                zIndex: -1,
+                              }}
+                            />
+                          </div>
+                          <p className="text-xl font-semibold text-muted-foreground mt-4">
                             Cashback
                           </p>
                         </div>
@@ -426,11 +438,11 @@ export default function Home() {
                   <Button
                     onClick={handleVerify}
                     size="lg"
-                    className="gap-2 px-8 py-6 text-lg font-medium bg-green-600 hover:bg-green-700"
+                    className="gap-2 px-8 py-6 text-lg font-medium bg-green-600 hover:bg-green-700 animate-pulse"
                     disabled={verifyRewardMutation.isPending}
                     data-testid="button-verify"
                   >
-                    <CheckCircle className="w-5 h-5" />
+                    <CheckCircle className="w-5 h-5 animate-spin" style={{animationDuration: '1.5s'}} />
                     {verifyRewardMutation.isPending ? 'Verifying...' : 'Verify Reward'}
                   </Button>
                 )}
