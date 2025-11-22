@@ -89,7 +89,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                background: 'radial-gradient(ellipse at center, rgba(91, 160, 133, 0.8) 0%, rgba(91, 160, 133, 0.3) 40%, transparent 70%)',
+                background: 'radial-gradient(ellipse at center, rgba(180, 255, 100, 0.8) 0%, rgba(180, 255, 100, 0.3) 40%, transparent 70%)',
                 filter: 'blur(25px)',
                 animation: 'innerGlow 0.8s ease-out',
                 zIndex: 10,
@@ -102,7 +102,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
             <div
               className="absolute inset-0 pointer-events-none"
               style={{
-                background: 'radial-gradient(circle at 50% 50%, rgba(91, 160, 133, 0.4) 0%, transparent 60%)',
+                background: 'radial-gradient(circle at 50% 50%, rgba(180, 255, 100, 0.5) 0%, transparent 60%)',
                 filter: 'blur(20px)',
                 animation: 'boxGlow 1.5s ease-in-out infinite',
                 zIndex: 5,
@@ -116,7 +116,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
               <div
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] pointer-events-none"
                 style={{
-                  background: 'radial-gradient(circle, transparent 80%, rgba(91, 160, 133, 0.2) 50%, transparent 70%)',
+                  background: 'radial-gradient(circle, transparent 80%, rgba(180, 255, 100, 0.3) 50%, transparent 70%)',
                   animation: 'spin 8s linear infinite',
                   zIndex: 8,
                 }}
@@ -124,7 +124,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
               <div
                 className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] pointer-events-none"
                 style={{
-                  background: 'radial-gradient(circle, transparent 45%, rgba(65, 136, 110, 0.3) 55%, transparent 65%)',
+                  background: 'radial-gradient(circle, transparent 45%, rgba(140, 235, 80, 0.4) 55%, transparent 65%)',
                   animation: 'spin 6s linear infinite reverse',
                   zIndex: 7,
                 }}
@@ -169,14 +169,14 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
                     top: '50%',
                     width: '8px',
                     height: '60px',
-                    background: `linear-gradient(to top, rgba(63, 166, 130, 0.9), rgba(255, 215, 0, 0.8), transparent)`,
+                    background: `linear-gradient(to top, rgba(180, 255, 100, 0.9), rgba(255, 215, 0, 0.8), transparent)`,
                     borderRadius: '4px',
                     transform: `rotate(${i * 22.5}deg) translateY(-80px)`,
                     animation: 'magicalBurstUp 1.8s ease-out',
                     animationDelay: `${i * 0.06}s`,
                     zIndex: 15,
                     filter: 'blur(0.5px)',
-                    boxShadow: '0 0 8px rgba(63, 166, 130, 0.6)',
+                    boxShadow: '0 0 8px rgba(180, 255, 100, 0.6)',
                   }}
                 />
               ))}
@@ -191,14 +191,14 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
                     top: '50%',
                     width: '4px',
                     height: '80px',
-                    background: `linear-gradient(to bottom, rgba(63, 166, 130, 0.9), rgba(255, 215, 0, 0.5), transparent)`,
+                    background: `linear-gradient(to bottom, rgba(180, 255, 100, 0.9), rgba(255, 215, 0, 0.5), transparent)`,
                     borderRadius: '3px',
                     transformOrigin: 'top center',
                     animation: 'swirlThread 2.2s ease-out',
                     animationDelay: `${i * 0.1}s`,
                     transform: `rotate(${i * 30}deg)`,
                     zIndex: 14,
-                    boxShadow: '0 0 6px rgba(63, 166, 130, 0.5)',
+                    boxShadow: '0 0 6px rgba(180, 255, 100, 0.5)',
                   }}
                 />
               ))}
@@ -283,7 +283,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
         size={6} 
         speed={0.4} 
         opacity={0.5} 
-        color="#5ba085"
+        color="#B4FF64"
       />
       <Sparkles 
         trigger={isOpening} 
@@ -292,7 +292,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
         size={8} 
         speed={0.2} 
         opacity={0.3} 
-        color="#5ba085"
+        color="#B4FF64"
         noise={0.5}
       />
 

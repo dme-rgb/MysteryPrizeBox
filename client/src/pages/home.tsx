@@ -87,14 +87,14 @@ export default function Home() {
           angle: 60,
           spread: 55,
           origin: { x: 0 },
-          colors: ['#ffd700', '#41886e', '#ffffff']
+          colors: ['#ffd700', '#B4FF64', '#ffffff']
         });
         confetti({
           particleCount: 2,
           angle: 120,
           spread: 55,
           origin: { x: 1 },
-          colors: ['#ffd700', '#41886e', '#ffffff']
+          colors: ['#ffd700', '#B4FF64', '#ffffff']
         });
 
         if (Date.now() < end) {
@@ -452,7 +452,7 @@ export default function Home() {
                     size={7} 
                     speed={0.3} 
                     opacity={0.6} 
-                    color="#5ba085"
+                    color="#B4FF64"
                   />
                   <Sparkles 
                     trigger={prizeCardSparkles} 
@@ -461,7 +461,7 @@ export default function Home() {
                     size={9} 
                     speed={0.2} 
                     opacity={0.4} 
-                    color="#5ba085"
+                    color="#B4FF64"
                     noise={0.4}
                   />
                   <div className="relative">
