@@ -347,7 +347,6 @@ export default function Home() {
     <div className="min-h-screen bg-background flex flex-col relative">
       {/* Animated Background Stars */}
       <BackgroundStars />
-      
       {/* Google Sheets Setup Banner */}
       {!isGoogleSheetsConfigured && (
         <Alert className="rounded-none border-x-0 border-t-0 bg-yellow-500/10 border-yellow-500/20">
@@ -360,7 +359,7 @@ export default function Home() {
         </Alert>
       )}
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden relative bg-background pl-[35px] pr-[35px] pt-[34px] pb-[34px]">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden relative pl-[35px] pr-[35px] pt-[34px] pb-[34px] bg-[#00001b]">
         {!customerId ? (
           // Registration Form
           (<div className="space-y-8 text-center relative z-10">
