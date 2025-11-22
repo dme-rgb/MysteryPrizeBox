@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import boxImage from '@assets/box.png';
 import LidImage from '@assets/lid.png';
+import Sparkles from './Sparkles';
 
 interface MysteryBoxProps {
   onOpen: () => void;
@@ -210,6 +211,27 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
           </div>
         )}
       </button>
+
+      {/* Sparkle Effects on Opening */}
+      <Sparkles 
+        trigger={isOpening} 
+        count={60} 
+        scale={4} 
+        size={6} 
+        speed={0.4} 
+        opacity={0.5} 
+        color="#5ba085"
+      />
+      <Sparkles 
+        trigger={isOpening} 
+        count={40} 
+        scale={3} 
+        size={8} 
+        speed={0.2} 
+        opacity={0.3} 
+        color="#5ba085"
+        noise={0.5}
+      />
 
       {/* Additional CSS Animations */}
       <style>{`
