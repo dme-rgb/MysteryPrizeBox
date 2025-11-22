@@ -33,12 +33,12 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
           <div
             className="absolute pointer-events-none"
             style={{
-              width: '420px',
-              height: '420px',
+              width: '350px',
+              height: '350px',
               top: '50%',
               left: '50%',
               transform: 'translate(-50%, -50%)',
-              border: '3px solid rgba(180, 255, 100, 0.3)',
+              border: '4px solid rgba(180, 255, 100, 0.3)',
               borderRadius: '50%',
               animation: 'breathingRing 3s ease-in-out infinite',
               zIndex: 3,

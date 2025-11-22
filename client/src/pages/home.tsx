@@ -436,7 +436,7 @@ export default function Home() {
                 <div 
                   className="relative"
                   style={{
-                    animation: 'prizeCardEmerge 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    animation: 'prizeCardEmerge 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
                   }}
                 >
                   {/* Sparkles for prize card */}
