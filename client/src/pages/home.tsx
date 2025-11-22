@@ -296,22 +296,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Total Verified Rewards Header */}
-      {stats && stats.totalVerifiedRewards > 0 && (
-        <div className="w-full bg-card border-b border-border py-4 px-6">
-          <div className="max-w-7xl mx-auto flex items-center justify-center gap-3">
-            <p className="text-lg font-medium text-foreground">
-              Total Verified Cashback:
-            </p>
-            <Badge 
-              className="bg-primary text-primary-foreground text-lg px-4 py-1 font-bold"
-              data-testid="badge-total-verified"
-            >
-              ₹{stats.totalVerifiedRewards}
-            </Badge>
-          </div>
-        </div>
-      )}
       {/* Google Sheets Setup Banner */}
       {!isGoogleSheetsConfigured && (
         <Alert className="rounded-none border-x-0 border-t-0 bg-yellow-500/10 border-yellow-500/20">
@@ -344,6 +328,22 @@ export default function Home() {
         ) : (
           // Game Screen
           (<>
+            {/* Total Verified Rewards - Only on mystery box screen */}
+            {!showReward && stats && stats.totalVerifiedRewards > 0 && (
+              <div className="w-full bg-card border-b border-border py-4 px-6 mb-8 -m-8 mb-8">
+                <div className="flex items-center justify-center gap-3">
+                  <p className="text-lg font-medium text-foreground">
+                    Total Verified Cashback:
+                  </p>
+                  <Badge 
+                    className="bg-primary text-primary-foreground text-lg px-4 py-1 font-bold"
+                    data-testid="badge-total-verified"
+                  >
+                    ₹{stats.totalVerifiedRewards}
+                  </Badge>
+                </div>
+              </div>
+            )}
             <div className="text-center mb-12 space-y-4">
               <h1 className="text-5xl font-bold text-foreground tracking-tight" data-testid="text-game-title">
                 Mystery Box
