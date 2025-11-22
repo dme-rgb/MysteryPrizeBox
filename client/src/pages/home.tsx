@@ -312,7 +312,7 @@ export default function Home() {
                 Mystery Box Contest
               </h1>
               <p className="text-lg text-muted-foreground" data-testid="text-subtitle">
-                Enter your details for a chance to win 1-5 rupees cashback!
+                Enter your details for a chance to win!
               </p>
             </div>
             <CustomerForm
@@ -348,7 +348,7 @@ export default function Home() {
                 <div className="animate-in fade-in zoom-in duration-500">
                   <div className="relative">
                     {/* Reward Card */}
-                    <div className="bg-gradient-to-br from-primary/20 via-card to-primary/10 p-12 rounded-lg border-2 border-primary shadow-2xl">
+                    <div className="bg-gradient-to-br from-primary/20 via-card to-primary/10 p-12 rounded-lg border-2 border-primary">
                       <div className="text-center space-y-6">
                         {/* Rupee Icon */}
                         <div className="flex items-center justify-center">
