@@ -52,12 +52,6 @@ export default function Home() {
     staleTime: Infinity, // Don't refetch automatically
   });
 
-  // Fetch total verified amount for customer - only for existing customers
-  const { data: totalVerifiedData } = useQuery<{ totalAmount: number }>({
-    queryKey: ['/api/vehicles', customerData?.vehicleNumber, 'total-verified-amount'],
-    enabled: !!customerData?.vehicleNumber && !!customerData?.alreadyPlayedToday,
-    staleTime: Infinity, // Don't refetch automatically
-  });
 
   // Create customer mutation
   const createCustomerMutation = useMutation({
@@ -292,7 +286,7 @@ export default function Home() {
       {/* Stats Header - only show for existing customers with previous wins */}
       <StatsHeader 
         totalWinners={stats?.totalVerifiedRewards || 0}
-        customerVerified={customerData?.alreadyPlayedToday ? (totalVerifiedData?.totalAmount || 0) : 0}
+        customerVerified={0}
         verificationTimeLeft={verificationTimeLeft}
       />
 
