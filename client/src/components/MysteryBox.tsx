@@ -76,7 +76,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
                 className="w-full h-full object-contain drop-shadow-2xl select-none"
                 style={{
                   filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.6))',
-                  transform: 'translateY(-82px)',
+                  transform: 'translateY(-100px)',
                 }}
               />
             </div>
@@ -203,51 +203,31 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
                 />
               ))}
 
-              {/* Flying Coins */}
-              {[...Array(10)].map((_, i) => {
-                const angle = (i * 36) * (Math.PI / 180);
-                const distance = 180;
-                const offsetX = Math.cos(angle) * distance;
-                const offsetY = Math.sin(angle) * distance - 100;
-                
-                return (
-                  <div
-                    key={`coin-${i}`}
-                    className="absolute pointer-events-none"
-                    style={{
-                      left: '50%',
-                      top: '50%',
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 40%, #FFD700 100%)',
-                      border: '3px solid rgba(255, 215, 0, 0.9)',
-                      boxShadow: '0 0 15px rgba(255, 215, 0, 0.8), inset 0 2px 6px rgba(255, 255, 255, 0.5), 0 4px 8px rgba(0, 0, 0, 0.3)',
-                      animation: `coinFly-${i % 6} 2.5s ease-out`,
-                      animationDelay: `${i * 0.15}s`,
-                      zIndex: 16,
-                      '--coin-x': `${offsetX}px`,
-                      '--coin-y': `${offsetY}px`,
-                      '--coin-rotate': `${360 + i * 120}deg`,
-                    } as CSSProperties}
-                  >
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        fontSize: '22px',
-                        fontWeight: 'bold',
-                        color: '#8B4513',
-                        textShadow: '0 1px 3px rgba(255, 255, 255, 0.6)',
-                      }}
-                    >
-                      ₹
-                    </div>
-                  </div>
-                );
-              })}
+              {/* Flying Ribbons */}
+              {[...Array(8)].map((_, i) => (
+                <div
+                  key={`ribbon-${i}`}
+                  className="absolute pointer-events-none"
+                  style={{
+                    left: '50%',
+                    top: '50%',
+                    width: '30px',
+                    height: '120px',
+                    background: i % 2 === 0 
+                      ? 'linear-gradient(90deg, rgba(63, 166, 130, 0.9) 0%, rgba(63, 166, 130, 0.4) 100%)'
+                      : 'linear-gradient(90deg, rgba(255, 215, 0, 0.9) 0%, rgba(255, 215, 0, 0.4) 100%)',
+                    borderRadius: '15px',
+                    transform: `rotate(${i * 45}deg) translateY(-60px)`,
+                    animation: `ribbonFly-${i} 2.8s ease-out`,
+                    animationDelay: `${i * 0.12}s`,
+                    zIndex: 16,
+                    boxShadow: i % 2 === 0
+                      ? '0 0 12px rgba(63, 166, 130, 0.6)'
+                      : '0 0 12px rgba(255, 215, 0, 0.6)',
+                    filter: 'blur(0.5px)',
+                  }}
+                />
+              ))}
               
             </>
           )}
@@ -409,41 +389,53 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
           }
         }
 
-        @keyframes coinFly-0 {
-          0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
-          15% { opacity: 1; transform: translate(-50%, -50%) rotate(120deg) scale(1); }
-          85% { opacity: 0.9; }
-          100% { opacity: 0; transform: translate(-50%, -50%) translateX(220px) translateY(-260px) rotate(720deg) scale(1.3); }
+        @keyframes ribbonFly-0 {
+          0% { opacity: 0; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(0); }
+          15% { opacity: 1; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(1); }
+          85% { opacity: 0.8; }
+          100% { opacity: 0; transform: translate(-50%, -50%) translateX(180px) translateY(-280px) rotate(360deg) scaleY(1.2); }
         }
-        @keyframes coinFly-1 {
-          0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
-          15% { opacity: 1; transform: translate(-50%, -50%) rotate(120deg) scale(1); }
-          85% { opacity: 0.9; }
-          100% { opacity: 0; transform: translate(-50%, -50%) translateX(120px) translateY(-300px) rotate(840deg) scale(1.3); }
+        @keyframes ribbonFly-1 {
+          0% { opacity: 0; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(0); }
+          15% { opacity: 1; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(1); }
+          85% { opacity: 0.8; }
+          100% { opacity: 0; transform: translate(-50%, -50%) translateX(130px) translateY(-300px) rotate(360deg) scaleY(1.2); }
         }
-        @keyframes coinFly-2 {
-          0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
-          15% { opacity: 1; transform: translate(-50%, -50%) rotate(120deg) scale(1); }
-          85% { opacity: 0.9; }
-          100% { opacity: 0; transform: translate(-50%, -50%) translateX(-120px) translateY(-300px) rotate(960deg) scale(1.3); }
+        @keyframes ribbonFly-2 {
+          0% { opacity: 0; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(0); }
+          15% { opacity: 1; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(1); }
+          85% { opacity: 0.8; }
+          100% { opacity: 0; transform: translate(-50%, -50%) translateX(-130px) translateY(-300px) rotate(360deg) scaleY(1.2); }
         }
-        @keyframes coinFly-3 {
-          0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
-          15% { opacity: 1; transform: translate(-50%, -50%) rotate(120deg) scale(1); }
-          85% { opacity: 0.9; }
-          100% { opacity: 0; transform: translate(-50%, -50%) translateX(-220px) translateY(-260px) rotate(1080deg) scale(1.3); }
+        @keyframes ribbonFly-3 {
+          0% { opacity: 0; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(0); }
+          15% { opacity: 1; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(1); }
+          85% { opacity: 0.8; }
+          100% { opacity: 0; transform: translate(-50%, -50%) translateX(-180px) translateY(-280px) rotate(360deg) scaleY(1.2); }
         }
-        @keyframes coinFly-4 {
-          0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
-          15% { opacity: 1; transform: translate(-50%, -50%) rotate(120deg) scale(1); }
-          85% { opacity: 0.9; }
-          100% { opacity: 0; transform: translate(-50%, -50%) translateX(-120px) translateY(-150px) rotate(1200deg) scale(1.3); }
+        @keyframes ribbonFly-4 {
+          0% { opacity: 0; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(0); }
+          15% { opacity: 1; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(1); }
+          85% { opacity: 0.8; }
+          100% { opacity: 0; transform: translate(-50%, -50%) translateX(0px) translateY(-320px) rotate(180deg) scaleY(1.2); }
         }
-        @keyframes coinFly-5 {
-          0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0); }
-          15% { opacity: 1; transform: translate(-50%, -50%) rotate(120deg) scale(1); }
-          85% { opacity: 0.9; }
-          100% { opacity: 0; transform: translate(-50%, -50%) translateX(120px) translateY(-150px) rotate(1320deg) scale(1.3); }
+        @keyframes ribbonFly-5 {
+          0% { opacity: 0; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(0); }
+          15% { opacity: 1; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(1); }
+          85% { opacity: 0.8; }
+          100% { opacity: 0; transform: translate(-50%, -50%) translateX(0px) translateY(-320px) rotate(180deg) scaleY(1.2); }
+        }
+        @keyframes ribbonFly-6 {
+          0% { opacity: 0; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(0); }
+          15% { opacity: 1; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(1); }
+          85% { opacity: 0.8; }
+          100% { opacity: 0; transform: translate(-50%, -50%) translateX(150px) translateY(-290px) rotate(360deg) scaleY(1.2); }
+        }
+        @keyframes ribbonFly-7 {
+          0% { opacity: 0; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(0); }
+          15% { opacity: 1; transform: translate(-50%, -50%) translateY(0) rotate(0deg) scaleY(1); }
+          85% { opacity: 0.8; }
+          100% { opacity: 0; transform: translate(-50%, -50%) translateX(-150px) translateY(-290px) rotate(360deg) scaleY(1.2); }
         }
       `}</style>
     </div>
