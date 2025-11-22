@@ -203,52 +203,6 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
                 />
               ))}
 
-              {/* Flying Coins */}
-              {[...Array(10)].map((_, i) => {
-                const angle = (i * 36) * (Math.PI / 180);
-                const distance = 180;
-                const offsetX = Math.cos(angle) * distance;
-                const offsetY = Math.sin(angle) * distance - 100;
-                
-                return (
-                  <div
-                    key={`coin-${i}`}
-                    className="absolute pointer-events-none"
-                    style={{
-                      left: '50%',
-                      top: '50%',
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '50%',
-                      background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 40%, #FFD700 100%)',
-                      border: '3px solid rgba(255, 215, 0, 0.9)',
-                      boxShadow: '0 0 15px rgba(255, 215, 0, 0.8), inset 0 2px 6px rgba(255, 255, 255, 0.5), 0 4px 8px rgba(0, 0, 0, 0.3)',
-                      animation: `coinFly-${i % 6} 2.5s ease-out`,
-                      animationDelay: `${i * 0.15}s`,
-                      zIndex: 16,
-                      '--coin-x': `${offsetX}px`,
-                      '--coin-y': `${offsetY}px`,
-                      '--coin-rotate': `${360 + i * 120}deg`,
-                    } as CSSProperties}
-                  >
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        fontSize: '22px',
-                        fontWeight: 'bold',
-                        color: '#8B4513',
-                        textShadow: '0 1px 3px rgba(255, 255, 255, 0.6)',
-                      }}
-                    >
-                      ₹
-                    </div>
-                  </div>
-                );
-              })}
-              
             </>
           )}
 
