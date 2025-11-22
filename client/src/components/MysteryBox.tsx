@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type CSSProperties } from 'react';
 import boxImage from '@assets/box.png';
 import LidImage from '@assets/lid.png';
 import Sparkles from './Sparkles';
@@ -227,7 +227,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
                       '--coin-x': `${offsetX}px`,
                       '--coin-y': `${offsetY}px`,
                       '--coin-rotate': `${360 + i * 120}deg`,
-                    } as React.CSSProperties}
+                    } as CSSProperties}
                   >
                     <div
                       style={{
