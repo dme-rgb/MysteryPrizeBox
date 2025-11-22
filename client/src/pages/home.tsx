@@ -446,7 +446,7 @@ export default function Home() {
                             You won
                           </p>
                           <div className="relative inline-block">
-                            <p className="text-8xl font-black text-primary animate-bounce" style={{animationDuration: '1.5s'}} data-testid="text-reward-amount">
+                            <p className="text-8xl font-black text-primary" data-testid="text-reward-amount">
                               ₹{rewardAmount}
                             </p>
                             {/* Glow effect */}
@@ -455,7 +455,6 @@ export default function Home() {
                               style={{
                                 background: 'radial-gradient(circle, rgba(65, 136, 110, 0.6) 0%, transparent 70%)',
                                 filter: 'blur(20px)',
-                                animation: 'pulseGlow 2s ease-in-out infinite',
                                 zIndex: -1,
                               }}
                             />
