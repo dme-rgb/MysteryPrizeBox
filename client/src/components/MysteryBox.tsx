@@ -179,26 +179,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
               />
 
               {/* Magical Burst Shooting Upward */}
-              {[...Array(16)].map((_, i) => (
-                <div
-                  key={`burst-${i}`}
-                  className="absolute pointer-events-none"
-                  style={{
-                    left: '50%',
-                    top: '50%',
-                    width: '8px',
-                    height: '60px',
-                    background: `linear-gradient(to top, rgba(180, 255, 100, 0.9), rgba(255, 215, 0, 0.8), transparent)`,
-                    borderRadius: '4px',
-                    transform: `rotate(${i * 22.5}deg) translateY(-80px)`,
-                    animation: 'magicalBurstUp 1.8s ease-out',
-                    animationDelay: `${i * 0.06}s`,
-                    zIndex: 15,
-                    filter: 'blur(0.5px)',
-                    boxShadow: '0 0 8px rgba(180, 255, 100, 0.6)',
-                  }}
-                />
-              ))}
+              
 
               {/* Swirling Magical Threads */}
               {[...Array(12)].map((_, i) => (
