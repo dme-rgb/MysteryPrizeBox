@@ -13,6 +13,7 @@ import BackgroundStars from '@/components/BackgroundStars';
 import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import logoImage from '@assets/generated_images/mystery_box_contest_neon_logo_with_electric_effects.png';
 // @ts-ignore - canvas-confetti doesn't have TypeScript types but works fine
 import confetti from 'canvas-confetti';
 
@@ -347,6 +348,17 @@ export default function Home() {
     <div className="min-h-screen bg-background flex flex-col relative">
       {/* Animated Background Stars */}
       <BackgroundStars />
+      
+      {/* Logo Header */}
+      <div className="relative z-10 pt-8 pb-4 px-8 flex justify-center">
+        <img 
+          src={logoImage} 
+          alt="Mystery Box Contest Logo" 
+          className="h-24 object-contain"
+          data-testid="img-logo"
+        />
+      </div>
+      
       {/* Google Sheets Setup Banner */}
       {!isGoogleSheetsConfigured && (
         <Alert className="rounded-none border-x-0 border-t-0 bg-yellow-500/10 border-yellow-500/20">
@@ -368,14 +380,14 @@ export default function Home() {
                 className="text-6xl font-black text-white tracking-tight" 
                 data-testid="text-title"
                 style={{
-                  animation: 'neonPulse 2s ease-in-out infinite',
+                  animation: 'neonPulse 1s ease-in-out infinite',
                   textShadow: `
-                    0 0 8px rgba(255, 255, 255, 0.2),
-                    0 0 12px rgba(180, 255, 100, 0.1)
+                    0 0 2px rgba(255, 255, 255, 0.2),
+                    0 0 1px rgba(180, 255, 100, 0.1)
                   `,
                 }}
               >
-                Mystery Box Contest
+               FEUL RUSH
               </h1>
             </div>
             <CustomerForm
