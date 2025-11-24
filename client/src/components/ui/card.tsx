@@ -9,12 +9,31 @@ const Card = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "shadcn-card rounded-xl border bg-card border-card-border text-card-foreground shadow-sm",
+      // Outer container
+      "relative rounded-xl p-6 overflow-hidden",
+
+      // Gold border + dark base
+      "bg-[#0a0f0a] border border-[#ffc94a]/40",
+
+      // Neon outer glow
+      "shadow-[0_0_25px_rgba(0,255,50,0.25)]",
+
+      // Metallic gradient overlay
+      "before:absolute before:inset-0 before:rounded-xl",
+      "before:bg-gradient-to-br before:from-[#1b2d1b]/60 before:to-[#0a0f0a]/80",
+      "before:pointer-events-none",
+
+      // Neon frame glow
+      "after:absolute after:inset-0 after:rounded-xl",
+      "after:border after:border-[#00ff66]/30 after:shadow-[0_0_15px_#00ff66]",
+      "after:pointer-events-none",
+
       className
     )}
     {...props}
   />
 ));
+
 Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<
