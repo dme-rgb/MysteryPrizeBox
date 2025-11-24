@@ -9,10 +9,10 @@ import Sparkles from '@/components/Sparkles';
 import ParticleEffect from '@/components/ParticleEffect';
 import CustomerForm from '@/components/CustomerForm';
 import StatsHeader from '@/components/StatsHeader';
-import BackgroundStars from '@/components/BackgroundStars';
 import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import backgroundImage from '@assets/image_1763983327242.png';
 // @ts-ignore - canvas-confetti doesn't have TypeScript types but works fine
 import confetti from 'canvas-confetti';
 
@@ -344,9 +344,15 @@ export default function Home() {
   const isGoogleSheetsConfigured = healthData?.googleSheets ?? true;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col relative">
-      {/* Animated Background Stars */}
-      <BackgroundStars />
+    <div 
+      className="min-h-screen flex flex-col relative"
+      style={{
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+      }}
+    >
       {/* Google Sheets Setup Banner */}
       {!isGoogleSheetsConfigured && (
         <Alert className="rounded-none border-x-0 border-t-0 bg-yellow-500/10 border-yellow-500/20">
@@ -359,7 +365,7 @@ export default function Home() {
         </Alert>
       )}
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden relative pl-[35px] pr-[35px] pt-[34px] pb-[34px] bg-[#00001b]">
+      <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden relative pl-[35px] pr-[35px] pt-[34px] pb-[34px]">
         {!customerId ? (
           // Registration Form
           (<div className="space-y-8 text-center relative z-10">
