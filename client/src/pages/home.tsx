@@ -388,7 +388,7 @@ export default function Home() {
           (<>
             {/* Customer's Total Verified Rewards - Only on mystery box screen */}
             {!showReward && customerVerifiedData && customerVerifiedData.totalAmount > 0 && (
-              <div className="w-full bg-card border-b border-border py-4 px-6 mb-8 -m-8 mb-8">
+              <div className="w-full bg-card border-b border-border py-4 px-6 -m-8 mb-8 ml-[0px] mr-[0px]">
                 <div className="flex items-center justify-center gap-3">
                   <p className="text-lg font-medium text-foreground">
                     Your Total Verified Cashback:
