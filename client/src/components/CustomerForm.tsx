@@ -36,103 +36,144 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
   });
 
   return (
-    <div 
-      className="w-full max-w-md p-8 space-y-6 relative"
-      style={{
-        background: 'linear-gradient(135deg, rgba(10, 10, 10, 0.9) 0%, rgba(20, 20, 40, 0.8) 100%)',
-        border: '4px solid #F4D03F',
-        boxShadow: '0 0 30px rgba(251, 191, 36, 0.4), inset 0 0 20px rgba(34, 197, 94, 0.1)',
-        borderRadius: '8px',
-      }}
-    >
-      <div className="text-center space-y-2 mb-6">
-        <h2 
-          className="text-3xl font-black italic"
+    <div className="relative w-full max-w-md">
+      {/* Angular Container with Skew Effect */}
+      <div 
+        className="relative p-12 pt-16 pb-24"
+        style={{
+          background: 'linear-gradient(135deg, rgba(10, 10, 10, 0.95) 0%, rgba(15, 15, 30, 0.9) 100%)',
+          clipPath: 'polygon(0% 5%, 100% 0%, 100% 90%, 95% 100%, 0% 100%)',
+          border: '4px solid #F4D03F',
+          boxShadow: `
+            0 0 40px rgba(251, 191, 36, 0.5),
+            inset 0 0 30px rgba(34, 197, 94, 0.15),
+            0 20px 40px rgba(0, 0, 0, 0.6)
+          `,
+        }}
+      >
+        {/* Glowing edge effect */}
+        <div
+          className="absolute inset-0 pointer-events-none"
           style={{
-            color: '#F4D03F',
-            textShadow: '0 0 10px rgba(251, 191, 36, 0.6)',
+            background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, transparent 50%, rgba(34, 197, 94, 0.1) 100%)',
+            clipPath: 'polygon(0% 5%, 100% 0%, 100% 90%, 95% 100%, 0% 100%)',
           }}
-          data-testid="text-form-title"
-        >
-          Enter Contest
-        </h2>
+        />
+
+        {/* Title */}
+        <div className="text-center space-y-2 mb-8 relative z-10">
+          <h2 
+            className="text-4xl font-black italic"
+            style={{
+              color: '#F4D03F',
+              textShadow: '0 0 15px rgba(251, 191, 36, 0.8), 0 0 25px rgba(34, 197, 94, 0.4)',
+            }}
+            data-testid="text-form-title"
+          >
+            Enter Contest
+          </h2>
+        </div>
+
+        {/* Form */}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 relative z-10">
+            <FormField
+              control={form.control}
+              name="phoneNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="relative">
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: '#22C55E' }} />
+                      <input
+                        placeholder="Enter your phone number"
+                        className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a]/60 border-2 rounded-full focus:outline-none transition-all"
+                        style={{
+                          borderColor: '#22C55E',
+                          color: '#F4D03F',
+                          boxShadow: '0 0 15px rgba(34, 197, 94, 0.4)',
+                          fontSize: '15px',
+                        }}
+                        data-testid="input-phone"
+                        aria-label="Phone Number"
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="vehicleNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <div className="relative">
+                      <Car className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: '#22C55E' }} />
+                      <input
+                        placeholder="Enter your vehicle number"
+                        className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a]/60 border-2 rounded-full focus:outline-none transition-all"
+                        style={{
+                          borderColor: '#22C55E',
+                          color: '#F4D03F',
+                          boxShadow: '0 0 15px rgba(34, 197, 94, 0.4)',
+                          fontSize: '15px',
+                        }}
+                        data-testid="input-vehicle"
+                        aria-label="Vehicle Number"
+                        {...field}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </form>
+        </Form>
       </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            control={form.control}
-            name="phoneNumber"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: '#22C55E' }} />
-                    <input
-                      placeholder="Enter your phone number"
-                      className="w-full pl-10 pr-4 py-3 bg-[#0a0a0a]/80 border-2"
-                      style={{
-                        borderColor: '#22C55E',
-                        color: '#F4D03F',
-                        boxShadow: '0 0 10px rgba(34, 197, 94, 0.3)',
-                      }}
-                      data-testid="input-phone"
-                      aria-label="Phone Number"
-                      {...field}
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="vehicleNumber"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <div className="relative">
-                    <Car className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: '#22C55E' }} />
-                    <input
-                      placeholder="Enter your vehicle number"
-                      className="w-full pl-10 pr-4 py-3 bg-[#0a0a0a]/80 border-2"
-                      style={{
-                        borderColor: '#22C55E',
-                        color: '#F4D03F',
-                        boxShadow: '0 0 10px rgba(34, 197, 94, 0.3)',
-                      }}
-                      data-testid="input-vehicle"
-                      aria-label="Vehicle Number"
-                      {...field}
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <div className="relative flex justify-center pt-4">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="relative px-12 py-4 font-black text-lg rounded-full transition-all"
+      {/* Circular Button - Positioned at bottom */}
+      <div className="absolute left-1/2 -translate-x-1/2 -bottom-16 z-20">
+        <button
+          type="button"
+          onClick={() => form.handleSubmit(onSubmit)()}
+          disabled={isSubmitting}
+          className="relative"
+          style={{
+            width: '140px',
+            height: '140px',
+          }}
+          data-testid="button-submit-form"
+        >
+          {/* Outer golden ring */}
+          <div
+            className="absolute inset-0 rounded-full flex items-center justify-center"
+            style={{
+              background: 'conic-gradient(from 0deg, #F4D03F, #FFA500, #F4D03F)',
+              padding: '6px',
+              boxShadow: '0 0 30px rgba(251, 191, 36, 0.8), 0 0 60px rgba(255, 165, 0, 0.4)',
+            }}
+          >
+            {/* Inner green button */}
+            <div
+              className="absolute inset-1.5 rounded-full flex items-center justify-center font-black text-white italic text-center leading-tight"
               style={{
-                background: 'radial-gradient(circle at center, #22C55E 0%, #16A34A 100%)',
+                background: 'radial-gradient(circle at 30% 30%, #4ADE80 0%, #22C55E 50%, #16A34A 100%)',
+                boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.2), 0 0 20px rgba(34, 197, 94, 0.8)',
+                fontSize: '14px',
                 color: '#FFFFFF',
-                border: '3px solid #F4D03F',
-                boxShadow: '0 0 20px rgba(34, 197, 94, 0.8), 0 0 40px rgba(251, 191, 36, 0.4)',
-                transform: !isSubmitting ? 'scale(1)' : 'scale(0.98)',
+                textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
               }}
-              data-testid="button-submit-form"
             >
-              {isSubmitting ? 'Starting...' : 'START RACE'}
-            </button>
+              START<br />RACE
+            </div>
           </div>
-        </form>
-      </Form>
+        </button>
+      </div>
     </div>
   );
 }
