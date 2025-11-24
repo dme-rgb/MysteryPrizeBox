@@ -13,7 +13,6 @@ import BackgroundStars from '@/components/BackgroundStars';
 import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import logoImage from '@assets/generated_images/mystery_box_contest_neon_logo_with_electric_effects.png';
 // @ts-ignore - canvas-confetti doesn't have TypeScript types but works fine
 import confetti from 'canvas-confetti';
 
@@ -348,17 +347,6 @@ export default function Home() {
     <div className="min-h-screen bg-background flex flex-col relative">
       {/* Animated Background Stars */}
       <BackgroundStars />
-      
-      {/* Logo Header */}
-      <div className="relative z-10 pt-8 pb-4 px-8 flex justify-center">
-        <img 
-          src={logoImage} 
-          alt="Mystery Box Contest Logo" 
-          className="h-24 object-contain"
-          data-testid="img-logo"
-        />
-      </div>
-      
       {/* Google Sheets Setup Banner */}
       {!isGoogleSheetsConfigured && (
         <Alert className="rounded-none border-x-0 border-t-0 bg-yellow-500/10 border-yellow-500/20">
@@ -371,10 +359,10 @@ export default function Home() {
         </Alert>
       )}
       {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center p-8 overflow-hidden relative pl-[35px] pr-[35px] pt-[34px] pb-[34px] bg-[#00001b]">
+      <div className="relative z-10 pt-8 pb-4 px-8">
         {!customerId ? (
           // Registration Form
-          (<div className="space-y-8 text-center relative z-10">
+          (<div className="space-y-8 text-center relative z-10 mt-[200px] mb-[200px]">
             <div className="space-y-4">
               <h1 
                 className="text-6xl font-black text-white tracking-tight" 
