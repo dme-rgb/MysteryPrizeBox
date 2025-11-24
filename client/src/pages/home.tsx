@@ -374,9 +374,7 @@ export default function Home() {
                     0 0 12px rgba(180, 255, 100, 0.1)
                   `,
                 }}
-              >
-                Mystery Box Contest
-              </h1>
+              >Feul  Rush</h1>
             </div>
             <CustomerForm
               onSubmit={handleFormSubmit}
