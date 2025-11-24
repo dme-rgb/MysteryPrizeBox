@@ -365,18 +365,17 @@ export default function Home() {
           (<div className="space-y-8 text-center relative z-10">
             <div className="space-y-4">
               <h1 
-                className="text-6xl font-black tracking-tight" 
+                className="text-6xl font-black text-white tracking-tight" 
                 data-testid="text-title"
                 style={{
                   animation: 'neonPulse 2s ease-in-out infinite',
-                  color: '#D4AF37',
                   textShadow: `
-                    0 0 10px rgba(212, 175, 55, 0.4),
-                    0 0 20px rgba(0, 255, 0, 0.2)
+                    0 0 8px rgba(255, 255, 255, 0.2),
+                    0 0 12px rgba(180, 255, 100, 0.1)
                   `,
                 }}
               >
-                Fuel Rush
+                Mystery Box Contest
               </h1>
             </div>
             <CustomerForm
@@ -405,18 +404,17 @@ export default function Home() {
             )}
             <div className="text-center mb-12 space-y-4 relative z-10">
               <h1 
-                className="text-6xl font-black tracking-tight" 
+                className="text-6xl font-black text-white tracking-tight" 
                 data-testid="text-game-title"
                 style={{
                   animation: 'neonPulse 2s ease-in-out infinite',
-                  color: '#D4AF37',
                   textShadow: `
-                    0 0 10px rgba(212, 175, 55, 0.4),
-                    0 0 20px rgba(0, 255, 0, 0.2)
+                    0 0 8px rgba(255, 255, 255, 0.2),
+                    0 0 12px rgba(180, 255, 100, 0.1)
                   `,
                 }}
               >
-                Fuel Rush
+                Mystery Box
               </h1>
               <p className="text-lg text-muted-foreground" data-testid="text-game-subtitle">
                 {!showReward ? (customerData?.alreadyPlayedToday ? 'You have already played today. Come back tomorrow!' : 'Click the box to reveal your cashback reward!') : 'Congratulations!'}
