@@ -29,7 +29,22 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
         data-testid="button-mystery-box"
       >
         {/* Aura Ring - Breathing Effect */}
-        
+        {!isOpened && !isOpening && (
+          <div
+            className="absolute pointer-events-none"
+            style={{
+              width: '350px',
+              height: '350px',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              border: '4px solid rgba(180, 255, 100, 0.3)',
+              borderRadius: '50%',
+              animation: 'breathingRing 3s ease-in-out infinite',
+              zIndex: 3,
+            }}
+          />
+        )}
 
         {/* 3D Box Container */}
         <div 
@@ -39,12 +54,12 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
             height: '350px',
             transformStyle: 'preserve-3d',
             transform: isOpening ? 'rotateX(10deg) rotateY(-5deg)' : 'rotateX(0deg)',
-            transition: 'transform 0.2s ease-out',
-            animation: !isOpening && !isOpened ? 'boxBounce 3s ease-in-out infinite' : 'none',
+            transition: 'transform 0.1s ease-out',
+            animation: !isOpening && !isOpened ? 'boxBounce 2s ease-in-out infinite' : 'none',
           }}
         >
           {/* Box Base/Body */}
-          <div className="relative w-[350px] h-[380px] flex items-center justify-center">
+          <div className="relative w-[350px] h-[350px] flex items-center justify-center">
 
             {/* Box Base */}
             <div
@@ -64,23 +79,6 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
                 }}
               />
             </div>
-
-            {!isOpened && !isOpening && (
-              <div
-                className="absolute pointer-events-none"
-                style={{
-                  width: '190px',
-                  height: '80px',
-                  top: '68%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  border: '10px solid rgba(180, 255, 100, 0.3)',
-                  borderRadius: '70%',
-                  animation: 'breathingRing 3s ease-in-out infinite',
-                  zIndex: 2,
-                }}
-              />
-            )}
 
             {/* Box Lid */}
             <div

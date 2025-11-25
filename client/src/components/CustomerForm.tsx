@@ -36,47 +36,82 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
   });
 
   return (
-    <div className="relative w-full max-w-md">
-      {/* Angular Container with Skew Effect */}
-      <div 
-        className="relative p-12 pt-16 pb-24"
-        style={{
-          background: 'linear-gradient(130deg, rgba(10, 10, 10, 0.95) 0%, rgba(15, 15, 30, 0.9) 100%)',
-          clipPath: 'polygon(0% 5%, 100% 0%, 100% 97%, 5% 100%, 0% 100%)',
-          border: '6px solid #F4D03F',
-          boxShadow: `
-            0 0 40px rgba(251, 191, 36, 0.5),
-            inset 0 0 30px rgba(34, 197, 94, 0.15),
-            0 20px 40px rgba(0, 0, 0, 0.6)
-          `,
-        }}
-      >
-        {/* Glowing edge effect */}
+    <div 
+      className="w-full max-w-md"
+      style={{
+        background: 'rgba(30, 25, 10, 0.7)',
+        border: '6px solid rgba(218, 165, 32, 0.8)',
+        borderRadius: '12px',
+        padding: '32px',
+        position: 'relative',
+        boxShadow: 'inset 0 0 20px rgba(218, 165, 32, 0.1), 0 0 40px rgba(218, 165, 32, 0.2)',
+        clipPath: 'polygon(15px 0%, 100% 0%, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0% 100%, 0% 15px)',
+      }}
+    >
+      {/* Corner bolts/rivets */}
+      {[
+        { top: '-3px', left: '20px' },
+        { top: '-3px', right: '20px' },
+        { bottom: '-3px', left: '20px' },
+        { bottom: '-3px', right: '20px' },
+      ].map((pos, i) => (
         <div
-          className="absolute inset-0 pointer-events-none"
+          key={`bolt-${i}`}
           style={{
-            background: 'linear-gradient(130deg, rgba(251, 191, 36, 0.1) 0%, transparent 50%, rgba(34, 197, 94, 0.1) 100%)',
-            clipPath: 'polygon(0% 7%, 100% 0%, 100% 95%, 0% 100%, 0% 95%)',
+            position: 'absolute',
+            width: '12px',
+            height: '12px',
+            backgroundColor: 'rgba(218, 165, 32, 0.9)',
+            borderRadius: '50%',
+            boxShadow: 'inset -2px -2px 4px rgba(0,0,0,0.8), 0 0 8px rgba(218, 165, 32, 0.5)',
+            ...pos,
           }}
         />
+      ))}
 
-        {/* Title */}
-        <div className="text-center space-y-2 mb-8 relative z-10">
+      {/* Side bolts */}
+      {[
+        { top: '30px', left: '-3px' },
+        { top: '30px', right: '-3px' },
+        { bottom: '30px', left: '-3px' },
+        { bottom: '30px', right: '-3px' },
+      ].map((pos, i) => (
+        <div
+          key={`side-bolt-${i}`}
+          style={{
+            position: 'absolute',
+            width: '10px',
+            height: '10px',
+            backgroundColor: 'rgba(218, 165, 32, 0.8)',
+            borderRadius: '50%',
+            boxShadow: 'inset -1px -1px 3px rgba(0,0,0,0.8), 0 0 6px rgba(218, 165, 32, 0.4)',
+            ...pos,
+          }}
+        />
+      ))}
+
+      <div className="space-y-6">
+        <div className="text-center space-y-2">
           <h2 
-            className="text-4xl font-black italic"
-            style={{
-              color: '#F4D03F',
-              textShadow: '0 0 15px rgba(251, 191, 36, 0.8), 0 0 25px rgba(34, 197, 94, 0.4)',
-            }}
+            className="text-4xl font-black tracking-wider" 
             data-testid="text-form-title"
+            style={{
+              color: 'rgba(218, 165, 32, 0.95)',
+              textShadow: `
+                2px 2px 0px rgba(0, 0, 0, 0.8),
+                3px 3px 8px rgba(218, 165, 32, 0.4),
+                0 0 10px rgba(218, 165, 32, 0.2)
+              `,
+              fontStyle: 'italic',
+              letterSpacing: '0.05em',
+            }}
           >
-            Enter Contest
+            ENTER CONTEST
           </h2>
         </div>
 
-        {/* Form */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 relative z-10">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="phoneNumber"
@@ -84,18 +119,22 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
                 <FormItem>
                   <FormControl>
                     <div className="relative">
-                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: '#22C55E' }} />
-                      <input
+                      <Phone 
+                        className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" 
+                        style={{ color: 'rgba(180, 255, 100, 0.7)' }}
+                      />
+                      <Input
                         placeholder="Enter your phone number"
-                        className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a]/60 border-2 rounded-full focus:outline-none transition-all"
-                        style={{
-                          borderColor: '#22C55E',
-                          color: '#F4D03F',
-                          boxShadow: '0 0 15px rgba(34, 197, 94, 0.4)',
-                          fontSize: '15px',
-                        }}
+                        className="pl-10 contest-input"
                         data-testid="input-phone"
                         aria-label="Phone Number"
+                        style={{
+                          backgroundColor: 'rgba(20, 15, 5, 0.8)',
+                          color: 'rgba(218, 165, 32, 0.9)',
+                          border: '2px solid rgba(180, 255, 100, 0.4)',
+                          animation: 'pulsingGreenGlow 2s ease-in-out infinite',
+                          fontWeight: '500',
+                        }}
                         {...field}
                       />
                     </div>
@@ -112,18 +151,22 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
                 <FormItem>
                   <FormControl>
                     <div className="relative">
-                      <Car className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" style={{ color: '#22C55E' }} />
-                      <input
+                      <Car 
+                        className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5" 
+                        style={{ color: 'rgba(180, 255, 100, 0.7)' }}
+                      />
+                      <Input
                         placeholder="Enter your vehicle number"
-                        className="w-full pl-12 pr-4 py-3 bg-[#0a0a0a]/60 border-2 rounded-full focus:outline-none transition-all"
-                        style={{
-                          borderColor: '#22C55E',
-                          color: '#F4D03F',
-                          boxShadow: '0 0 15px rgba(34, 197, 94, 0.4)',
-                          fontSize: '15px',
-                        }}
+                        className="pl-10 contest-input"
                         data-testid="input-vehicle"
                         aria-label="Vehicle Number"
+                        style={{
+                          backgroundColor: 'rgba(20, 15, 5, 0.8)',
+                          color: 'rgba(218, 165, 32, 0.9)',
+                          border: '2px solid rgba(180, 255, 100, 0.4)',
+                          animation: 'pulsingGreenGlow 2s ease-in-out infinite',
+                          fontWeight: '500',
+                        }}
                         {...field}
                       />
                     </div>
@@ -132,47 +175,23 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
                 </FormItem>
               )}
             />
-          </form>
-        </Form>
-      </div>
 
-      {/* Circular Button - Positioned at bottom */}
-      <div className="absolute left-1/2 -translate-x-1/2 -bottom-16 z-20">
-        <button
-          type="button"
-          onClick={() => form.handleSubmit(onSubmit)()}
-          disabled={isSubmitting}
-          className="relative"
-          style={{
-            width: '140px',
-            height: '140px',
-          }}
-          data-testid="button-submit-form"
-        >
-          {/* Outer golden ring */}
-          <div
-            className="absolute inset-0 rounded-full flex items-center justify-center"
-            style={{
-              background: 'conic-gradient(from 0deg, #F4D03F, #FFA500, #F4D03F)',
-              padding: '6px',
-              boxShadow: '0 0 30px rgba(251, 191, 36, 0.8), 0 0 60px rgba(255, 165, 0, 0.4)',
-            }}
-          >
-            {/* Inner green button */}
-            <div
-              className="absolute inset-1.5 rounded-full flex items-center justify-center font-black text-white italic text-center leading-tight"
+            <Button
+              type="submit"
+              className="w-full py-6 text-lg font-bold"
+              disabled={isSubmitting}
+              data-testid="button-submit-form"
               style={{
-                background: 'radial-gradient(circle at 30% 30%, #4ADE80 0%, #22C55E 50%, #16A34A 100%)',
-                boxShadow: 'inset 0 0 20px rgba(255, 255, 255, 0.2), 0 0 20px rgba(34, 197, 94, 0.8)',
-                fontSize: '14px',
-                color: '#FFFFFF',
-                textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',
+                backgroundColor: 'rgba(218, 165, 32, 0.85)',
+                color: 'rgba(0, 0, 0, 0.9)',
+                border: '2px solid rgba(218, 165, 32, 0.95)',
+                fontWeight: '700',
               }}
             >
-              START<br />RACE
-            </div>
-          </div>
-        </button>
+              {isSubmitting ? 'Submitting...' : 'ENTER CONTEST'}
+            </Button>
+          </form>
+        </Form>
       </div>
     </div>
   );

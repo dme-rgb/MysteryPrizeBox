@@ -9,7 +9,7 @@ import Sparkles from '@/components/Sparkles';
 import ParticleEffect from '@/components/ParticleEffect';
 import CustomerForm from '@/components/CustomerForm';
 import StatsHeader from '@/components/StatsHeader';
-import SpeedLinesBackground from '@/components/SpeedLinesBackground';
+import BackgroundStars from '@/components/BackgroundStars';
 import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
@@ -345,8 +345,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative">
-      {/* Speed Lines Background */}
-      <SpeedLinesBackground />
+      {/* Animated Background Stars */}
+      <BackgroundStars />
       {/* Google Sheets Setup Banner */}
       {!isGoogleSheetsConfigured && (
         <Alert className="rounded-none border-x-0 border-t-0 bg-yellow-500/10 border-yellow-500/20">
@@ -365,19 +365,17 @@ export default function Home() {
           (<div className="space-y-8 text-center relative z-10 mt-[200px] mb-[200px]">
             <div className="space-y-4">
               <h1 
-                className="text-6xl font-black italic tracking-tight" 
+                className="text-6xl font-black text-white tracking-tight" 
                 data-testid="text-title"
                 style={{
-                  color: '#F4D03F',
-                  animation: 'neonPulse 2s ease-in-out infinite',
+                  animation: 'neonPulse 1s ease-in-out infinite',
                   textShadow: `
-                    0 0 10px rgba(251, 191, 36, 0.8),
-                    0 0 20px rgba(34, 197, 94, 0.5),
-                    0 0 30px rgba(251, 191, 36, 0.4)
+                    0 0 2px rgba(255, 255, 255, 0.2),
+                    0 0 1px rgba(180, 255, 100, 0.1)
                   `,
                 }}
               >
-                FUEL RUSH
+               FEUL RUSH
               </h1>
             </div>
             <CustomerForm
