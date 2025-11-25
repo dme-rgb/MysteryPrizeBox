@@ -41,9 +41,9 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
       <div 
         className="relative p-12 pt-16 pb-24"
         style={{
-          background: 'linear-gradient(135deg, rgba(10, 10, 10, 0.95) 0%, rgba(15, 15, 30, 0.9) 100%)',
-          clipPath: 'polygon(0% 5%, 100% 0%, 100% 90%, 95% 100%, 0% 100%)',
-          border: '4px solid #F4D03F',
+          background: 'linear-gradient(130deg, rgba(10, 10, 10, 0.95) 0%, rgba(15, 15, 30, 0.9) 100%)',
+          clipPath: 'polygon(0% 5%, 100% 0%, 100% 97%, 5% 100%, 0% 100%)',
+          border: '6px solid #F4D03F',
           boxShadow: `
             0 0 40px rgba(251, 191, 36, 0.5),
             inset 0 0 30px rgba(34, 197, 94, 0.15),
@@ -55,8 +55,8 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, transparent 50%, rgba(34, 197, 94, 0.1) 100%)',
-            clipPath: 'polygon(0% 5%, 100% 0%, 100% 90%, 95% 100%, 0% 100%)',
+            background: 'linear-gradient(130deg, rgba(251, 191, 36, 0.1) 0%, transparent 50%, rgba(34, 197, 94, 0.1) 100%)',
+            clipPath: 'polygon(0% 7%, 100% 0%, 100% 95%, 0% 100%, 0% 95%)',
           }}
         />
 
