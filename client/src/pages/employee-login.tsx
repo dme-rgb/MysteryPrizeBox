@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { User, Lock, LogIn } from 'lucide-react';
+import { User, Lock, LogIn, ArrowLeft } from 'lucide-react';
 
 const loginSchema = z.object({
   username: z.string().min(1, "Username is required"),
@@ -76,6 +76,21 @@ export default function EmployeeLogin() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8 space-y-6">
+        {/* Back Button */}
+        <div className="flex items-center justify-start mb-4">
+          <Link href="/">
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9"
+              data-testid="button-back"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </Button>
+          </Link>
+        </div>
+
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold text-foreground" data-testid="text-login-title">
             Employee Login
