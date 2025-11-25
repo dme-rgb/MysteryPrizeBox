@@ -7,7 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
-import { LogOut, RefreshCw, IndianRupee, User, Car, Phone } from 'lucide-react';
+import { LogOut, RefreshCw, IndianRupee, User, Car, Phone, Trash2 } from 'lucide-react';
 
 interface SheetCustomer {
   name: string;
@@ -79,6 +79,36 @@ export default function EmployeeDashboard() {
       });
       toast({
         title: "Verification Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const removeMutation = useMutation({
+    mutationFn: async (vehicleNumber: string) => {
+      const res = await fetch(`/api/employee/remove/${encodeURIComponent(vehicleNumber)}`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Removal failed');
+      }
+
+      return await res.json();
+    },
+    onSuccess: (_, vehicleNumber) => {
+      queryClient.invalidateQueries({ queryKey: ['/api/employee/unverified-customers'] });
+      toast({
+        title: "Customer Removed!",
+        description: `Vehicle ${vehicleNumber} has been removed from verification list.`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Removal Failed",
         description: error.message,
         variant: "destructive",
       });
@@ -164,12 +194,25 @@ export default function EmployeeDashboard() {
                   className="flex items-center gap-4 p-4 border rounded-lg bg-card/50 hover-elevate"
                   data-testid={`card-customer-${customer.vehicleNumber}`}
                 >
-                  <Checkbox
-                    checked={verifyingVehicles.has(customer.vehicleNumber)}
-                    onCheckedChange={(checked) => handleVerify(customer.vehicleNumber, checked as boolean)}
-                    disabled={verifyingVehicles.has(customer.vehicleNumber)}
-                    data-testid={`checkbox-verify-${customer.vehicleNumber}`}
-                  />
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      checked={verifyingVehicles.has(customer.vehicleNumber)}
+                      onCheckedChange={(checked) => handleVerify(customer.vehicleNumber, checked as boolean)}
+                      disabled={verifyingVehicles.has(customer.vehicleNumber)}
+                      data-testid={`checkbox-verify-${customer.vehicleNumber}`}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeMutation.mutate(customer.vehicleNumber)}
+                      disabled={removeMutation.isPending}
+                      className="text-destructive hover:text-destructive"
+                      data-testid={`button-remove-${customer.vehicleNumber}`}
+                      title="Remove from verification list"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-1">

@@ -138,6 +138,22 @@ export class GoogleSheetsService {
     await this.checkResponse(response);
   }
 
+  async removeFromVerification(vehicleNumber: string): Promise<void> {
+    const response = await fetch(this.webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'updateReward',
+        vehicleNumber,
+        prize: null,
+      }),
+    });
+
+    await this.checkResponse(response);
+  }
+
   async getVerifiedRewardsCount(): Promise<number> {
     const response = await fetch(`${this.webhookUrl}?action=getVerifiedCount`, {
       method: 'GET',

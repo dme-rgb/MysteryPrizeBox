@@ -59,7 +59,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
           }}
         >
           {/* Box Base/Body */}
-          <div className="relative w-[350px] h-[350px] flex items-center justify-center">
+          <div className="relative w-[350px] h-[370px] flex items-center justify-center">
 
             {/* Box Base */}
             <div
@@ -123,6 +123,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
               style={{
                 background: 'radial-gradient(circle at 50% 50%, rgba(180, 255, 100, 0.15) 0%, transparent 60%)',
                 filter: 'blur(20px)',
+                
                 animation: 'boxGlow 1.5s ease-in-out infinite',
                 zIndex: 5,
               }}
@@ -168,37 +169,10 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
           {isOpening && (
             <>
               {/* Shockwave */}
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background: 'radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, transparent 70%)',
-                  filter: 'blur(15px)',
-                  animation: 'shockwave 0.6s ease-out',
-                  zIndex: 12,
-                }}
-              />
+             
 
               {/* Magical Burst Shooting Upward */}
-              {[...Array(16)].map((_, i) => (
-                <div
-                  key={`burst-${i}`}
-                  className="absolute pointer-events-none"
-                  style={{
-                    left: '50%',
-                    top: '50%',
-                    width: '8px',
-                    height: '60px',
-                    background: `linear-gradient(to top, rgba(180, 255, 100, 0.9), rgba(255, 215, 0, 0.8), transparent)`,
-                    borderRadius: '4px',
-                    transform: `rotate(${i * 22.5}deg) translateY(-80px)`,
-                    animation: 'magicalBurstUp 1.8s ease-out',
-                    animationDelay: `${i * 0.06}s`,
-                    zIndex: 15,
-                    filter: 'blur(0.5px)',
-                    boxShadow: '0 0 8px rgba(180, 255, 100, 0.6)',
-                  }}
-                />
-              ))}
+              
 
               {/* Swirling Magical Threads */}
               {[...Array(12)].map((_, i) => (

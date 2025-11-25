@@ -317,6 +317,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Employee remove a customer from verification list (without verifying)
+  app.post("/api/employee/remove/:vehicleNumber", async (req, res) => {
+    try {
+      const { vehicleNumber } = req.params;
+      
+      // Remove from verification list in Google Sheets
+      await googleSheetsService.removeFromVerification(vehicleNumber);
+      
+      res.json({ success: true, vehicleNumber });
+    } catch (error: any) {
+      console.error("Employee remove error:", error);
+      
+      if (error instanceof GoogleSheetsNotConfiguredError) {
+        return res.status(503).json({ 
+          error: "Google Sheets is not configured. Please complete the setup first." 
+        });
+      }
+      
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Check verification status for a customer by vehicle number
   app.get("/api/customers/verification-status/:vehicleNumber", async (req, res) => {
     try {
