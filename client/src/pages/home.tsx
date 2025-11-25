@@ -668,21 +668,21 @@ export default function Home() {
             }}
           />
         </div>
+      </div>
 
-        {/* Employee Login Link - Bottom Right */}
-        <div className="fixed bottom-8 right-8 z-50">
-          <Link href="/employee">
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="gap-2 text-xs font-medium"
-              data-testid="button-employee-login"
-            >
-              <LogIn className="w-4 h-4" />
-              Employee Login
-            </Button>
-          </Link>
-        </div>
+      {/* Employee Login Link - Bottom Right */}
+      <div className="fixed bottom-8 right-8 z-50">
+        <Link href="/employee">
+          <Button 
+            variant="outline" 
+            size="sm"
+            className="gap-2 text-xs font-medium"
+            data-testid="button-employee-login"
+          >
+            <LogIn className="w-4 h-4" />
+            Employee Login
+          </Button>
+        </Link>
       </div>
     </div>
   );
