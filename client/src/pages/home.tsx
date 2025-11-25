@@ -525,7 +525,7 @@ export default function Home() {
                   />
                   <div className="relative">
                     {/* Reward Card */}
-                    <div className="bg-gradient-to-br from-primary/20 via-card to-primary/10 p-12 rounded-lg border-2 border-primary pt-[30px] pb-[30px] pl-[80px] pr-[80px] mt-[0px] mb-[0px]">
+                    <div className="bg-gradient-to-br from-primary/20 via-card to-primary/10 p-12 rounded-lg pt-[30px] pb-[30px] pl-[80px] pr-[80px] mt-[0px] mb-[0px]">
                       <div className="text-center space-y-6">
                         {/* Rupee Icon */}
                         <div className="flex items-center justify-center">
