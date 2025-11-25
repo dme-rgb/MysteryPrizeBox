@@ -97,7 +97,8 @@ export default function EmployeeDashboard() {
     setLocation('/employee');
   };
 
-  const unverifiedCustomers = customersData?.customers || [];
+  // Filter to only show customers who have opened the box (have a prize amount)
+  const unverifiedCustomers = (customersData?.customers || []).filter(customer => customer.prize !== null);
 
   if (!employee) {
     return null;
