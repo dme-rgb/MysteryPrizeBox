@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertCustomerSchema } from "@shared/schema";
+import { insertCustomerSchema, employeeLoginSchema } from "@shared/schema";
 import { googleSheetsService, GoogleSheetsNotConfiguredError } from "./googleSheets";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -232,6 +232,114 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (error instanceof GoogleSheetsNotConfiguredError) {
         // Return 0 when not configured (setup screen will be shown)
         return res.json({ totalVerifiedRewards: 0 });
+      }
+      
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Employee login
+  app.post("/api/employee/login", async (req, res) => {
+    try {
+      const { username, password } = employeeLoginSchema.parse(req.body);
+      
+      const employee = await storage.getEmployeeByUsername(username);
+      
+      if (!employee || employee.password !== password) {
+        return res.status(401).json({ error: "Invalid username or password" });
+      }
+      
+      res.json({ 
+        id: employee.id, 
+        username: employee.username, 
+        name: employee.name 
+      });
+    } catch (error: any) {
+      console.error("Employee login error:", error);
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // Get today's unverified customers from Google Sheets
+  app.get("/api/employee/unverified-customers", async (req, res) => {
+    try {
+      const allCustomers = await googleSheetsService.getAllCustomers();
+      
+      // Filter for today's date and unverified customers with prizes
+      const today = new Date().toISOString().split('T')[0];
+      const unverifiedCustomers = allCustomers.filter((customer) => {
+        const customerDate = customer.timestamp.split('T')[0];
+        return customerDate === today && 
+               customer.verified !== true && 
+               customer.prize !== null;
+      });
+      
+      res.json({ customers: unverifiedCustomers });
+    } catch (error: any) {
+      console.error("Get unverified customers error:", error);
+      
+      if (error instanceof GoogleSheetsNotConfiguredError) {
+        return res.status(503).json({ 
+          error: "Google Sheets is not configured. Please complete the setup first." 
+        });
+      }
+      
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Employee verify a customer by vehicle number
+  app.post("/api/employee/verify/:vehicleNumber", async (req, res) => {
+    try {
+      const { vehicleNumber } = req.params;
+      
+      // Verify in Google Sheets
+      await googleSheetsService.verifyReward(vehicleNumber);
+      
+      // Also update in local storage if exists
+      const allCustomers = await storage.getAllCustomers();
+      const customer = allCustomers.find(c => c.vehicleNumber === vehicleNumber);
+      if (customer) {
+        await storage.verifyCustomerReward(customer.id);
+      }
+      
+      res.json({ success: true, vehicleNumber });
+    } catch (error: any) {
+      console.error("Employee verify error:", error);
+      
+      if (error instanceof GoogleSheetsNotConfiguredError) {
+        return res.status(503).json({ 
+          error: "Google Sheets is not configured. Please complete the setup first." 
+        });
+      }
+      
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Check verification status for a customer by vehicle number
+  app.get("/api/customers/verification-status/:vehicleNumber", async (req, res) => {
+    try {
+      const { vehicleNumber } = req.params;
+      
+      const todayEntry = await googleSheetsService.getTodaysCustomerByVehicle(vehicleNumber);
+      
+      if (!todayEntry) {
+        return res.status(404).json({ error: "Customer not found" });
+      }
+      
+      res.json({ 
+        verified: todayEntry.verified === true,
+        vehicleNumber,
+        prize: todayEntry.prize
+      });
+    } catch (error: any) {
+      console.error("Check verification status error:", error);
+      
+      if (error instanceof GoogleSheetsNotConfiguredError) {
+        return res.status(503).json({ 
+          error: "Google Sheets is not configured. Please complete the setup first." 
+        });
       }
       
       res.status(500).json({ error: error.message });

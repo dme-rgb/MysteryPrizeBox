@@ -4,13 +4,25 @@
 A web-based mystery box contest game where customers register with their details to open animated prize boxes and win 1-5 rupees cashback rewards. Features a forest green color scheme with 3D isometric mystery box design.
 
 ## Key Features
-- Customer registration with name, phone number, and vehicle number
+- Customer registration with phone number and vehicle number
 - 3D mystery box animation with magical effects
 - Random cashback rewards (1-5 rupees)
-- Reward verification system
+- **Employee-based verification system** (customers cannot self-verify)
+- Employee login and verification dashboard
+- 45-second verification window with real-time polling
+- WhatsApp bill upload fallback if not verified in time
 - Google Sheets integration for data persistence
 - Vehicle number validation (primary key)
 - Daily play limit (one entry per vehicle per day)
+
+## Employee Verification System
+- Employees access `/employee` to login (credentials: employee / employee123)
+- After login, employees see unverified customers in `/employee/dashboard`
+- Employees can verify customers by clicking a checkbox next to their name
+- Customers see a 45-second countdown while waiting for verification
+- If verified: Customer sees success message and payment link notification
+- If not verified in 45 seconds: Customer can upload bill photo via WhatsApp
+- WhatsApp number for verification: +918817828153
 
 ## Tech Stack
 - Frontend: React, TypeScript, Vite, Tailwind CSS, shadcn/ui
@@ -19,12 +31,15 @@ A web-based mystery box contest game where customers register with their details
 - In-Memory Storage: For session management
 
 ## Important Files
-- `client/src/pages/home.tsx` - Main game page
+- `client/src/pages/home.tsx` - Main customer game page
+- `client/src/pages/employee-login.tsx` - Employee login page
+- `client/src/pages/employee-dashboard.tsx` - Employee verification dashboard
 - `client/src/components/MysteryBox.tsx` - 3D mystery box component
 - `client/src/components/CustomerForm.tsx` - Registration form
-- `server/routes.ts` - API routes
+- `server/routes.ts` - API routes (including employee auth and verification)
+- `server/storage.ts` - In-memory storage with employee data
 - `server/googleSheets.ts` - Google Sheets webhook service
-- `shared/schema.ts` - Data models and validation
+- `shared/schema.ts` - Data models and validation (includes employee schema)
 - `design_guidelines.md` - Design system and color palette
 
 ## Google Sheets Setup

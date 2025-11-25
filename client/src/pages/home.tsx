@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +10,7 @@ import ParticleEffect from '@/components/ParticleEffect';
 import CustomerForm from '@/components/CustomerForm';
 import StatsHeader from '@/components/StatsHeader';
 import BackgroundStars from '@/components/BackgroundStars';
-import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle } from 'lucide-react';
+import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle, Clock, MessageCircle, Upload } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 // @ts-ignore - canvas-confetti doesn't have TypeScript types but works fine
@@ -38,6 +38,10 @@ export default function Home() {
   const [confettiTrigger, setConfettiTrigger] = useState(0);
   const [verificationTimeLeft, setVerificationTimeLeft] = useState<number | null>(null);
   const [prizeCardSparkles, setPrizeCardSparkles] = useState(false);
+  const [timeExpired, setTimeExpired] = useState(false);
+  const [showWhatsAppFlow, setShowWhatsAppFlow] = useState(false);
+
+  const WHATSAPP_NUMBER = "+918817828153";
 
   // Health check for Google Sheets
   const { data: healthData } = useQuery<{ googleSheets: boolean; message: string }>({
@@ -63,6 +67,30 @@ export default function Home() {
     enabled: !!customerData?.vehicleNumber,
     staleTime: 0, // Always fresh when invalidated
   });
+
+  // Poll for verification status every 2 seconds while waiting (continue polling even after timeout for a short grace period)
+  const { data: verificationStatus } = useQuery<{ verified: boolean; vehicleNumber: string; prize: number | null }>({
+    queryKey: ['/api/customers/verification-status', customerData?.vehicleNumber],
+    enabled: !!customerData?.vehicleNumber && showReward && !isVerified,
+    refetchInterval: 2000,
+  });
+
+  // Update verification status when polling returns verified
+  useEffect(() => {
+    if (verificationStatus?.verified && !isVerified) {
+      setIsVerified(true);
+      setTimeExpired(false);
+      setShowWhatsAppFlow(false);
+      toast({
+        title: "Reward Verified!",
+        description: "Your reward has been verified. You will shortly receive the payment link.",
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/stats'] });
+      if (customerData?.vehicleNumber) {
+        queryClient.invalidateQueries({ queryKey: ['/api/vehicles', customerData.vehicleNumber, 'total-verified-amount'] });
+      }
+    }
+  }, [verificationStatus?.verified, isVerified, customerData?.vehicleNumber, toast]);
 
   // Trigger sparkles when reward card appears
   useEffect(() => {
@@ -312,11 +340,37 @@ export default function Home() {
     setRewardAmount(null);
     setIsVerified(false);
     setVerificationTimeLeft(null);
+    setTimeExpired(false);
+    setShowWhatsAppFlow(false);
+  };
+
+  const handleWhatsAppUpload = () => {
+    if (!customerData) return;
+    
+    const timestamp = new Date().toLocaleString('en-IN', {
+      timeZone: 'Asia/Kolkata',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    
+    const message = `Vehicle Number: ${customerData.vehicleNumber}%0ATimestamp: ${timestamp}%0A%0APlease find my bill photo attached for verification.`;
+    
+    const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}?text=${message}`;
+    window.open(whatsappUrl, '_blank');
+    
+    setShowWhatsAppFlow(false);
+    toast({
+      title: "WhatsApp Opened",
+      description: "Please upload your bill photo and send the message. You will receive your reward in the evening.",
+    });
   };
 
   // 45-second verification timeout
   useEffect(() => {
-    if (!showReward || isVerified) {
+    if (!showReward || isVerified || timeExpired) {
       return;
     }
 
@@ -325,21 +379,15 @@ export default function Home() {
     const interval = setInterval(() => {
       setVerificationTimeLeft((prev) => {
         if (prev === null || prev <= 1) {
-          // Time's up - reset
-          handleReset();
-          toast({
-            title: "Time's Up!",
-            description: "Verification window closed. Please try again.",
-            variant: "destructive",
-          });
-          return null;
+          setTimeExpired(true);
+          return 0;
         }
         return prev - 1;
       });
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [showReward, isVerified]);
+  }, [showReward, isVerified, timeExpired]);
 
   const isGoogleSheetsConfigured = healthData?.googleSheets ?? true;
 
@@ -497,21 +545,66 @@ export default function Home() {
                         {/* Verification Status */}
                         <div className="pt-4 space-y-3">
                           {isVerified ? (
-                            <Badge className="bg-green-500/20 text-green-500 border-green-500 px-4 py-2 text-base" data-testid="badge-verified">
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                              Verified
-                            </Badge>
+                            <div className="space-y-3">
+                              <Badge className="bg-green-500/20 text-green-500 border-green-500 px-4 py-2 text-base" data-testid="badge-verified">
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                Verified
+                              </Badge>
+                              <p className="text-sm text-muted-foreground text-center">
+                                You will shortly receive the payment link.
+                              </p>
+                            </div>
+                          ) : timeExpired ? (
+                            <div className="space-y-3">
+                              <Badge className="bg-orange-500/20 text-orange-500 border-orange-500 px-4 py-2 text-base" data-testid="badge-time-expired">
+                                <Clock className="w-4 h-4 mr-2" />
+                                Verification Time Expired
+                              </Badge>
+                              {!showWhatsAppFlow ? (
+                                <Button
+                                  onClick={() => setShowWhatsAppFlow(true)}
+                                  className="w-full gap-2 bg-green-600 hover:bg-green-700"
+                                  data-testid="button-manual-verify"
+                                >
+                                  <Upload className="w-4 h-4" />
+                                  Upload Bill for Verification
+                                </Button>
+                              ) : (
+                                <div className="space-y-3 p-4 bg-card rounded-lg border">
+                                  <p className="text-sm text-foreground text-center">
+                                    Send your bill photo to WhatsApp number:
+                                  </p>
+                                  <p className="text-lg font-bold text-primary text-center" data-testid="text-whatsapp-number">
+                                    {WHATSAPP_NUMBER}
+                                  </p>
+                                  <Button
+                                    onClick={handleWhatsAppUpload}
+                                    className="w-full gap-2 bg-green-600 hover:bg-green-700"
+                                    data-testid="button-open-whatsapp"
+                                  >
+                                    <MessageCircle className="w-4 h-4" />
+                                    Open WhatsApp & Send
+                                  </Button>
+                                  <p className="text-xs text-muted-foreground text-center">
+                                    After sending, you will receive your reward in the evening.
+                                  </p>
+                                </div>
+                              )}
+                            </div>
                           ) : (
                             <>
                               <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500 px-4 py-2 text-base" data-testid="badge-pending">
-                                <AlertCircle className="w-4 h-4 mr-2" />
-                                Pending Verification
+                                <Clock className="w-4 h-4 mr-2 animate-pulse" />
+                                Waiting for Verification
                               </Badge>
                               {verificationTimeLeft !== null && (
                                 <div className="text-center">
-                                  <p className="text-sm font-medium text-muted-foreground mb-1">Time Left:</p>
+                                  <p className="text-sm font-medium text-muted-foreground mb-1">Time Remaining:</p>
                                   <p className="text-3xl font-bold text-primary" data-testid="text-verification-timer">
                                     {verificationTimeLeft}s
+                                  </p>
+                                  <p className="text-xs text-muted-foreground mt-2">
+                                    Please wait while an employee verifies your reward.
                                   </p>
                                 </div>
                               )}
@@ -547,25 +640,13 @@ export default function Home() {
               />
             </div>
             {/* Action Buttons */}
-            {showReward && (
+            {showReward && (isVerified || timeExpired) && (
               <div className="mt-12 flex gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {!isVerified && (
-                  <Button
-                    onClick={handleVerify}
-                    size="lg"
-                    className="gap-2 px-8 py-6 text-lg font-medium bg-green-35 hover:bg-green-50 animate-pulse"
-                    disabled={verifyRewardMutation.isPending}
-                    data-testid="button-verify"
-                  >
-                    <CheckCircle className="w-5 h-5 animate-spin" style={{animationDuration: '1.5s'}} />
-                    {verifyRewardMutation.isPending ? 'Verifying...' : 'Verify Reward'}
-                  </Button>
-                )}
                 <Button
                   onClick={handleReset}
                   size="lg"
                   variant="outline"
-                  className="gap-2 px-8 py-6 text-lg font-medium pt-[0px] pb-[0px] pl-[0px] pr-[0px]"
+                  className="gap-2 px-8 py-6 text-lg font-medium"
                   data-testid="button-try-again"
                 >
                   <RotateCcw className="w-5 h-5" />

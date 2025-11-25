@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Customer, type InsertCustomer } from "@shared/schema";
+import { type User, type InsertUser, type Customer, type InsertCustomer, type Employee, type InsertEmployee } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -13,15 +13,34 @@ export interface IStorage {
   markAlreadyPlayedToday(id: string): Promise<Customer>;
   getTotalVerifiedRewards(): Promise<number>;
   getAllCustomers(): Promise<Customer[]>;
+  getUnverifiedCustomers(): Promise<Customer[]>;
+  
+  getEmployee(id: string): Promise<Employee | undefined>;
+  getEmployeeByUsername(username: string): Promise<Employee | undefined>;
+  createEmployee(employee: InsertEmployee): Promise<Employee>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private customers: Map<string, Customer>;
+  private employees: Map<string, Employee>;
 
   constructor() {
     this.users = new Map();
     this.customers = new Map();
+    this.employees = new Map();
+    
+    this.initDefaultEmployee();
+  }
+  
+  private initDefaultEmployee() {
+    const defaultEmployee: Employee = {
+      id: randomUUID(),
+      username: "employee",
+      password: "employee123",
+      name: "Default Employee",
+    };
+    this.employees.set(defaultEmployee.id, defaultEmployee);
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -97,6 +116,29 @@ export class MemStorage implements IStorage {
 
   async getAllCustomers(): Promise<Customer[]> {
     return Array.from(this.customers.values());
+  }
+  
+  async getUnverifiedCustomers(): Promise<Customer[]> {
+    return Array.from(this.customers.values()).filter(
+      (customer) => customer.verified === false && customer.rewardAmount !== null
+    );
+  }
+  
+  async getEmployee(id: string): Promise<Employee | undefined> {
+    return this.employees.get(id);
+  }
+  
+  async getEmployeeByUsername(username: string): Promise<Employee | undefined> {
+    return Array.from(this.employees.values()).find(
+      (employee) => employee.username === username,
+    );
+  }
+  
+  async createEmployee(insertEmployee: InsertEmployee): Promise<Employee> {
+    const id = randomUUID();
+    const employee: Employee = { ...insertEmployee, id };
+    this.employees.set(id, employee);
+    return employee;
   }
 }
 
