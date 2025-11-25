@@ -271,7 +271,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const customerDate = customer.timestamp.split('T')[0];
         return customerDate === today && 
                customer.verified !== true && 
-               customer.prize !== null;
+               customer.prize !== null &&
+               customer.prize !== 0; // Exclude removed entries (marked with 0)
       });
       
       res.json({ customers: unverifiedCustomers });

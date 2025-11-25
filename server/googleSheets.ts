@@ -147,7 +147,7 @@ export class GoogleSheetsService {
       body: JSON.stringify({
         action: 'updateReward',
         vehicleNumber,
-        prize: null,
+        prize: 0, // Use 0 as a marker for removed entries
       }),
     });
 
