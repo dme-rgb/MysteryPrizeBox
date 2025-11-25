@@ -168,7 +168,7 @@ export default function EmployeeDashboard() {
           </div>
         </div>
 
-        <Card className="p-6">
+        <Card className="p-6 border-0">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-xl font-semibold text-foreground">
               Pending Verifications

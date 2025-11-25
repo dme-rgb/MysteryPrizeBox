@@ -44,7 +44,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
           }}
         >
           {/* Box Base/Body */}
-          <div className="relative w-[350px] h-[370px] flex items-center justify-center text-[#2a2c37]">
+          <div className="relative w-[350px] h-[370px] flex items-center justify-center">
             {!isOpened && !isOpening && (
               <div
                 className="absolute pointer-events-none"
@@ -144,6 +144,14 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
                   zIndex: 8,
                 }}
               />
+              <div
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] pointer-events-none"
+                style={{
+                  background: 'radial-gradient(circle, transparent 45%, rgba(140, 235, 80, 0.12) 55%, transparent 65%)',
+                  animation: 'spin 6s linear infinite reverse',
+                  zIndex: 7,
+                }}
+              />
             </>
           )}
 
@@ -216,6 +224,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
           </div>
         )}
       </button>
+
       {/* Sparkle Effects on Opening */}
       <Sparkles 
         trigger={isOpening} 
@@ -236,6 +245,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
         color="#B4FF64"
         noise={0.5}
       />
+
       {/* Additional CSS Animations */}
       <style>{`
         @keyframes spin {
