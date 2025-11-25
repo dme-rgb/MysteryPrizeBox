@@ -29,22 +29,7 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
         data-testid="button-mystery-box"
       >
         {/* Aura Ring - Breathing Effect */}
-        {!isOpened && !isOpening && (
-          <div
-            className="absolute pointer-events-none"
-            style={{
-              width: '350px',
-              height: '350px',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              border: '4px solid rgba(180, 255, 100, 0.3)',
-              borderRadius: '50%',
-              animation: 'breathingRing 3s ease-in-out infinite',
-              zIndex: 3,
-            }}
-          />
-        )}
+        
 
         {/* 3D Box Container */}
         <div 
@@ -59,8 +44,24 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
           }}
         >
           {/* Box Base/Body */}
-          <div className="relative w-[350px] h-[370px] flex items-center justify-center">
-
+          <div className="relative w-[350px] h-[370px] flex items-center justify-center text-[#2a2c37]">
+            {!isOpened && !isOpening && (
+              <div
+                className="absolute pointer-events-none"
+                style={{
+                  width: '250px',
+                  height: '100px',
+                  top: '70%',
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  border: '10px solid rgba(180, 255, 100, 0.3)',
+                  borderRadius: '100%',
+                  
+                  animation: 'breathingRing 2s ease-in-out infinite',
+                  zIndex: 3,
+                }}
+              />
+            )}
             {/* Box Base */}
             <div
               className="absolute bottom-0 w-full h-full flex items-center justify-center z-10 pointer-events-none"
@@ -77,7 +78,9 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
                   opacity: isOpened ? 0.6 : 1,
                   transition: 'opacity 0.4s ease',
                 }}
+                
               />
+             
             </div>
 
             {/* Box Lid */}
@@ -139,14 +142,6 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
                   background: 'radial-gradient(circle, transparent 80%, rgba(180, 255, 100, 0.1) 50%, transparent 70%)',
                   animation: 'spin 8s linear infinite',
                   zIndex: 8,
-                }}
-              />
-              <div
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] pointer-events-none"
-                style={{
-                  background: 'radial-gradient(circle, transparent 45%, rgba(140, 235, 80, 0.12) 55%, transparent 65%)',
-                  animation: 'spin 6s linear infinite reverse',
-                  zIndex: 7,
                 }}
               />
             </>
@@ -221,7 +216,6 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
           </div>
         )}
       </button>
-
       {/* Sparkle Effects on Opening */}
       <Sparkles 
         trigger={isOpening} 
@@ -242,7 +236,6 @@ export default function MysteryBox({ onOpen, isOpening, isOpened, disabled = fal
         color="#B4FF64"
         noise={0.5}
       />
-
       {/* Additional CSS Animations */}
       <style>{`
         @keyframes spin {
