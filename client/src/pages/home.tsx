@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -10,7 +11,7 @@ import ParticleEffect from '@/components/ParticleEffect';
 import CustomerForm from '@/components/CustomerForm';
 import StatsHeader from '@/components/StatsHeader';
 import BackgroundStars from '@/components/BackgroundStars';
-import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle, Clock, MessageCircle, Upload } from 'lucide-react';
+import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle, Clock, MessageCircle, Upload, LogIn } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 // @ts-ignore - canvas-confetti doesn't have TypeScript types but works fine
@@ -666,6 +667,21 @@ export default function Home() {
               filter: 'blur(60px)',
             }}
           />
+        </div>
+
+        {/* Employee Login Link - Bottom Right */}
+        <div className="fixed bottom-8 right-8 z-50">
+          <Link href="/employee">
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="gap-2 text-xs font-medium"
+              data-testid="button-employee-login"
+            >
+              <LogIn className="w-4 h-4" />
+              Employee Login
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
