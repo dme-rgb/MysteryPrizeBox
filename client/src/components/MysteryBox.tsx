@@ -59,7 +59,7 @@ export default function MysteryBox({
           }}
         >
           {/* Box Base/Body */}
-          <div className="relative w-[350px] h-[370px] flex items-center justify-center text-[transparent]">
+          <div className="relative w-[350px] h-[370px] flex items-center justify-center">
             {!isOpened && !isOpening && (
               <div
                 className="absolute pointer-events-none"
@@ -243,6 +243,7 @@ export default function MysteryBox({
           </div>
         )}
       </button>
+
       {/* Sparkle Effects on Opening */}
       <Sparkles
         trigger={isOpening}
@@ -263,6 +264,7 @@ export default function MysteryBox({
         color="#B4FF64"
         noise={0.5}
       />
+
       {/* Additional CSS Animations */}
       <style>{`
         @keyframes spin {

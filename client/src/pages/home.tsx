@@ -424,7 +424,7 @@ export default function Home() {
                   `,
                 }}
               >
-               FEUL RUSH
+               FUEL RUSH
               </h1>
             </div>
             <CustomerForm
@@ -433,12 +433,12 @@ export default function Home() {
             />
             
             {/* Employee Login Link - Bottom Right (Home Screen Only) */}
-            <div className="fixed bottom-8 right-8 z-50">
+            <div className="fixed bottom-8 right-15 left -15 z-50">
               <Link href="/employee">
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="gap-2 text-xs font-medium"
+                  className="gap-2 text-xs font-medium pl-[101px] pr-[101px]"
                   data-testid="button-employee-login"
                 >
                   <LogIn className="w-4 h-4" />
