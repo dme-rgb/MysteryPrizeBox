@@ -413,7 +413,7 @@ export default function Home() {
         {!customerId ? (
           // Registration Form with FUEL RUSH background
           (<div 
-            className="flex flex-col items-center justify-center min-h-screen relative z-10 px-6"
+            className="flex flex-col items-center justify-center min-h-screen relative z-10 px-6 pt-12 pb-20"
             style={{
               backgroundImage: `url(${fuelRushBg})`,
               backgroundSize: 'cover',
@@ -421,22 +421,21 @@ export default function Home() {
               backgroundAttachment: 'fixed',
             }}
           >
-            {/* Welcome Section */}
-            <div className="mb-8 text-center">
-              <p className="text-lg text-white font-semibold">
-                Welcome to FUEL RUSH
-              </p>
-              <p className="text-sm text-white/80 mt-2">
-                Register to play and win cashback rewards!
-              </p>
-            </div>
-
-            {/* Registration Form in a card */}
-            <div className="w-full max-w-md bg-black/40 backdrop-blur border border-white/20 rounded-lg p-8 shadow-lg">
+            {/* Registration Form */}
+            <div className="w-full max-w-sm">
               <CustomerForm
                 onSubmit={handleFormSubmit}
                 isSubmitting={createCustomerMutation.isPending}
               />
+            </div>
+
+            {/* Decorative particle effects at bottom */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3">
+              <div className="w-2 h-2 rounded-full bg-yellow-400/60"></div>
+              <div className="w-2 h-2 rounded-full bg-yellow-400/40"></div>
+              <div className="w-3 h-3 rounded-full bg-yellow-400/50"></div>
+              <div className="w-2 h-2 rounded-full bg-yellow-400/40"></div>
+              <div className="w-2 h-2 rounded-full bg-yellow-400/60"></div>
             </div>
             
             {/* Employee Login Link - Bottom Right (Home Screen Only) */}

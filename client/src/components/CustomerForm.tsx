@@ -36,15 +36,15 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
   });
 
   return (
-    <Card className="w-full max-w-md p-8 space-y-6">
-      <div className="text-center space-y-2">
-        <h2 className="text-3xl font-bold text-foreground" data-testid="text-form-title">
+    <div className="w-full max-w-sm space-y-6">
+      <div className="text-center">
+        <h2 className="text-2xl font-bold text-white" data-testid="text-form-title">
           Enter Contest
         </h2>
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
           <FormField
             control={form.control}
             name="phoneNumber"
@@ -52,10 +52,10 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
               <FormItem>
                 <FormControl>
                   <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-yellow-400" />
                     <Input
-                      placeholder="Enter your phone number"
-                      className="pl-10"
+                      placeholder="Phone Number"
+                      className="pl-12 py-3 bg-transparent border-2 border-yellow-400 text-white placeholder:text-yellow-200/60 rounded-lg focus:outline-none focus:border-yellow-300"
                       data-testid="input-phone"
                       aria-label="Phone Number"
                       {...field}
@@ -74,10 +74,10 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
               <FormItem>
                 <FormControl>
                   <div className="relative">
-                    <Car className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                    <Car className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-yellow-400" />
                     <Input
-                      placeholder="Enter your vehicle number"
-                      className="pl-10"
+                      placeholder="Vehicle Number"
+                      className="pl-12 py-3 bg-transparent border-2 border-yellow-400 text-white placeholder:text-yellow-200/60 rounded-lg focus:outline-none focus:border-yellow-300"
                       data-testid="input-vehicle"
                       aria-label="Vehicle Number"
                       {...field}
@@ -91,14 +91,14 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
 
           <Button
             type="submit"
-            className="w-full py-6 text-lg font-medium"
+            className="w-full py-4 text-lg font-bold bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black rounded-lg border-2 border-yellow-600 shadow-lg mt-8"
             disabled={isSubmitting}
             data-testid="button-submit-form"
           >
-            {isSubmitting ? 'Submitting...' : 'Enter Contest'}
+            {isSubmitting ? 'Submitting...' : 'ENTER CONTEST'}
           </Button>
         </form>
       </Form>
-    </Card>
+    </div>
   );
 }
