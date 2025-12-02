@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import bgImage from '@assets/Gemini_Generated_Image_mnpedumnpedumnpe_1764676809813.png';
+import mysteryBoxImg from '@assets/Gemini_Generated_Image_2rmhxj2rmhxj2rmh-Photoroom_1764679645336.png';
 
 export default function Splash() {
   const [, setLocation] = useLocation();
@@ -26,7 +27,14 @@ export default function Splash() {
     >
 
       {/* Main Content */}
-      <div className="relative z-0 flex flex-col items-center justify-start pt-10 gap-12 px-0">
+      <div className="relative z-0 flex flex-col items-center justify-start pt-10 gap-8 px-0">
+        {/* Mystery Box Image */}
+        <img 
+          src={mysteryBoxImg} 
+          alt="Mystery Box" 
+          className="w-64 h-64 object-contain"
+        />
+        
         <Button
           onClick={handleClick}
           disabled={isAnimating}
