@@ -14,7 +14,7 @@ import BackgroundStars from '@/components/BackgroundStars';
 import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle, Clock, MessageCircle, Upload, LogIn } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import fuelRushLogo from '@assets/generated_images/fuel_rush_logo_with_flame.png';
+import fuelRushBg from '@assets/Gemini_Generated_Image_gifirxgifirxgifi_1764674863680.png';
 // @ts-ignore - canvas-confetti doesn't have TypeScript types but works fine
 import confetti from 'canvas-confetti';
 
@@ -411,30 +411,28 @@ export default function Home() {
       {/* Main Content */}
       <div className="relative z-10 pt-8 pb-4 px-8">
         {!customerId ? (
-          // Registration Form
-          (<div className="flex flex-col items-center justify-center min-h-screen relative z-10 px-6">
-            {/* FUEL RUSH Logo */}
-            <div className="mb-12 text-center">
-              <img 
-                src={fuelRushLogo} 
-                alt="FUEL RUSH" 
-                className="h-24 object-contain drop-shadow-2xl"
-                data-testid="img-fuel-rush-logo"
-              />
-            </div>
-
+          // Registration Form with FUEL RUSH background
+          (<div 
+            className="flex flex-col items-center justify-center min-h-screen relative z-10 px-6"
+            style={{
+              backgroundImage: `url(${fuelRushBg})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundAttachment: 'fixed',
+            }}
+          >
             {/* Welcome Section */}
             <div className="mb-8 text-center">
-              <p className="text-lg text-muted-foreground">
+              <p className="text-lg text-white font-semibold">
                 Welcome to FUEL RUSH
               </p>
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-sm text-white/80 mt-2">
                 Register to play and win cashback rewards!
               </p>
             </div>
 
             {/* Registration Form in a card */}
-            <div className="w-full max-w-md bg-card/50 backdrop-blur border border-border rounded-lg p-8 shadow-lg">
+            <div className="w-full max-w-md bg-black/40 backdrop-blur border border-white/20 rounded-lg p-8 shadow-lg">
               <CustomerForm
                 onSubmit={handleFormSubmit}
                 isSubmitting={createCustomerMutation.isPending}
