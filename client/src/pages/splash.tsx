@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
-import BackgroundStars from '@/components/BackgroundStars';
 
 export default function Splash() {
   const [, setLocation] = useLocation();
@@ -16,9 +15,6 @@ export default function Splash() {
 
   return (
     <div className="w-screen min-h-screen bg-background flex flex-col items-center justify-start pt-10 relative overflow-hidden">
-
-      {/* Animated Background Stars */}
-      <BackgroundStars />
 
       {/* Main Content */}
       <div className="relative z-0 flex flex-col items-center justify-start pt-10 gap-12 px-0">
