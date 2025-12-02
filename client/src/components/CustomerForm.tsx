@@ -35,16 +35,19 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
       vehicleNumber: '',
     },
   });
+  
 
   return (
-    <div className="w-full max-w-sm space-y-6">
+    <div className="w-full max-w-sm space-y-2">
+      <img 
+        src={fuelRushLogo} 
+        alt="FUEL RUSH Logo" 
+        className="w-200 h-30 mx-auto -mt-4"
+      />
+
       <div className="text-center space-y-4">
-        <img 
-          src={fuelRushLogo} 
-          alt="FUEL RUSH Logo" 
-          className="w-48 h-auto mx-auto"
-        />
-        <h2 className="text-2xl font-bold text-white" data-testid="text-form-title">
+        
+        <h2 className="text-xl font-bold text-white" data-testid="text-form-title">
           Enter Contest
         </h2>
       </div>
@@ -61,7 +64,28 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-yellow-400" />
                     <Input
                       placeholder="Phone Number"
-                      className="pl-12 py-3 bg-transparent border-2 border-yellow-400 text-white placeholder:text-yellow-200/60 rounded-lg focus:outline-none focus:border-yellow-300"
+                      className="
+                        pl-12 py-3 w-full
+                        bg-transparent
+                        text-white
+                        placeholder:text-yellow-200/70
+
+                        rounded-xl
+                        border-2 border-[#e8c253]
+
+                        shadow-[0_0_12px_rgba(255,215,0,0.4),inset_0_0_8px_rgba(255,215,0,0.25)]
+
+                        relative
+                        before:content-['']
+                        before:absolute before:left-0 before:right-0 before:top-1/2 before:h-[1px]
+                        before:bg-yellow-300/40
+                        before:blur-sm
+
+                        focus:outline-none
+                        focus:border-yellow-300
+                        focus:shadow-[0_0_15px_rgba(255,230,150,0.7),inset_0_0_10px_rgba(255,230,150,0.5)]
+                      "
+
                       data-testid="input-phone"
                       aria-label="Phone Number"
                       {...field}
@@ -83,7 +107,28 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
                     <Car className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-yellow-400" />
                     <Input
                       placeholder="Vehicle Number"
-                      className="pl-12 py-3 bg-transparent border-2 border-yellow-400 text-white placeholder:text-yellow-200/60 rounded-lg focus:outline-none focus:border-yellow-300"
+                      className="
+                        pl-12 py-3 w-full
+                        bg-transparent
+                        text-white
+                        placeholder:text-yellow-200/70
+
+                        rounded-xl
+                        border-2 border-[#e8c253]
+
+                        shadow-[0_0_12px_rgba(255,215,0,0.4),inset_0_0_8px_rgba(255,215,0,0.25)]
+
+                        relative
+                        before:content-['']
+                        before:absolute before:left-0 before:right-0 before:top-1/2 before:h-[1px]
+                        before:bg-yellow-300/40
+                        before:blur-sm
+
+                        focus:outline-none
+                        focus:border-yellow-300
+                        focus:shadow-[0_0_15px_rgba(255,230,150,0.7),inset_0_0_10px_rgba(255,230,150,0.5)]
+                      "
+
                       data-testid="input-vehicle"
                       aria-label="Vehicle Number"
                       {...field}
@@ -118,7 +163,7 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
             <span
               className="
                 absolute inset-0
-                rounded-3xl
+                rounded-2xl
                 bg-gradient-to-b from-white/50 to-transparent
                 pointer-events-none
               "

@@ -434,15 +434,6 @@ export default function Home() {
               />
             </div>
 
-            {/* Decorative particle effects at bottom */}
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3">
-              <div className="w-2 h-2 rounded-full bg-yellow-400/60"></div>
-              <div className="w-2 h-2 rounded-full bg-yellow-400/40"></div>
-              <div className="w-3 h-3 rounded-full bg-yellow-400/50"></div>
-              <div className="w-2 h-2 rounded-full bg-yellow-400/40"></div>
-              <div className="w-2 h-2 rounded-full bg-yellow-400/60"></div>
-            </div>
-            
             {/* Employee Login Link - Bottom Right (Home Screen Only) */}
             <div className="fixed bottom-8 right-8 z-50">
               <Link href="/employee">
