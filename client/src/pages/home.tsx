@@ -413,7 +413,7 @@ export default function Home() {
         {!customerId ? (
           // Registration Form with FUEL RUSH background
           (<div 
-            className="flex flex-col items-center justify-center min-h-screen relative z-10 px-6 pt-12 pb-20"
+            className="flex flex-col items-center justify-center min-h-screen relative z-10 px-6 pl-[50px] pr-[50px] pt-[69px] pb-[69px]"
             style={{
               backgroundImage: `url(${fuelRushBg})`,
               backgroundSize: 'cover',
