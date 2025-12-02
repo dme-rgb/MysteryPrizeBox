@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
+import bgImage from '@assets/Gemini_Generated_Image_mnpedumnpedumnpe_1764676809813.png';
 
 export default function Splash() {
   const [, setLocation] = useLocation();
@@ -14,7 +15,15 @@ export default function Splash() {
   };
 
   return (
-    <div className="w-screen min-h-screen bg-background flex flex-col items-center justify-start pt-10 relative overflow-hidden">
+    <div 
+      className="w-screen min-h-screen flex flex-col items-center justify-start pt-10 relative overflow-hidden"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+      }}
+    >
 
       {/* Main Content */}
       <div className="relative z-0 flex flex-col items-center justify-start pt-10 gap-12 px-0">

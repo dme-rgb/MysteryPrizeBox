@@ -13,7 +13,7 @@ import StatsHeader from '@/components/StatsHeader';
 import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle, Clock, MessageCircle, Upload, LogIn } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import fuelRushBg from '@assets/Gemini_Generated_Image_mnpedumnpedumnpe_1764676482281.png';
+import bgImage from '@assets/Gemini_Generated_Image_mnpedumnpedumnpe_1764676809813.png';
 // @ts-ignore - canvas-confetti doesn't have TypeScript types but works fine
 import confetti from 'canvas-confetti';
 
@@ -393,7 +393,15 @@ export default function Home() {
   const isGoogleSheetsConfigured = healthData?.googleSheets ?? true;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col relative">
+    <div 
+      className="min-h-screen flex flex-col relative"
+      style={{
+        backgroundImage: `url(${bgImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+      }}
+    >
       {/* Google Sheets Setup Banner */}
       {!isGoogleSheetsConfigured && (
         <Alert className="rounded-none border-x-0 border-t-0 bg-yellow-500/10 border-yellow-500/20">
@@ -412,7 +420,7 @@ export default function Home() {
           (<div 
             className="flex flex-col items-center justify-center min-h-screen relative z-10 px-6 pl-[50px] pr-[50px] pt-[69px] pb-[69px]"
             style={{
-              backgroundImage: `url(${fuelRushBg})`,
+              backgroundImage: `url(${bgImage})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundAttachment: 'fixed',
