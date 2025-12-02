@@ -14,6 +14,7 @@ import BackgroundStars from '@/components/BackgroundStars';
 import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle, Clock, MessageCircle, Upload, LogIn } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import fuelRushLogo from '@assets/generated_images/fuel_rush_logo_with_flame.png';
 // @ts-ignore - canvas-confetti doesn't have TypeScript types but works fine
 import confetti from 'canvas-confetti';
 
@@ -411,34 +412,42 @@ export default function Home() {
       <div className="relative z-10 pt-8 pb-4 px-8">
         {!customerId ? (
           // Registration Form
-          (<div className="space-y-8 text-center relative z-10 mt-[200px] mb-[200px]">
-            <div className="space-y-4">
-              <h1 
-                className="text-6xl font-black text-white tracking-tight" 
-                data-testid="text-title"
-                style={{
-                  animation: 'neonPulse 1s ease-in-out infinite',
-                  textShadow: `
-                    0 0 2px rgba(255, 255, 255, 0.2),
-                    0 0 1px rgba(180, 255, 100, 0.1)
-                  `,
-                }}
-              >
-               FUEL RUSH
-              </h1>
+          (<div className="flex flex-col items-center justify-center min-h-screen relative z-10 px-6">
+            {/* FUEL RUSH Logo */}
+            <div className="mb-12 text-center">
+              <img 
+                src={fuelRushLogo} 
+                alt="FUEL RUSH" 
+                className="h-24 object-contain drop-shadow-2xl"
+                data-testid="img-fuel-rush-logo"
+              />
             </div>
-            <CustomerForm
-              onSubmit={handleFormSubmit}
-              isSubmitting={createCustomerMutation.isPending}
-            />
+
+            {/* Welcome Section */}
+            <div className="mb-8 text-center">
+              <p className="text-lg text-muted-foreground">
+                Welcome to FUEL RUSH
+              </p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Register to play and win cashback rewards!
+              </p>
+            </div>
+
+            {/* Registration Form in a card */}
+            <div className="w-full max-w-md bg-card/50 backdrop-blur border border-border rounded-lg p-8 shadow-lg">
+              <CustomerForm
+                onSubmit={handleFormSubmit}
+                isSubmitting={createCustomerMutation.isPending}
+              />
+            </div>
             
             {/* Employee Login Link - Bottom Right (Home Screen Only) */}
-            <div className="fixed bottom-8 right-15 left -15 z-50">
+            <div className="fixed bottom-8 right-8 z-50">
               <Link href="/employee">
                 <Button 
                   variant="outline" 
                   size="sm"
-                  className="gap-2 text-xs font-medium pl-[101px] pr-[101px]"
+                  className="gap-2 text-xs font-medium"
                   data-testid="button-employee-login"
                 >
                   <LogIn className="w-4 h-4" />
