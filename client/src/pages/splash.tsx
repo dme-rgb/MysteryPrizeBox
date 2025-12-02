@@ -16,7 +16,7 @@ export default function Splash() {
 
   return (
     <div 
-      className="w-screen min-h-screen flex flex-col items-center justify-start pt-10 relative overflow-hidden"
+      className="min-h-screen flex flex-col items-center justify-start pt-10 relative overflow-hidden"
       style={{
         backgroundImage: `url(${bgImage})`,
         backgroundSize: 'cover',
@@ -30,11 +30,30 @@ export default function Splash() {
         <Button
           onClick={handleClick}
           disabled={isAnimating}
-          className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold text-lg py-6 rounded-lg shadow-lg border-2 border-yellow-600 transition-all duration-300"
+          className="
+            w-full
+            text-black font-extrabold text-xl
+            py-5 px-8
+            rounded-2xl
+            bg-gradient-to-b from-yellow-300 to-yellow-500
+            shadow-[0_8px_0_#caa335,0_12px_25px_rgba(0,0,0,0.4)]
+            border border-yellow-200
+            relative
+            overflow-hidden
+          "
           data-testid="button-click-to-open"
         >
-          CLICK TO OPEN
+          {/* Top glossy shine */}
+          <span className="
+            absolute inset-0
+            rounded-2xl
+            bg-gradient-to-b from-white/40 to-transparent
+            pointer-events-none
+          " />
+
+          <span className="relative z-10">CLICK TO OPEN</span>
         </Button>
+
       </div>
       {/* Decorative Background Glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">

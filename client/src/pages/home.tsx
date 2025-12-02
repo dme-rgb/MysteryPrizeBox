@@ -479,7 +479,7 @@ export default function Home() {
             )}
             <div className="text-center mb-12 space-y-4 relative z-10">
               <h1 
-                className="text-6xl font-black text-white tracking-tight" 
+                className="text-6xl font-black text-white tracking-tight mt-[37px] mb-[37px]" 
                 data-testid="text-game-title"
                 style={{
                   animation: 'neonPulse 2s ease-in-out infinite',

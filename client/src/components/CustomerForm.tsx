@@ -91,12 +91,38 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
 
           <Button
             type="submit"
-            className="w-full py-4 text-lg font-bold bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black rounded-lg border-2 border-yellow-600 shadow-lg mt-8"
             disabled={isSubmitting}
             data-testid="button-submit-form"
+            className="
+              w-full
+              py-5
+              text-xl
+              font-extrabold
+              text-black
+              rounded-3xl
+              relative
+              bg-gradient-to-b from-[#ffe28a] to-[#d19c00]
+              border border-[#f8e7a0]
+              shadow-[0_6px_0_#b68600,0_12px_22px_rgba(0,0,0,0.45)]
+              overflow-hidden
+              mt-8
+            "
           >
-            {isSubmitting ? 'Submitting...' : 'ENTER CONTEST'}
+            {/* Glossy shine */}
+            <span
+              className="
+                absolute inset-0
+                rounded-3xl
+                bg-gradient-to-b from-white/50 to-transparent
+                pointer-events-none
+              "
+            />
+
+            <span className="relative z-10">
+              {isSubmitting ? "Submitting..." : "ENTER CONTEST"}
+            </span>
           </Button>
+
         </form>
       </Form>
     </div>
