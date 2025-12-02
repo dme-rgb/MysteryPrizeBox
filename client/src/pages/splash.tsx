@@ -32,26 +32,27 @@ export default function Splash() {
         <img 
           src={mysteryBoxImg} 
           alt="Mystery Box" 
-          className="w-64 h-64 object-contain"
+          className="w-30 h-30 object-contain"
         />
         
         <Button
           onClick={handleClick}
           disabled={isAnimating}
           className="
-            w-full
-            text-black font-extrabold text-xl
-            py-5 px-8
+            w-[70%]                /* smaller width */
+            text-black font-extrabold text-lg
+            py-4 px-6             /* smaller height */
             rounded-2xl
             bg-gradient-to-b from-yellow-300 to-yellow-500
-            shadow-[0_8px_0_#caa335,0_12px_25px_rgba(0,0,0,0.4)]
+            shadow-[0_6px_0_#caa335,0_10px_20px_rgba(0,0,0,0.35)]
             border border-yellow-200
             relative
             overflow-hidden
+            mx-auto               /* center the button */
           "
           data-testid="button-click-to-open"
         >
-          {/* Top glossy shine */}
+          {/* Shine */}
           <span className="
             absolute inset-0
             rounded-2xl
@@ -61,6 +62,7 @@ export default function Splash() {
 
           <span className="relative z-10">CLICK TO OPEN</span>
         </Button>
+
 
       </div>
       {/* Decorative Background Glow */}

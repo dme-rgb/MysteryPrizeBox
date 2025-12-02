@@ -13,6 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Phone, Car } from 'lucide-react';
+import fuelRushLogo from '@assets/Gemini_Generated_Image_qj35yaqj35yaqj35-removebg-preview_1764680847950.png';
 
 const formSchema = z.object({
   phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
@@ -37,7 +38,12 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
 
   return (
     <div className="w-full max-w-sm space-y-6">
-      <div className="text-center">
+      <div className="text-center space-y-4">
+        <img 
+          src={fuelRushLogo} 
+          alt="FUEL RUSH Logo" 
+          className="w-48 h-auto mx-auto"
+        />
         <h2 className="text-2xl font-bold text-white" data-testid="text-form-title">
           Enter Contest
         </h2>
