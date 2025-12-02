@@ -27,13 +27,6 @@ export default function Splash() {
 
       {/* Main Content */}
       <div className="relative z-0 flex flex-col items-center justify-start pt-10 gap-12 px-0">
-        {/* Mystery Box Card Container */}
-        <div
-          className={`relative w-full max-w-sm transition-all duration-500 ${
-            isAnimating ? 'scale-95 opacity-0' : 'scale-100 opacity-100'
-          }`}
-        >
-        </div>
         <Button
           onClick={handleClick}
           disabled={isAnimating}
@@ -43,7 +36,6 @@ export default function Splash() {
           CLICK TO OPEN
         </Button>
       </div>
-
       {/* Decorative Background Glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div
