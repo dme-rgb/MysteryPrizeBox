@@ -33,30 +33,15 @@ export default function Splash() {
             isAnimating ? 'scale-95 opacity-0' : 'scale-100 opacity-100'
           }`}
         >
-          {/* Card Border - Green with gold accent */}
-          <div className="bg-gradient-to-b from-green-700 to-green-900 rounded-3xl p-1 border-4 border-yellow-500/70 shadow-2xl">
-            <div className="bg-gradient-to-b from-green-800 to-green-950 rounded-3xl p-8 space-y-8">
-              {/* Title */}
-              <div className="text-center space-y-2">
-                
-                
-              </div>
-
-              {/* Mystery Box Image/Illustration - Using emoji as placeholder */}
-              
-
-              {/* Click to Open Button */}
-              <Button
-                onClick={handleClick}
-                disabled={isAnimating}
-                className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold text-lg py-6 rounded-lg shadow-lg border-2 border-yellow-600 transition-all duration-300"
-                data-testid="button-click-to-open"
-              >
-                CLICK TO OPEN
-              </Button>
-            </div>
-          </div>
         </div>
+        <Button
+          onClick={handleClick}
+          disabled={isAnimating}
+          className="w-full bg-gradient-to-r from-yellow-400 to-yellow-500 hover:from-yellow-500 hover:to-yellow-600 text-black font-bold text-lg py-6 rounded-lg shadow-lg border-2 border-yellow-600 transition-all duration-300"
+          data-testid="button-click-to-open"
+        >
+          CLICK TO OPEN
+        </Button>
       </div>
 
       {/* Decorative Background Glow */}
