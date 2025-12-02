@@ -14,7 +14,7 @@ import BackgroundStars from '@/components/BackgroundStars';
 import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle, Clock, MessageCircle, Upload, LogIn } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import fuelRushBg from '@assets/Gemini_Generated_Image_gifirxgifirxgifi_1764674863680.png';
+import fuelRushBg from '@assets/Gemini_Generated_Image_mnpedumnpedumnpe_1764676482281.png';
 // @ts-ignore - canvas-confetti doesn't have TypeScript types but works fine
 import confetti from 'canvas-confetti';
 
@@ -395,8 +395,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col relative">
-      {/* Animated Background Stars */}
-      <BackgroundStars />
       {/* Google Sheets Setup Banner */}
       {!isGoogleSheetsConfigured && (
         <Alert className="rounded-none border-x-0 border-t-0 bg-yellow-500/10 border-yellow-500/20">

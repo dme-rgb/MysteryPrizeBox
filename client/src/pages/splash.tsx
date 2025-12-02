@@ -15,12 +15,13 @@ export default function Splash() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center relative overflow-hidden">
+    <div className="w-screen min-h-screen bg-background flex flex-col items-center justify-start pt-10 relative overflow-hidden">
+
       {/* Animated Background Stars */}
       <BackgroundStars />
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center gap-12 px-6">
+      <div className="relative z-0 flex flex-col items-center justify-start pt-10 gap-12 px-0">
         {/* Mystery Box Card Container */}
         <div
           className={`relative w-full max-w-sm transition-all duration-500 ${
@@ -32,26 +33,12 @@ export default function Splash() {
             <div className="bg-gradient-to-b from-green-800 to-green-950 rounded-3xl p-8 space-y-8">
               {/* Title */}
               <div className="text-center space-y-2">
-                <p className="text-white text-2xl font-bold tracking-wider">MYSTERY</p>
-                <p className="text-yellow-400 text-5xl font-black tracking-wider" style={{
-                  textShadow: '0 2px 10px rgba(250, 204, 21, 0.5)'
-                }}>
-                  BOX
-                </p>
+                
+                
               </div>
 
               {/* Mystery Box Image/Illustration - Using emoji as placeholder */}
-              <div className="flex items-center justify-center py-12">
-                <div
-                  className="text-9xl drop-shadow-lg"
-                  style={{
-                    animation: 'bounce 2s ease-in-out infinite',
-                    filter: 'drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5))',
-                  }}
-                >
-                  🎁
-                </div>
-              </div>
+              
 
               {/* Click to Open Button */}
               <Button
