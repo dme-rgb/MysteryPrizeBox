@@ -493,7 +493,7 @@ export default function Home() {
                 </Alert>
               )}
             </div>
-            <div className="relative flex items-center justify-center min-h-[400px] pt-[25px] pb-[25px] pl-[80px] pr-[80px]">
+            <div className="relative flex items-center justify-center min-h-[400px] pl-[36px] pr-[36px] pt-[25px] pb-[25px]">
               {!showReward ? (
                 <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} disabled={customerData?.alreadyPlayedToday || false} />
               ) : rewardAmount ? (
@@ -759,10 +759,10 @@ export default function Home() {
                   onClick={handleReset}
                   size="lg"
                   variant="outline"
-                  className="gap-2 px-8 py-6 text-lg font-medium"
+                  className="gap-2 px-8 py-6 text-lg font-medium pl-[0px] pr-[0px] ml-[0px] mr-[0px] pt-[0px] pb-[0px]"
                   data-testid="button-try-again"
                 >
-                  <RotateCcw className="w-5 h-5" />
+                  <RotateCcw className="w-3 h-4" />
                   Try Again
                 </Button>
               </div>
