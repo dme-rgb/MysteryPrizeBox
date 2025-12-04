@@ -493,7 +493,7 @@ export default function Home() {
                 </Alert>
               )}
             </div>
-            <div className="relative flex items-center justify-center min-h-[400px] pl-[20px] pr-[20px] pt-[50px] pb-[50px]">
+            <div className="relative flex items-center justify-center min-h-[400px] pl-[36px] pr-[36px] pt-[25px] pb-[25px]">
               {!showReward ? (
                 <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} disabled={customerData?.alreadyPlayedToday || false} />
               ) : rewardAmount ? (
@@ -674,22 +674,27 @@ export default function Home() {
                                    Upload Bill for Verification
                                 </Button>
                               ) : (
-                                <div className="space-y-3 p-4 bg-card rounded-lg border">
-                                  <p className="text-sm text-foreground text-center">
+                              <div className="space-y-3 p-4 bg-[#0b221a] rounded-lg border border-[#1a3c2d] shadow-lg">
+                                <p className="text-sm text-center text-[#d5e2cd]">
                                     Send your bill photo to WhatsApp number:
                                   </p>
-                                  <p className="text-lg font-bold text-primary text-center" data-testid="text-whatsapp-number">
+                                  <p className="text-lg font-bold text-[#f6d878] text-center" data-testid="text-whatsapp-number">
                                     {WHATSAPP_NUMBER}
                                   </p>
                                   <Button
                                     onClick={handleWhatsAppUpload}
-                                    className="w-full gap-2 bg-green-600 hover:bg-green-700"
+                                    className="w-full gap-2
+                                    bg-[#0f3d2e]
+                                    hover:bg-[#12523c]
+                                    text-[#f6d878]
+                                    shadow-[0_0_18px_rgba(255,215,120,0.2)]
+                                    border border-[#f6d87840]"
                                     data-testid="button-open-whatsapp"
                                   >
                                     <MessageCircle className="w-4 h-4" />
                                     Open WhatsApp & Send
                                   </Button>
-                                  <p className="text-xs text-muted-foreground text-center">
+                                  <p className="text-xs text-center text-[#8d9b8a]">
                                     After sending, you will receive your reward in the evening.
                                   </p>
                                 </div>
@@ -707,7 +712,7 @@ export default function Home() {
                               </Badge>
                               {verificationTimeLeft !== null && (
                                 <div className="text-center">
-                                  <p className="text-sm font-medium text-muted-foreground mb-1">Time Remaining:</p>
+                                  <p className="text-sm font-medium text-[#b9c5b6] mb-1">Time Remaining:</p>
                                   <p className="text-3xl font-bold text-primary" data-testid="text-verification-timer">
                                     {verificationTimeLeft}s
                                   </p>
