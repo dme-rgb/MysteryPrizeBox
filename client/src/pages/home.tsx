@@ -414,7 +414,7 @@ export default function Home() {
         </Alert>
       )}
       {/* Main Content */}
-      <div className="relative z-10 px-8 pl-[0px] pr-[0px] pt-[0px] pb-[0px]">
+      <div className="relative z-10 px-8 pt-[0px] pb-[0px] pl-[23px] pr-[23px]">
         {!customerId ? (
           // Registration Form with FUEL RUSH background
           (<div 
