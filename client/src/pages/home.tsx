@@ -482,9 +482,7 @@ export default function Home() {
               >
                 Mystery Box
               </h1>
-              <p className="text-lg text-muted-foreground" data-testid="text-game-subtitle">
-                {!showReward ? (customerData?.alreadyPlayedToday ? 'You have already played today. Come back tomorrow!' : 'Click the box to reveal your cashback reward!') : 'Congratulations!'}
-              </p>
+              
               {customerData?.alreadyPlayedToday && (
                 <Alert className="bg-yellow-500/10 border-yellow-500/20">
                   <AlertCircle className="h-4 w-4 text-yellow-500" />
@@ -495,7 +493,7 @@ export default function Home() {
                 </Alert>
               )}
             </div>
-            <div className="relative flex items-center justify-center min-h-[400px]">
+            <div className="relative flex items-center justify-center min-h-[400px] pl-[20px] pr-[20px] pt-[50px] pb-[50px]">
               {!showReward ? (
                 <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} disabled={customerData?.alreadyPlayedToday || false} />
               ) : rewardAmount ? (
@@ -572,7 +570,7 @@ export default function Home() {
                         <div className="relative flex justify-center py-6">
                           {/* Outer radiant sunburst glow */}
                           <div
-                            className="absolute w-56 h-56 rounded-full pointer-events-none"
+                            className="absolute w-56 h-36 rounded-full pointer-events-none"
                             style={{
                               background:
                                 "radial-gradient(circle, rgba(255,225,120,0.65) 0%, rgba(255,210,80,0.25) 40%, rgba(255,180,0,0) 70%)",
@@ -583,12 +581,12 @@ export default function Home() {
 
                           {/* Sun rays */}
                           <div
-                            className="absolute w-78 h-78 rounded-full pointer-events-none"
+                            className="absolute w-35 h-35 rounded-full pointer-events-none"
                             style={{
                               background:
                                 "conic-gradient(from 0deg, rgba(255,240,150,0.7), rgba(255,200,50,0) 30%, rgba(255,240,150,0.7) 60%, rgba(255,200,50,0) 90%)",
-                              filter: "blur(30px)",
-                              opacity: 1,
+                              filter: "blur(10px)",
+                              opacity: 3,
                             }}
                           />
 
@@ -652,16 +650,28 @@ export default function Home() {
                               {!showWhatsAppFlow ? (
                                 <Button
                                   onClick={() => setShowWhatsAppFlow(true)}
-                                  className="w-full gap-1
-                                  bg-[#0f3d2e]
-                                  hover:bg-[#12523c]
-                                  text-[#f6d878]
-                                  font-small
-                                  shadow-[0_0_18px_rgba(255,215,120,0.2)]
-                                  border border-[#f6d87840]"
+                                  className="
+                                    w-[90%]                /* smaller width */
+                                    text-black font-extrabold text-lg
+                                    py-2 px-3             /* smaller height */
+                                    rounded-2xl
+                                    bg-gradient-to-b from-yellow-300 to-yellow-500
+                                    shadow-[0_6px_0_#caa335,0_10px_20px_rgba(0,0,0,0.35)]
+                                    border border-yellow-200
+                                    relative
+                                    overflow-hidden
+                                    mx-auto               /* center the button */
+                                  "
                                   data-testid="button-manual-verify"
-                                >
-                                  <Upload className="w-3 h-3 text-[#f6d878]" /> Upload Bill for Verification
+                                  >
+                                  {/* Shine */}
+                                  <span className="
+                                    absolute inset-0
+                                    rounded-2xl
+                                    bg-gradient-to-b from-white/40 to-transparent
+                                    pointer-events-none
+                                  " />
+                                   Upload Bill for Verification
                                 </Button>
                               ) : (
                                 <div className="space-y-3 p-4 bg-card rounded-lg border">
