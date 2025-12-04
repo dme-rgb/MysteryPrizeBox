@@ -493,7 +493,7 @@ export default function Home() {
                 </Alert>
               )}
             </div>
-            <div className="relative flex items-center justify-center min-h-[400px] pl-[36px] pr-[36px] pt-[25px] pb-[25px]">
+            <div className="relative flex items-center justify-center min-h-[400px] pt-[25px] pb-[25px] pl-[80px] pr-[80px]">
               {!showReward ? (
                 <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} disabled={customerData?.alreadyPlayedToday || false} />
               ) : rewardAmount ? (
@@ -652,8 +652,8 @@ export default function Home() {
                                   onClick={() => setShowWhatsAppFlow(true)}
                                   className="
                                     w-[90%]                /* smaller width */
-                                    text-black font-extrabold text-lg
-                                    py-2 px-3             /* smaller height */
+                                    text-black font-bold text-sm
+                                    py-3 px-4             /* smaller height */
                                     rounded-2xl
                                     bg-gradient-to-b from-yellow-300 to-yellow-500
                                     shadow-[0_6px_0_#caa335,0_10px_20px_rgba(0,0,0,0.35)]
