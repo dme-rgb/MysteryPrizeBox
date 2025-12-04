@@ -29,14 +29,14 @@ export default function ParticleEffect({ trigger, type }: ParticleEffectProps) {
 
     for (let i = 0; i < count; i++) {
       const angle = (Math.PI * 2 * i) / count;
-      const velocity = type === 'burst' ? 100 + Math.random() * 100 : 50;
+      const velocity = type === 'burst' ? 60 + Math.random() * 60 : 40;
       
       newParticles.push({
         id: i,
         x: 0,
         y: 0,
         tx: Math.cos(angle) * velocity,
-        ty: type === 'burst' ? Math.sin(angle) * velocity : Math.random() * 100 - 50,
+        ty: type === 'burst' ? Math.sin(angle) * velocity : Math.random() * 60 - 30,
         color: colors[Math.floor(Math.random() * colors.length)],
         delay: Math.random() * 200,
       });

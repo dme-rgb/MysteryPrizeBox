@@ -525,69 +525,143 @@ export default function Home() {
                     color="#B4FF64"
                     noise={0.4}
                   />
-                  <div className="relative">
+                    <div className="relative flex justify-center w-full">
                     {/* Reward Card */}
-                    <div className="bg-gradient-to-br from-green-700 via-green-800 to-green-900 border-4 border-yellow-400 p-8 rounded-3xl pt-8 pb-8 pl-8 pr-8 mt-0 mb-0 max-w-sm relative overflow-hidden">
+                        <div
+                          className="
+                            relative
+                            w-full max-w-sm
+                            p-8 rounded-3xl
+                            overflow-hidden
+                            shadow-[0_0_40px_rgba(0,0,0,0.7)]
+                            bg-[#0b3b2a] 
+                            border-[5px] border-[#f5d67a]
+                          "
+                          style={{
+                            backgroundImage:
+                              "radial-gradient(circle at top 20%, rgba(15,66,42,0.95), rgba(5,25,17,0.85))",
+                          }}
+                        >
+                          
                       {/* Card background shimmer */}
-                      <div className="absolute inset-0 rounded-3xl pointer-events-none"
+                      <div className="absolute inset-0 rounded-4xl pointer-events-none"
                         style={{
-                          background: 'radial-gradient(circle at 50% 30%, rgba(255, 215, 0, 0.15) 0%, transparent 60%)',
+                          background:
+                          'radial-gradient(circle at 50% 20%, rgba(255,223,120,0.25) 0%, rgba(0,0,0,0) 65%)',
+
                         }}
                       />
                       <div className="relative z-10 text-center space-y-6">
                         {/* Congratulations text */}
                         <div>
-                          <p className="text-2xl font-bold text-white mb-1">
+                          <p className="text-2xl font-bold text-white uppercase tracking-wide">
                             CONGRATULATIONS!
                           </p>
-                          <p className="text-lg text-white/90">
+                          <p className="text-lg text-white/90 mt-1">
                             You won
                           </p>
                         </div>
+                         {/* Amount */}
+                         <div>
+                           <p className="text-4xl font-bold text-[#ffe38a] drop-shadow-[0_0_10px_rgba(255,215,0,0.6)]">
+                             ₹{rewardAmount} Cashback
+                           </p>
+                         </div>
 
                         {/* Rupee Icon */}
-                        <div className="flex items-center justify-center py-4">
-                          <div className="bg-gradient-to-br from-yellow-300 to-yellow-600 p-4 rounded-full shadow-lg border-4 border-yellow-200">
-                            <IndianRupee className="w-16 h-16 text-yellow-900" />
+                        <div className="relative flex justify-center py-6">
+                          {/* Outer radiant sunburst glow */}
+                          <div
+                            className="absolute w-56 h-56 rounded-full pointer-events-none"
+                            style={{
+                              background:
+                                "radial-gradient(circle, rgba(255,225,120,0.65) 0%, rgba(255,210,80,0.25) 40%, rgba(255,180,0,0) 70%)",
+                              filter: "blur(10px)",
+                              transform: "scale(1.1)",
+                            }}
+                          />
+
+                          {/* Sun rays */}
+                          <div
+                            className="absolute w-78 h-78 rounded-full pointer-events-none"
+                            style={{
+                              background:
+                                "conic-gradient(from 0deg, rgba(255,240,150,0.7), rgba(255,200,50,0) 30%, rgba(255,240,150,0.7) 60%, rgba(255,200,50,0) 90%)",
+                              filter: "blur(30px)",
+                              opacity: 1,
+                            }}
+                          />
+
+                          {/* Gold Coin */}
+                          <div
+                            className="
+                              relative z-10
+                              w-28 h-28
+                              rounded-full
+                              flex items-center justify-center
+                              shadow-[0_0_40px_rgba(255,215,0,0.9)]
+                              border-[6px] border-[#f9d25c]
+                              bg-[radial-gradient(circle_at_50%_35%,#fff8cc_0%,#f9d25c_45%,#c89722_100%)]
+                            "
+                            style={{
+                              boxShadow:
+                                "inset 0 0 0 8px #be8f2e, 0 0 40px rgba(190, 143, 46,0.9)" 
+                                  // ↑ inner border (same gold shade)
+                                  // second value = your original glow
+                            }}
+                          >
+                            <IndianRupee className="w-14 h-14 text-[#be8f2e]" />
                           </div>
                         </div>
 
-                        {/* Amount */}
-                        <div>
-                          <p className="text-5xl font-black text-yellow-300" data-testid="text-reward-amount">
-                            ₹{rewardAmount}
-                          </p>
-                          <p className="text-xl font-semibold text-white mt-2">
-                            Cashback
-                          </p>
-                        </div>
-
+                        
                         {/* Verification Status */}
                         <div className="pt-4 space-y-3">
                           {isVerified ? (
                             <div className="space-y-3">
-                              <Badge className="bg-green-500/20 text-green-500 border-green-500 px-4 py-2 text-base" data-testid="badge-verified">
-                                <CheckCircle className="w-4 h-4 mr-2" />
-                                Verified
-                              </Badge>
-                              <p className="text-sm text-muted-foreground text-center">
+                                <Badge
+                                  className="
+                                    bg-[rgba(255,215,120,0.15)]
+                                    text-[#f6d878]
+                                    border-[#f6d878]
+                                    px-4 py-2 text-base tracking-wide
+                                    shadow-[0_0_12px_rgba(255,215,120,0.3)]
+                                  "
+                                >
+                                  <CheckCircle className="w-4 h-4 mr-2 text-[#f6d878]" />
+                                    Verified
+                                  </Badge>
+                              <p className="text-sm text-center text-[#c9d3c2]">
                                 You will shortly receive the payment link.
                               </p>
                             </div>
                           ) : timeExpired ? (
                             <div className="space-y-3">
-                              <Badge className="bg-orange-500/20 text-orange-500 border-orange-500 px-4 py-2 text-base" data-testid="badge-time-expired">
-                                <Clock className="w-4 h-4 mr-2" />
+                              <Badge
+                                className="
+                                  bg-[rgba(255,165,90,0.15)]
+                                  text-[#ffae73]
+                                  border-[#ffae73]
+                                  px-4 py-2 text-base tracking-wide
+                                  shadow-[0_0_12px_rgba(255,165,90,0.3)]
+                                "
+                              >
+                                <Clock className="w-4 h-4 mr-2 text-[#ffae73]" />
                                 Verification Time Expired
                               </Badge>
                               {!showWhatsAppFlow ? (
                                 <Button
                                   onClick={() => setShowWhatsAppFlow(true)}
-                                  className="w-full gap-2 bg-green-600 hover:bg-green-700"
+                                  className="w-full gap-1
+                                  bg-[#0f3d2e]
+                                  hover:bg-[#12523c]
+                                  text-[#f6d878]
+                                  font-small
+                                  shadow-[0_0_18px_rgba(255,215,120,0.2)]
+                                  border border-[#f6d87840]"
                                   data-testid="button-manual-verify"
                                 >
-                                  <Upload className="w-4 h-4" />
-                                  Upload Bill for Verification
+                                  <Upload className="w-3 h-3 text-[#f6d878]" /> Upload Bill for Verification
                                 </Button>
                               ) : (
                                 <div className="space-y-3 p-4 bg-card rounded-lg border">
@@ -613,8 +687,12 @@ export default function Home() {
                             </div>
                           ) : (
                             <>
-                              <Badge className="bg-yellow-500/20 text-yellow-500 border-yellow-500 px-4 py-2 text-base" data-testid="badge-pending">
-                                <Clock className="w-4 h-4 mr-2 animate-pulse" />
+                              <Badge className="bg-[rgba(255,215,120,0.15)]
+                                text-[#f6d878]
+                                border-[#f6d878]
+                                px-4 py-2 text-base tracking-wide
+                                shadow-[0_0_12px_rgba(255,215,120,0.3)]" data-testid="badge-pending">
+                                <Clock className="w-4 h-4 mr-2 animate-pulse text-[#f6d878]" />
                                 Waiting for Verification
                               </Badge>
                               {verificationTimeLeft !== null && (
@@ -623,7 +701,7 @@ export default function Home() {
                                   <p className="text-3xl font-bold text-primary" data-testid="text-verification-timer">
                                     {verificationTimeLeft}s
                                   </p>
-                                  <p className="text-xs text-muted-foreground mt-2">
+                                  <p className="text-xs text-[#8d9b8a] mt-2">
                                     Please wait while an employee verifies your reward.
                                   </p>
                                 </div>

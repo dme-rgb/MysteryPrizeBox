@@ -189,9 +189,7 @@ export default function MysteryBox({
           {/* Opening Explosion Effect */}
           {isOpening && (
             <>
-              {/* Shockwave */}
-
-              {/* Magical Burst Shooting Upward */}
+              
 
               {/* Swirling Magical Threads */}
               {[...Array(12)].map((_, i) => (
@@ -248,7 +246,7 @@ export default function MysteryBox({
       <Sparkles
         trigger={isOpening}
         count={60}
-        scale={4}
+        scale={2.2}
         size={6}
         speed={0.4}
         opacity={0.5}
@@ -257,7 +255,7 @@ export default function MysteryBox({
       <Sparkles
         trigger={isOpening}
         count={40}
-        scale={3}
+        scale={1.8}
         size={8}
         speed={0.2}
         opacity={0.3}
@@ -374,7 +372,7 @@ export default function MysteryBox({
           }
           100% {
             opacity: 0;
-            transform: translateX(-50%) translateY(-220px) rotate(1080deg) scale(1.2);
+            transform: translateX(-50%) translateY(-140px) rotate(1080deg) scale(1.2);
           }
         }
 
