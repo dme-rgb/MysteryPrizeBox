@@ -527,35 +527,37 @@ export default function Home() {
                   />
                   <div className="relative">
                     {/* Reward Card */}
-                    <div className="bg-gradient-to-br from-primary/20 via-card to-primary/10 p-12 rounded-lg pt-[30px] pb-[30px] pl-[80px] pr-[80px] mt-[0px] mb-[0px]">
-                      <div className="text-center space-y-6">
+                    <div className="bg-gradient-to-br from-green-700 via-green-800 to-green-900 border-4 border-yellow-400 p-8 rounded-3xl pt-8 pb-8 pl-8 pr-8 mt-0 mb-0 max-w-sm relative overflow-hidden">
+                      {/* Card background shimmer */}
+                      <div className="absolute inset-0 rounded-3xl pointer-events-none"
+                        style={{
+                          background: 'radial-gradient(circle at 50% 30%, rgba(255, 215, 0, 0.15) 0%, transparent 60%)',
+                        }}
+                      />
+                      <div className="relative z-10 text-center space-y-6">
+                        {/* Congratulations text */}
+                        <div>
+                          <p className="text-2xl font-bold text-white mb-1">
+                            CONGRATULATIONS!
+                          </p>
+                          <p className="text-lg text-white/90">
+                            You won
+                          </p>
+                        </div>
+
                         {/* Rupee Icon */}
-                        <div className="flex items-center justify-center">
-                          <div className="bg-primary/20 p-6 rounded-full">
-                            <IndianRupee className="w-16 h-16 text-primary" />
+                        <div className="flex items-center justify-center py-4">
+                          <div className="bg-gradient-to-br from-yellow-300 to-yellow-600 p-4 rounded-full shadow-lg border-4 border-yellow-200">
+                            <IndianRupee className="w-16 h-16 text-yellow-900" />
                           </div>
                         </div>
 
                         {/* Amount */}
                         <div>
-                          <p className="text-2xl font-medium text-muted-foreground mb-4">
-                            You won
+                          <p className="text-5xl font-black text-yellow-300" data-testid="text-reward-amount">
+                            ₹{rewardAmount}
                           </p>
-                          <div className="relative inline-block">
-                            <p className="text-8xl font-black text-primary" data-testid="text-reward-amount">
-                              ₹{rewardAmount}
-                            </p>
-                            {/* Glow effect */}
-                            <div 
-                              className="absolute -inset-4 rounded-full pointer-events-none"
-                              style={{
-                                background: 'radial-gradient(circle, rgba(63, 166, 130, 0.7) 0%, transparent 70%)',
-                                filter: 'blur(20px)',
-                                zIndex: -1,
-                              }}
-                            />
-                          </div>
-                          <p className="text-xl font-semibold text-muted-foreground mt-4">
+                          <p className="text-xl font-semibold text-white mt-2">
                             Cashback
                           </p>
                         </div>
@@ -634,9 +636,9 @@ export default function Home() {
 
                     {/* Golden glow effect */}
                     <div
-                      className="absolute inset-0 rounded-lg pointer-events-none"
+                      className="absolute inset-0 rounded-3xl pointer-events-none"
                       style={{
-                        background: 'radial-gradient(circle, rgba(63, 166, 130, 0.4) 0%, transparent 70%)',
+                        background: 'radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%)',
                         filter: 'blur(40px)',
                         transform: 'scale(1.2)',
                       }}
