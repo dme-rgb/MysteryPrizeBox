@@ -128,8 +128,10 @@ export default function EmployeeDashboard() {
     setLocation('/employee');
   };
 
-  // Filter to only show customers who have opened the box (have a prize amount)
-  const unverifiedCustomers = (customersData?.customers || []).filter(customer => customer.prize !== null);
+  // Filter to only show customers who have opened the box (have a prize amount) and reverse the order
+  const unverifiedCustomers = (customersData?.customers || [])
+    .filter(customer => customer.prize !== null && customer.prize !== 0)
+    .reverse();
 
   if (!employee) {
     return null;
@@ -148,7 +150,7 @@ export default function EmployeeDashboard() {
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground" data-testid="text-dashboard-title">
+            <h1 className="text-xl md:text-xl font-bold text-foreground" data-testid="text-dashboard-title">
               Verification Dashboard
             </h1>
             <p className="text-muted-foreground">
