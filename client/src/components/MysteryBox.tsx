@@ -59,7 +59,7 @@ export default function MysteryBox({
           }}
         >
           {/* Box Base/Body */}
-          <div className="relative w-[350px] h-[350px] flex items-center justify-center">
+          <div className="relative w-[350px] h-[450px] flex items-center justify-center">
             {!isOpened && !isOpening && (
               <div
                 className="absolute pointer-events-none"

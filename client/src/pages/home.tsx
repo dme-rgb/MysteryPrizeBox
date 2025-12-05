@@ -487,46 +487,34 @@ export default function Home() {
           (<>
             {/* Customer's Total Verified Rewards - Only on mystery box screen */}
             {!showReward && customerVerifiedData && customerVerifiedData.totalAmount > 0 && (
-            <div className="py-0 px-50 mb-10 mt-6">  
-              <div 
-                className="w-full mx-auto rounded-2xl shadow-lg py-2 px-6 flex items-center justify-center gap-3"
-                style={{
-                  background: "linear-gradient(180deg, #F6E27A 40%, #D4A631 100%)",
-                  border: "3px solid #E5C45A",
-                  boxShadow: "0px 4px 15px rgba(0,0,0,0.35), inset 0px 0px 10px rgba(255,255,255,0.4)",
-                  borderRadius: "16px",
-                }}
-              >
-                <p className="text-l font-bold text-black tracking-wide">
+              <div className="w-full bg-card border-b border-border py-4 px-6 -m-8 mb-8 ml-[0px] mr-[0px]">
+                <div className="flex items-center justify-center gap-3">
+                  <p className="text-lg font-medium text-foreground">
                     Your Total Verified Cashback:
                   </p>
-                <span
-                  className="text-2xl font-extrabold text-golden-yellow"
-                  style={{
-                    textShadow: "0px 2px 4px rgba(0,0,0,0.4)"
-                  }}
-                >
-                  ₹{customerVerifiedData.totalAmount}
-                </span>
+                  <Badge 
+                    className="bg-primary text-primary-foreground text-lg px-4 py-1 font-bold"
+                    data-testid="badge-total-verified"
+                  >
+                    ₹{customerVerifiedData.totalAmount}
+                  </Badge>
                 </div>
               </div>
             )}
-            {customerData?.alreadyPlayedToday ? (
-              <div className="flex items-center justify-center min-h-screen">
-                <Alert className="bg-yellow-500/10 border-yellow-500/20 max-w-md">
+            {customerData?.alreadyPlayedToday && (
+              <div className="text-center mb-12 space-y-4 relative z-10">
+                <Alert className="bg-yellow-500/10 border-yellow-500/20">
                   <AlertCircle className="h-4 w-4 text-yellow-500" />
                   <AlertTitle className="text-yellow-500">Already Played Today</AlertTitle>
                   <AlertDescription className="text-yellow-500/90">
                     You can enter the contest again tomorrow.
                   </AlertDescription>
                 </Alert>
-              </div>
-            ) : (
-              <>
-                <div className="text-center mb-12 space-y-4 relative z-10" />
-                <div className="relative flex items-center justify-center min-h-[400px] pl-[36px] pr-[36px] pt-[25px] pb-[25px]">
-                  {!showReward ? (
-                    <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} disabled={false} />
+              )}
+            </div>
+            <div className="relative flex items-center justify-center min-h-[400px] pl-[36px] pr-[36px] pt-[25px] pb-[25px]">
+              {!showReward ? (
+                <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} disabled={customerData?.alreadyPlayedToday || false} />
               ) : rewardAmount ? (
                 <div 
                   className="relative"
@@ -769,36 +757,34 @@ export default function Home() {
                     />
                   </div>
                 </div>
-                ) : null}
+              ) : null}
 
-                {/* Particle Effects */}
-                <ParticleEffect
-                  trigger={particleTrigger > 0}
-                  type="burst"
-                  key={`burst-${particleTrigger}`}
-                />
-                <ParticleEffect
-                  trigger={confettiTrigger > 0}
-                  type="confetti"
-                  key={`confetti-${confettiTrigger}`}
-                />
+              {/* Particle Effects */}
+              <ParticleEffect
+                trigger={particleTrigger > 0}
+                type="burst"
+                key={`burst-${particleTrigger}`}
+              />
+              <ParticleEffect
+                trigger={confettiTrigger > 0}
+                type="confetti"
+                key={`confetti-${confettiTrigger}`}
+              />
+            </div>
+            {/* Action Buttons */}
+            {showReward && (isVerified || timeExpired) && (
+              <div className="mt-12 flex gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <Button
+                  onClick={handleReset}
+                  size="lg"
+                  variant="outline"
+                  className="gap-2 px-8 py-6 text-lg font-medium pl-[0px] pr-[0px] ml-[0px] mr-[0px] pt-[0px] pb-[0px]"
+                  data-testid="button-try-again"
+                >
+                  <RotateCcw className="w-3 h-4" />
+                  Try Again
+                </Button>
               </div>
-              {/* Action Buttons */}
-              {showReward && (isVerified || timeExpired) && (
-                <div className="mt-12 flex gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <Button
-                    onClick={handleReset}
-                    size="lg"
-                    variant="outline"
-                    className="gap-2 px-8 py-6 text-lg font-medium pl-[0px] pr-[0px] ml-[0px] mr-[0px] pt-[0px] pb-[0px]"
-                    data-testid="button-try-again"
-                  >
-                    <RotateCcw className="w-3 h-4" />
-                    Try Again
-                  </Button>
-                </div>
-              )}
-              </>
             )}
           </>)
         )}
