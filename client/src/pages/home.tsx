@@ -421,11 +421,11 @@ export default function Home() {
         </Alert>
       )}
       {/* Main Content */}
-      <div className="relative z-10 px-8 pt-[0px] pb-[0px] pl-[23px] pr-[23px]">
+      <div className="relative z-10 px-7 pt-[0px] pb-[0px] pl-[34px] pr-[40px]">
         {!customerId ? (
           // Splash Screen with Mystery Box Image and CLICK TO OPEN button
           (<div 
-            className="min-h-screen flex flex-col items-center justify-center relative z-10"
+            className="max-h-screen flex flex-col items-center justify-center relative z-9"
             style={{
               backgroundImage: `url(${bgImage})`,
               backgroundSize: 'cover',
@@ -437,7 +437,7 @@ export default function Home() {
             <img 
               src={mysteryBoxImg} 
               alt="Mystery Box" 
-              className="w-32 h-32 object-contain mb-12"
+              className="w-37 h-50 object-contain mb-12"
             />
             
             {/* CLICK TO OPEN Button */}
@@ -467,7 +467,14 @@ export default function Home() {
 
             {/* Form Modal */}
             <Dialog open={showFormModal} onOpenChange={setShowFormModal}>
-              <DialogContent className="bg-card border border-border rounded-lg p-6 max-w-sm">
+              <DialogContent className="
+                 max-w-sm
+                p-8 rounded-2xl
+                overflow-hidden
+                shadow-[0_0_40px_rgba(0,0,0,0.7)]
+                bg-[#0b3b2a] 
+                border-[5px] border-[#f5d67a]
+">
                 <CustomerForm
                   onSubmit={handleFormSubmit}
                   isSubmitting={createCustomerMutation.isPending}
@@ -494,22 +501,8 @@ export default function Home() {
                 </div>
               </div>
             )}
-            <div className="text-center mb-12 space-y-4 relative z-10">
-              <h1 
-                className="text-6xl font-black text-white tracking-tight mt-[37px] mb-[37px]" 
-                data-testid="text-game-title"
-                style={{
-                  animation: 'neonPulse 2s ease-in-out infinite',
-                  textShadow: `
-                    0 0 8px rgba(255, 255, 255, 0.2),
-                    0 0 12px rgba(180, 255, 100, 0.1)
-                  `,
-                }}
-              >
-                Mystery Box
-              </h1>
-              
-              {customerData?.alreadyPlayedToday && (
+            {customerData?.alreadyPlayedToday && (
+              <div className="text-center mb-12 space-y-4 relative z-10">
                 <Alert className="bg-yellow-500/10 border-yellow-500/20">
                   <AlertCircle className="h-4 w-4 text-yellow-500" />
                   <AlertTitle className="text-yellow-500">Already Played Today</AlertTitle>

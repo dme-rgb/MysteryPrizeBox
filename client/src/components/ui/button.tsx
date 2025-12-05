@@ -76,7 +76,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           <span
             className="
               absolute inset-0
-              rounded-2xl
+              rounded-xl
               bg-gradient-to-b from-white/40 to-transparent
               pointer-events-none
             "

@@ -146,8 +146,8 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
             data-testid="button-submit-form"
             className="
               w-full
-              py-5
-              text-xl
+              py-3
+              text-l
               font-extrabold
               text-black
               rounded-3xl
