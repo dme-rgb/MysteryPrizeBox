@@ -319,15 +319,6 @@ export default function Splash() {
         backgroundAttachment: 'fixed',
       }}
     >
-      {!isGoogleSheetsConfigured && (
-        <Alert className="rounded-none border-x-0 border-t-0 bg-yellow-500/10 border-yellow-500/20">
-          <AlertTriangle className="h-4 w-4 text-yellow-500" />
-          <AlertTitle className="text-yellow-500">Google Sheets Not Configured</AlertTitle>
-          <AlertDescription className="text-yellow-500/90 text-xs">
-            To use this contest, please set up Google Sheets integration.
-          </AlertDescription>
-        </Alert>
-      )}
 
       <div className="relative z-10 px-8 pt-[0px] pb-[0px] pl-[23px] pr-[23px]">
         {!showReward && customerVerifiedData && customerVerifiedData.totalAmount > 0 && (
@@ -347,16 +338,6 @@ export default function Splash() {
         )}
 
         <div className="text-center mb-12 space-y-4 relative z-10">
-          <h1 
-            className="text-6xl font-black text-white tracking-tight mt-[37px] mb-[37px]" 
-            data-testid="text-game-title"
-            style={{
-              animation: 'neonPulse 2s ease-in-out infinite',
-              textShadow: `0 0 8px rgba(255, 255, 255, 0.2), 0 0 12px rgba(180, 255, 100, 0.1)`,
-            }}
-          >
-            Mystery Box
-          </h1>
           <p className="text-lg text-muted-foreground" data-testid="text-game-subtitle">
             {!showReward ? (customerData?.alreadyPlayedToday ? 'You have already played today. Come back tomorrow!' : 'Click the box to reveal your cashback reward!') : 'Congratulations!'}
           </p>
