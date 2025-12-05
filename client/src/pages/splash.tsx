@@ -194,11 +194,24 @@ export default function Splash() {
       setPrizeCardSparkles(true);
       setConfettiTrigger(prev => prev + 1);
 
-      fetch(`/api/customers/${customerId}/reward`, { method: 'POST' })
+      const randomReward = Math.floor(Math.random() * 5) + 1;
+      fetch(`/api/customers/${customerId}/reward`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ rewardAmount: randomReward })
+      })
         .then(res => res.json())
         .then(data => {
           setRewardAmount(data.rewardAmount);
           queryClient.invalidateQueries({ queryKey: ['/api/stats'] });
+        })
+        .catch(error => {
+          console.error('Error getting reward:', error);
+          toast({
+            title: "Error",
+            description: "Failed to process your reward. Please try again.",
+            variant: "destructive",
+          });
         });
     }, 1200);
   };
