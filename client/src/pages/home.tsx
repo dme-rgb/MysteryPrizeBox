@@ -401,7 +401,7 @@ export default function Home() {
 
   return (
     <div 
-      className="min-h-screen flex flex-col relative"
+      className=" min-h-screen flex flex-col relative overflow-x-hidden mx-auto"
       style={{
         backgroundImage: `url(${bgImage})`,
         backgroundSize: 'cover',
@@ -421,7 +421,7 @@ export default function Home() {
         </Alert>
       )}
       {/* Main Content */}
-      <div className="relative z-10 px-7 pt-[0px] pb-[0px] pl-[34px] pr-[40px]">
+      <div className="relative w-full z-10 px-7 pt-[0px] pb-[0px] pl-[34px] pr-[40px]">
         {!customerId ? (
           // Splash Screen with Mystery Box Image and CLICK TO OPEN button
           (<div 
@@ -487,22 +487,33 @@ export default function Home() {
           (<>
             {/* Customer's Total Verified Rewards - Only on mystery box screen */}
             {!showReward && customerVerifiedData && customerVerifiedData.totalAmount > 0 && (
-              <div className="w-full bg-card border-b border-border py-4 px-6 -m-8 mb-8 ml-[0px] mr-[0px]">
-                <div className="flex items-center justify-center gap-3">
-                  <p className="text-lg font-medium text-foreground">
+            <div className="w-full py-0 px-0 mb-10 mt-6">  
+              <div 
+                className="w-full mx-auto rounded-2xl shadow-lg py-2 px-6 flex items-center justify-center gap-2"
+                style={{
+                  background: "linear-gradient(180deg, #F6E27A 4%, #D4A631 100%)",
+                  border: "3px solid #E5C45A",
+                  boxShadow: "0px 4px 15px rgba(0,0,0,0.35), inset 0px 0px 10px rgba(255,255,255,0.4)",
+                  borderRadius: "16px",
+                }}
+              >
+                <p className="text-l font-bold text-black tracking-wide">
                     Your Total Verified Cashback:
                   </p>
-                  <Badge 
-                    className="bg-primary text-primary-foreground text-lg px-4 py-1 font-bold"
-                    data-testid="badge-total-verified"
-                  >
-                    ₹{customerVerifiedData.totalAmount}
-                  </Badge>
+                <span
+                  className="text-2xl font-extrabold text-golden-yellow"
+                  style={{
+                    textShadow: "0px 2px 4px rgba(0,0,0,0.4)"
+                  }}
+                >
+                  ₹{customerVerifiedData.totalAmount}
+                </span>
                 </div>
               </div>
             )}
-            {customerData?.alreadyPlayedToday && (
-              <div className="text-center mb-12 space-y-4 relative z-10">
+            <div className="text-center mb-12 space-y-4 relative z-10">
+             
+              {customerData?.alreadyPlayedToday && (
                 <Alert className="bg-yellow-500/10 border-yellow-500/20">
                   <AlertCircle className="h-4 w-4 text-yellow-500" />
                   <AlertTitle className="text-yellow-500">Already Played Today</AlertTitle>

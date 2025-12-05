@@ -34,13 +34,52 @@ export class MemStorage implements IStorage {
   }
   
   private initDefaultEmployee() {
-    const defaultEmployee: Employee = {
-      id: randomUUID(),
-      username: "employee",
-      password: "employee123",
-      name: "Default Employee",
-    };
-    this.employees.set(defaultEmployee.id, defaultEmployee);
+    const employees: Employee[] = [
+      {
+        id: randomUUID(),
+        username: "jhuleshwar",
+        password: "jhuleshwar123",
+        name: "JHULESHWAR VERMA",
+      },
+      {
+        id: randomUUID(),
+        username: "gautam",
+        password: "gautam123",
+        name: "GAUTAM RAJAK",
+      },
+      {
+        id: randomUUID(),
+        username: "khilendra",
+        password: "khilendra123",
+        name: "KHILENDRA VERMA",
+      },
+      {
+        id: randomUUID(),
+        username: "likesh",
+        password: "likesh123",
+        name: "LIKESH NIRMALKAR",
+      },
+      {
+        id: randomUUID(),
+        username: "tishu",
+        password: "tishu123",
+        name: "TISHU SAHU",
+      },
+      {
+        id: randomUUID(),
+        username: "khileshwar",
+        password: "khileshwar123",
+        name: "KHILESHWAR DEWANGAN",
+      },
+      {
+        id: randomUUID(),
+        username: "karan",
+        password: "karan123",
+        name: "KARAN SAHU",
+      },
+    ];
+    
+    employees.forEach(emp => this.employees.set(emp.id, emp));
   }
 
   async getUser(id: string): Promise<User | undefined> {

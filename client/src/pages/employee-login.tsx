@@ -159,8 +159,17 @@ export default function EmployeeLogin() {
           </form>
         </Form>
 
-        <div className="text-center text-sm text-muted-foreground">
-          <p>Default credentials: employee / employee123</p>
+        <div className="text-center text-xs text-muted-foreground space-y-2">
+          <p className="font-semibold">Employee Credentials:</p>
+          <div className="grid grid-cols-1 gap-1 text-left">
+            <p>• jhuleshwar / jhuleshwar123</p>
+            <p>• gautam / gautam123</p>
+            <p>• khilendra / khilendra123</p>
+            <p>• likesh / likesh123</p>
+            <p>• tishu / tishu123</p>
+            <p>• khileshwar / khileshwar123</p>
+            <p>• karan / karan123</p>
+          </div>
         </div>
       </Card>
     </div>
