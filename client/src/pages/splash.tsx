@@ -79,6 +79,7 @@ export default function Splash() {
     refetchInterval: 2000,
   });
 
+   // Update verification status when polling returns verified
   useEffect(() => {
     if (verificationStatus?.verified && !isVerified) {
       setIsVerified(true);
@@ -95,6 +96,7 @@ export default function Splash() {
     }
   }, [verificationStatus?.verified, isVerified, customerData?.vehicleNumber, toast]);
 
+   // Trigger sparkles when reward card appears
   useEffect(() => {
     if (showReward) {
       setPrizeCardSparkles(true);
@@ -105,6 +107,7 @@ export default function Splash() {
     }
   }, [showReward]);
 
+  // Trigger confetti when prize card appears
   useEffect(() => {
     if (showReward) {
       const duration = 3000;
@@ -135,6 +138,7 @@ export default function Splash() {
     }
   }, [showReward]);
 
+   
   useEffect(() => {
     if (showReward && !isVerified && !timeExpired) {
       const timer = setInterval(() => {
