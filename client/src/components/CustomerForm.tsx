@@ -16,6 +16,7 @@ import { Phone, Car } from 'lucide-react';
 import fuelRushLogo from '@assets/Gemini_Generated_Image_qj35yaqj35yaqj35-removebg-preview_1764680847950.png';
 
 const formSchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
   phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
   vehicleNumber: z.string().min(2, "Vehicle number is required"),
 });
@@ -31,6 +32,7 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: '',
       phoneNumber: '',
       vehicleNumber: '',
     },
@@ -54,6 +56,48 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className="relative">
+                    <Input
+                      placeholder="Full Name"
+                      className="
+                        pl-4 py-3 w-full
+                        bg-transparent
+                        text-white
+                        placeholder:text-yellow-200/70
+
+                        rounded-xl
+                        border-2 border-[#e8c253]
+
+                        shadow-[0_0_12px_rgba(255,215,0,0.4),inset_0_0_8px_rgba(255,215,0,0.25)]
+
+                        relative
+                        before:content-['']
+                        before:absolute before:left-0 before:right-0 before:top-1/2 before:h-[1px]
+                        before:bg-yellow-300/40
+                        before:blur-sm
+
+                        focus:outline-none
+                        focus:border-yellow-300
+                        focus:shadow-[0_0_15px_rgba(255,230,150,0.7),inset_0_0_10px_rgba(255,230,150,0.5)]
+                      "
+
+                      data-testid="input-name"
+                      aria-label="Full Name"
+                      {...field}
+                    />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="phoneNumber"

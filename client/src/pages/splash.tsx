@@ -153,7 +153,7 @@ export default function Splash() {
   }, [showReward, isVerified, timeExpired]);
 
   const createCustomerMutation = useMutation({
-    mutationFn: async (data: { phoneNumber: string; vehicleNumber: string }) => {
+    mutationFn: async (data: { name: string; phoneNumber: string; vehicleNumber: string }) => {
       const response = await fetch('/api/customers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -179,7 +179,7 @@ export default function Splash() {
     },
   });
 
-  const handleFormSubmit = (data: { phoneNumber: string; vehicleNumber: string }) => {
+  const handleFormSubmit = (data: { name: string; phoneNumber: string; vehicleNumber: string }) => {
     createCustomerMutation.mutate(data);
   };
 
