@@ -37,18 +37,7 @@ export default function Splash() {
         <Button
           onClick={handleClick}
           disabled={isAnimating}
-          className="
-            w-[70%]                /* smaller width */
-            text-black font-extrabold text-lg
-            py-4 px-6             /* smaller height */
-            rounded-2xl
-            bg-gradient-to-b from-yellow-300 to-yellow-500
-            shadow-[0_6px_0_#caa335,0_10px_20px_rgba(0,0,0,0.35)]
-            border border-yellow-200
-            relative
-            overflow-hidden
-            mx-auto               /* center the button */
-          "
+          className="w-[70%] text-black font-extrabold text-lg py-4 px-6 rounded-2xl bg-gradient-to-b from-yellow-300 to-yellow-500 shadow-[0_6px_0_#caa335,0_10px_20px_rgba(0,0,0,0.35)] border border-yellow-200 relative overflow-hidden mx-auto pt-[12px] pb-[12px] ml-[50px] mr-[50px]"
           data-testid="button-click-to-open"
         >
           {/* Shine */}
