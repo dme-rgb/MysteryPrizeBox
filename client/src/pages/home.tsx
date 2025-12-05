@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import MysteryBox from '@/components/MysteryBox';
 import Sparkles from '@/components/Sparkles';
 import ParticleEffect from '@/components/ParticleEffect';
@@ -14,6 +15,7 @@ import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle, Clock,
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import bgImage from '@assets/Gemini_Generated_Image_mnpedumnpedumnpe_1764676809813.png';
+import mysteryBoxImg from '@assets/Gemini_Generated_Image_2rmhxj2rmhxj2rmh-Photoroom_1764679645336.png';
 // @ts-ignore - canvas-confetti doesn't have TypeScript types but works fine
 import confetti from 'canvas-confetti';
 
@@ -30,6 +32,7 @@ interface Customer {
 export default function Home() {
   const { toast } = useToast();
   const [customerId, setCustomerId] = useState<string | null>(null);
+  const [showFormModal, setShowFormModal] = useState(false);
   const [isOpening, setIsOpening] = useState(false);
   const [isOpened, setIsOpened] = useState(false);
   const [rewardAmount, setRewardAmount] = useState<number | null>(null);
@@ -242,6 +245,10 @@ export default function Home() {
     });
   };
 
+  const handleClickToOpen = () => {
+    setShowFormModal(true);
+  };
+
   // Play celebration sound effects
   const playCelebrationSounds = () => {
     // Create audio context
@@ -416,9 +423,9 @@ export default function Home() {
       {/* Main Content */}
       <div className="relative z-10 px-8 pt-[0px] pb-[0px] pl-[23px] pr-[23px]">
         {!customerId ? (
-          // Registration Form with FUEL RUSH background
+          // Splash Screen with Mystery Box Image and CLICK TO OPEN button
           (<div 
-            className="flex flex-col items-center justify-center min-h-screen relative z-10 px-6 pl-[50px] pr-[50px] pt-[69px] pb-[69px]"
+            className="min-h-screen flex flex-col items-center justify-center relative z-10"
             style={{
               backgroundImage: `url(${bgImage})`,
               backgroundSize: 'cover',
@@ -426,15 +433,24 @@ export default function Home() {
               backgroundAttachment: 'fixed',
             }}
           >
-            {/* Registration Form */}
-            <div className="w-full max-w-sm">
-              <CustomerForm
-                onSubmit={handleFormSubmit}
-                isSubmitting={createCustomerMutation.isPending}
-              />
-            </div>
+            {/* Mystery Box Image */}
+            <img 
+              src={mysteryBoxImg} 
+              alt="Mystery Box" 
+              className="w-32 h-32 object-contain mb-12"
+            />
+            
+            {/* CLICK TO OPEN Button */}
+            <Button
+              onClick={handleClickToOpen}
+              className="w-[70%] max-w-xs text-black font-extrabold text-lg py-4 px-6 rounded-2xl bg-gradient-to-b from-yellow-300 to-yellow-500 shadow-[0_6px_0_#caa335,0_10px_20px_rgba(0,0,0,0.35)] border border-yellow-200 relative overflow-hidden mx-auto pt-[12px] pb-[12px] ml-[50px] mr-[50px] hover:shadow-[0_4px_0_#caa335,0_8px_15px_rgba(0,0,0,0.3)] active:shadow-[0_2px_0_#caa335,0_4px_8px_rgba(0,0,0,0.2)]"
+              data-testid="button-click-to-open"
+            >
+              <span className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/40 to-transparent pointer-events-none" />
+              <span className="relative z-10">CLICK TO OPEN</span>
+            </Button>
 
-            {/* Employee Login Link - Bottom Right (Home Screen Only) */}
+            {/* Employee Login Link - Bottom Right */}
             <div className="fixed bottom-8 right-8 z-50">
               <Link href="/employee">
                 <Button 
@@ -448,6 +464,16 @@ export default function Home() {
                 </Button>
               </Link>
             </div>
+
+            {/* Form Modal */}
+            <Dialog open={showFormModal} onOpenChange={setShowFormModal}>
+              <DialogContent className="bg-card border border-border rounded-lg p-6 max-w-sm">
+                <CustomerForm
+                  onSubmit={handleFormSubmit}
+                  isSubmitting={createCustomerMutation.isPending}
+                />
+              </DialogContent>
+            </Dialog>
           </div>)
         ) : (
           // Game Screen
