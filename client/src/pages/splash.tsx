@@ -25,9 +25,8 @@ export default function Splash() {
         backgroundAttachment: 'fixed',
       }}
     >
-
       {/* Main Content */}
-      <div className="relative z-0 flex flex-col items-center justify-start pt-10 gap-8 px-0">
+      <div className="relative z-0 flex flex-col items-center justify-start gap-8 px-0 pt-[0px] pb-[0px]">
         {/* Mystery Box Image */}
         <img 
           src={mysteryBoxImg} 
@@ -75,7 +74,6 @@ export default function Splash() {
           }}
         />
       </div>
-
       <style>{`
         @keyframes bounce {
           0%, 100% {
