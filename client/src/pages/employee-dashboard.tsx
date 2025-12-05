@@ -128,10 +128,8 @@ export default function EmployeeDashboard() {
     setLocation('/employee');
   };
 
-  // Filter to only show customers who have opened the box (have a prize amount) and reverse the order
-  const unverifiedCustomers = (customersData?.customers || [])
-    .filter(customer => customer.prize !== null && customer.prize !== 0)
-    .reverse();
+  // Use customers directly from API (already filtered and reversed on backend)
+  const unverifiedCustomers = customersData?.customers || [];
 
   if (!employee) {
     return null;

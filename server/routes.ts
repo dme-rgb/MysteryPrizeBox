@@ -269,11 +269,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const today = new Date().toISOString().split('T')[0];
       const unverifiedCustomers = allCustomers.filter((customer) => {
         const customerDate = customer.timestamp.split('T')[0];
+        // Ensure prize is a valid number greater than 0
+        const prize = Number(customer.prize);
+        const hasValidPrize = !isNaN(prize) && prize > 0;
+        
         return customerDate === today && 
                customer.verified !== true && 
-               customer.prize !== null &&
-               customer.prize !== 0; // Exclude removed entries (marked with 0)
-      });
+               hasValidPrize;
+      }).reverse(); // Reverse to show most recent first
       
       res.json({ customers: unverifiedCustomers });
     } catch (error: any) {
