@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCustomerSchema, employeeLoginSchema } from "@shared/schema";
 import { googleSheetsService, GoogleSheetsNotConfiguredError } from "./googleSheets";
+import { getBulkPEService } from "./bulkpe";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check for Google Sheets
@@ -297,6 +298,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { vehicleNumber } = req.params;
       
+      // Get customer details from Google Sheets before verifying
+      const customerEntry = await googleSheetsService.getTodaysCustomerByVehicle(vehicleNumber);
+      
+      if (!customerEntry) {
+        return res.status(404).json({ error: "Customer not found" });
+      }
+      
       // Verify in Google Sheets
       await googleSheetsService.verifyReward(vehicleNumber);
       
@@ -307,7 +315,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         await storage.verifyCustomerReward(customer.id);
       }
       
-      res.json({ success: true, vehicleNumber });
+      // Initiate payout via BulkPE
+      let payoutResult = null;
+      const bulkpe = getBulkPEService();
+      if (bulkpe && customerEntry.prize && customerEntry.number) {
+        try {
+          const referenceId = `FUELRUSH-${vehicleNumber}-${Date.now()}`;
+          payoutResult = await bulkpe.initiatePayout({
+            amount: Number(customerEntry.prize),
+            phoneNumber: customerEntry.number,
+            beneficiaryName: customerEntry.name || `Customer-${customerEntry.number.slice(-4)}`,
+            referenceId,
+            note: `FUEL RUSH Cashback - Rs.${customerEntry.prize}`
+          });
+          console.log("Payout initiated:", payoutResult);
+        } catch (payoutError: any) {
+          console.error("Payout failed:", payoutError.message);
+          // Don't fail verification if payout fails, just log it
+        }
+      }
+      
+      res.json({ success: true, vehicleNumber, payout: payoutResult });
     } catch (error: any) {
       console.error("Employee verify error:", error);
       
