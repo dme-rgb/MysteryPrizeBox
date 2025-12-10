@@ -346,9 +346,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
           
           try {
+            console.log("[TRANSACTION LOG] Attempting to log successful transaction:", JSON.stringify(transaction, null, 2));
             await googleSheetsService.logTransaction(transaction);
+            console.log("[TRANSACTION LOG] Successfully logged transaction to Google Sheets");
           } catch (sheetErr: any) {
-            console.warn("Failed to log transaction to Google Sheets:", sheetErr.message);
+            console.error("[TRANSACTION LOG ERROR] Failed to log transaction to Google Sheets:", sheetErr);
           }
         } catch (err: any) {
           payoutError = err.message;
@@ -368,9 +370,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           };
           
           try {
+            console.log("[TRANSACTION LOG] Attempting to log failed transaction:", JSON.stringify(transaction, null, 2));
             await googleSheetsService.logTransaction(transaction);
+            console.log("[TRANSACTION LOG] Successfully logged failed transaction to Google Sheets");
           } catch (sheetErr: any) {
-            console.warn("Failed to log failed transaction to Google Sheets:", sheetErr.message);
+            console.error("[TRANSACTION LOG ERROR] Failed to log failed transaction to Google Sheets:", sheetErr);
           }
         }
       } else if (!bulkpe) {

@@ -187,6 +187,11 @@ export class GoogleSheetsService {
   }
 
   async logTransaction(transaction: TransactionLog): Promise<void> {
+    console.log("[GOOGLE SHEETS] Calling logTransaction webhook with data:", JSON.stringify({
+      action: 'logTransaction',
+      ...transaction,
+    }, null, 2));
+    
     const response = await fetch(this.webhookUrl, {
       method: 'POST',
       headers: {
@@ -198,7 +203,25 @@ export class GoogleSheetsService {
       }),
     });
 
-    await this.checkResponse(response);
+    console.log("[GOOGLE SHEETS] logTransaction response status:", response.status);
+    const responseText = await response.text();
+    console.log("[GOOGLE SHEETS] logTransaction response body:", responseText);
+    
+    // Check response without calling checkResponse which might throw
+    if (!response.ok) {
+      throw new Error(`Google Sheets webhook error: ${response.status} ${response.statusText}`);
+    }
+    
+    // Check if response is HTML (Apps Script not set up)
+    if (responseText.trim().startsWith('<')) {
+      throw new Error("Google Sheets Apps Script not properly deployed - received HTML instead of JSON");
+    }
+    
+    try {
+      JSON.parse(responseText);
+    } catch (e) {
+      throw new Error(`Invalid JSON response from Google Sheets: ${responseText}`);
+    }
   }
 
   getIsConfigured(): boolean | null {
