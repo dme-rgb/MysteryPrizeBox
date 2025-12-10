@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertCustomerSchema, employeeLoginSchema } from "@shared/schema";
-import { googleSheetsService, GoogleSheetsNotConfiguredError } from "./googleSheets";
+import { googleSheetsService, GoogleSheetsNotConfiguredError, type TransactionLog } from "./googleSheets";
 import { getBulkPEService } from "./bulkpe";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -320,10 +320,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let payoutError = null;
       const bulkpe = getBulkPEService();
       const prizeAmount = Number(customerEntry.prize);
+      const referenceId = `FUELRUSH-${vehicleNumber}-${Date.now()}`;
       
       if (bulkpe && Number.isFinite(prizeAmount) && prizeAmount > 0 && customerEntry.number) {
         try {
-          const referenceId = `FUELRUSH-${vehicleNumber}-${Date.now()}`;
           payoutResult = await bulkpe.initiatePayout({
             amount: prizeAmount,
             phoneNumber: customerEntry.number,
@@ -332,9 +332,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
             note: `FUEL RUSH Cashback - Rs.${prizeAmount}`
           });
           console.log("Payout initiated successfully:", JSON.stringify(payoutResult, null, 2));
+          
+          // Log successful transaction to Google Sheets
+          const transaction: TransactionLog = {
+            vehicleNumber,
+            customerName: customerEntry.name || 'N/A',
+            phoneNumber: customerEntry.number,
+            amount: prizeAmount,
+            transactionId: payoutResult.data?.transcation_id || 'N/A',
+            referenceId,
+            status: 'success',
+            timestamp: new Date().toISOString(),
+          };
+          
+          try {
+            await googleSheetsService.logTransaction(transaction);
+          } catch (sheetErr: any) {
+            console.warn("Failed to log transaction to Google Sheets:", sheetErr.message);
+          }
         } catch (err: any) {
           payoutError = err.message;
           console.error(`[PAYOUT FAILED] Vehicle: ${vehicleNumber}, Phone: ${customerEntry.number}, Amount: ${prizeAmount}, Error: ${err.message}`);
+          
+          // Log failed transaction to Google Sheets
+          const transaction: TransactionLog = {
+            vehicleNumber,
+            customerName: customerEntry.name || 'N/A',
+            phoneNumber: customerEntry.number,
+            amount: prizeAmount,
+            transactionId: 'FAILED',
+            referenceId,
+            status: 'failed',
+            errorMessage: payoutError,
+            timestamp: new Date().toISOString(),
+          };
+          
+          try {
+            await googleSheetsService.logTransaction(transaction);
+          } catch (sheetErr: any) {
+            console.warn("Failed to log failed transaction to Google Sheets:", sheetErr.message);
+          }
         }
       } else if (!bulkpe) {
         console.warn("[PAYOUT SKIPPED] BulkPE service not configured");

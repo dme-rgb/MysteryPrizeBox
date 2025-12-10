@@ -9,6 +9,18 @@ export interface SheetCustomer {
   verified?: boolean;
 }
 
+export interface TransactionLog {
+  vehicleNumber: string;
+  customerName: string;
+  phoneNumber: string;
+  amount: number;
+  transactionId: string;
+  referenceId: string;
+  status: 'success' | 'failed';
+  errorMessage?: string;
+  timestamp: string;
+}
+
 export class GoogleSheetsNotConfiguredError extends Error {
   constructor() {
     super("Google Sheets webhook is not configured. Please set up the Apps Script code.");
@@ -172,6 +184,21 @@ export class GoogleSheetsService {
     const text = await this.checkResponse(response);
     const data = JSON.parse(text);
     return data.totalAmount || 0;
+  }
+
+  async logTransaction(transaction: TransactionLog): Promise<void> {
+    const response = await fetch(this.webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'logTransaction',
+        ...transaction,
+      }),
+    });
+
+    await this.checkResponse(response);
   }
 
   getIsConfigured(): boolean | null {

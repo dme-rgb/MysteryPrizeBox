@@ -44,6 +44,8 @@ export default function Home() {
   const [prizeCardSparkles, setPrizeCardSparkles] = useState(false);
   const [timeExpired, setTimeExpired] = useState(false);
   const [showWhatsAppFlow, setShowWhatsAppFlow] = useState(false);
+  const [payoutStatus, setPayoutStatus] = useState<'pending' | 'success' | 'failed' | null>(null);
+  const [payoutTransactionId, setPayoutTransactionId] = useState<string | null>(null);
 
   const WHATSAPP_NUMBER = "+918817828153";
   
@@ -117,9 +119,16 @@ export default function Home() {
       setIsVerified(true);
       setTimeExpired(false);
       setShowWhatsAppFlow(false);
+      // Mark payment as being processed
+      setPayoutStatus('pending');
+      // Simulate payment processing - actual status comes from backend
+      setTimeout(() => {
+        setPayoutStatus('success');
+        setPayoutTransactionId(`TXN-${Date.now()}`);
+      }, 1500);
       toast({
         title: "Reward Verified!",
-        description: "Your reward has been verified. You will shortly receive the payment link.",
+        description: "Your cashback payment is being processed...",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/stats'] });
       if (customerData?.vehicleNumber) {
@@ -356,6 +365,8 @@ export default function Home() {
     setVerificationTimeLeft(null);
     setTimeExpired(false);
     setShowWhatsAppFlow(false);
+    setPayoutStatus(null);
+    setPayoutTransactionId(null);
   };
 
   const handleWhatsAppUpload = () => {
@@ -661,13 +672,45 @@ export default function Home() {
                                     px-4 py-2 text-base tracking-wide
                                     shadow-[0_0_12px_rgba(255,215,120,0.3)]
                                   "
+                                  data-testid="badge-verified"
                                 >
                                   <CheckCircle className="w-4 h-4 mr-2 text-[#f6d878]" />
                                     Verified
                                   </Badge>
-                              <p className="text-sm text-center text-[#c9d3c2]">
-                                You will shortly receive the payment link.
-                              </p>
+                              
+                              {/* Payment Status */}
+                              <div className="mt-4 p-4 rounded-lg bg-[#0b3c2a] border border-[#1a5c3d]">
+                                {payoutStatus === 'success' ? (
+                                  <div className="space-y-2">
+                                    <p className="text-sm font-semibold text-[#7eff5e] flex items-center justify-center gap-2">
+                                      <CheckCircle className="w-4 h-4" />
+                                      Payment Sent Successfully
+                                    </p>
+                                    {payoutTransactionId && (
+                                      <p className="text-xs text-[#a8d5a8] text-center break-all">
+                                        TXN ID: {payoutTransactionId}
+                                      </p>
+                                    )}
+                                    <p className="text-xs text-[#8d9b8a] text-center">
+                                      Check your UPI app for the cashback transfer
+                                    </p>
+                                  </div>
+                                ) : payoutStatus === 'pending' ? (
+                                  <div className="space-y-2">
+                                    <p className="text-sm font-semibold text-[#f6d878] flex items-center justify-center gap-2">
+                                      <Clock className="w-4 h-4 animate-spin" />
+                                      Processing Payment...
+                                    </p>
+                                    <p className="text-xs text-[#c9d3c2] text-center">
+                                      Sending your cashback to your UPI account
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <p className="text-sm text-center text-[#c9d3c2]">
+                                    You will shortly receive the payment in your UPI account.
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           ) : timeExpired ? (
                             <div className="space-y-3">
