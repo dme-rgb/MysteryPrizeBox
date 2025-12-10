@@ -349,6 +349,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log("[TRANSACTION LOG] Attempting to log successful transaction:", JSON.stringify(transaction, null, 2));
             await googleSheetsService.logTransaction(transaction);
             console.log("[TRANSACTION LOG] Successfully logged transaction to Google Sheets");
+            // Store in local storage too
+            await storage.setPaymentStatus(customerEntry.number, 'success', transaction.transactionId);
           } catch (sheetErr: any) {
             console.error("[TRANSACTION LOG ERROR] Failed to log transaction to Google Sheets:", sheetErr);
           }
@@ -373,6 +375,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             console.log("[TRANSACTION LOG] Attempting to log failed transaction:", JSON.stringify(transaction, null, 2));
             await googleSheetsService.logTransaction(transaction);
             console.log("[TRANSACTION LOG] Successfully logged failed transaction to Google Sheets");
+            // Store in local storage too
+            await storage.setPaymentStatus(customerEntry.number, 'failed', 'FAILED');
           } catch (sheetErr: any) {
             console.error("[TRANSACTION LOG ERROR] Failed to log failed transaction to Google Sheets:", sheetErr);
           }
@@ -383,7 +387,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.warn(`[PAYOUT SKIPPED] Invalid data - Prize: ${customerEntry.prize}, Phone: ${customerEntry.number}`);
       }
       
-      res.json({ success: true, vehicleNumber, payout: payoutResult });
+      res.json({ 
+        success: true, 
+        vehicleNumber, 
+        payout: payoutResult,
+        paymentStatus: payoutResult ? 'success' : 'no_payout',
+        errorMessage: payoutError 
+      });
     } catch (error: any) {
       console.error("Employee verify error:", error);
       
@@ -444,6 +454,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Get payment status for a customer
+  app.get("/api/customers/:customerId/payment-status", async (req, res) => {
+    try {
+      const { customerId } = req.params;
+      const paymentStatus = await storage.getPaymentStatus(customerId);
+      res.json({ 
+        paymentStatus: paymentStatus.status,
+        transactionId: paymentStatus.transactionId
+      });
+    } catch (error: any) {
+      console.error("Get payment status error:", error);
       res.status(500).json({ error: error.message });
     }
   });

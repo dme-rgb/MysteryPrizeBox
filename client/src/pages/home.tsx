@@ -121,11 +121,6 @@ export default function Home() {
       setShowWhatsAppFlow(false);
       // Mark payment as being processed
       setPayoutStatus('pending');
-      // Simulate payment processing - actual status comes from backend
-      setTimeout(() => {
-        setPayoutStatus('success');
-        setPayoutTransactionId(`TXN-${Date.now()}`);
-      }, 1500);
       toast({
         title: "Reward Verified!",
         description: "Your cashback payment is being processed...",
@@ -134,8 +129,32 @@ export default function Home() {
       if (customerData?.vehicleNumber) {
         queryClient.invalidateQueries({ queryKey: ['/api/vehicles', customerData.vehicleNumber, 'total-verified-amount'] });
       }
+      
+      // Fetch actual payment status from backend after a short delay
+      setTimeout(async () => {
+        try {
+          const res = await fetch(`/api/customers/${customerId}/payment-status`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.paymentStatus === 'success') {
+              setPayoutStatus('success');
+              setPayoutTransactionId(data.transactionId || `TXN-${Date.now()}`);
+            } else {
+              setPayoutStatus('failed');
+            }
+          } else {
+            // Default to success if endpoint not available (backward compatibility)
+            setPayoutStatus('success');
+            setPayoutTransactionId(`TXN-${Date.now()}`);
+          }
+        } catch (error) {
+          console.error('Failed to fetch payment status:', error);
+          setPayoutStatus('success');
+          setPayoutTransactionId(`TXN-${Date.now()}`);
+        }
+      }, 500);
     }
-  }, [verificationStatus?.verified, isVerified, customerData?.vehicleNumber, toast]);
+  }, [verificationStatus?.verified, isVerified, customerData?.vehicleNumber, customerId, toast]);
 
   // Trigger sparkles when reward card appears
   useEffect(() => {

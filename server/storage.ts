@@ -18,17 +18,22 @@ export interface IStorage {
   getEmployee(id: string): Promise<Employee | undefined>;
   getEmployeeByUsername(username: string): Promise<Employee | undefined>;
   createEmployee(employee: InsertEmployee): Promise<Employee>;
+  
+  setPaymentStatus(customerId: string, status: 'success' | 'failed', transactionId?: string): Promise<void>;
+  getPaymentStatus(customerId: string): Promise<{ status: 'success' | 'failed' | null; transactionId: string | null }>;
 }
 
 export class MemStorage implements IStorage {
   private users: Map<string, User>;
   private customers: Map<string, Customer>;
   private employees: Map<string, Employee>;
+  private paymentStatus: Map<string, { status: 'success' | 'failed'; transactionId: string | null }>;
 
   constructor() {
     this.users = new Map();
     this.customers = new Map();
     this.employees = new Map();
+    this.paymentStatus = new Map();
     
     this.initDefaultEmployee();
   }
@@ -178,6 +183,15 @@ export class MemStorage implements IStorage {
     const employee: Employee = { ...insertEmployee, id };
     this.employees.set(id, employee);
     return employee;
+  }
+  
+  async setPaymentStatus(customerId: string, status: 'success' | 'failed', transactionId?: string): Promise<void> {
+    this.paymentStatus.set(customerId, { status, transactionId: transactionId || null });
+  }
+  
+  async getPaymentStatus(customerId: string): Promise<{ status: 'success' | 'failed' | null; transactionId: string | null }> {
+    const payment = this.paymentStatus.get(customerId);
+    return payment || { status: null, transactionId: null };
   }
 }
 
