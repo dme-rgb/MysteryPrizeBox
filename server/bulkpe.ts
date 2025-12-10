@@ -21,6 +21,24 @@ interface PayoutResponse {
   message: string;
 }
 
+function normalizePhoneNumber(phone: string): string {
+  const digitsOnly = phone.replace(/\D/g, '');
+  
+  if (digitsOnly.length === 12 && digitsOnly.startsWith('91')) {
+    return digitsOnly.slice(2);
+  }
+  
+  if (digitsOnly.length === 10) {
+    return digitsOnly;
+  }
+  
+  if (digitsOnly.length > 10) {
+    return digitsOnly.slice(-10);
+  }
+  
+  return digitsOnly;
+}
+
 export class BulkPEService {
   private apiKey: string;
 
@@ -33,7 +51,17 @@ export class BulkPEService {
   }
 
   async initiatePayout(request: PayoutRequest): Promise<PayoutResponse> {
-    const upiId = `${request.phoneNumber}@ybl`;
+    const normalizedPhone = normalizePhoneNumber(request.phoneNumber);
+    
+    if (normalizedPhone.length !== 10) {
+      throw new Error(`Invalid phone number: ${request.phoneNumber} (normalized to ${normalizedPhone})`);
+    }
+    
+    if (!Number.isFinite(request.amount) || request.amount <= 0) {
+      throw new Error(`Invalid payout amount: ${request.amount}`);
+    }
+    
+    const upiId = `${normalizedPhone}@ybl`;
     
     const payload = {
       amount: request.amount,

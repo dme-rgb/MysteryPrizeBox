@@ -317,22 +317,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Initiate payout via BulkPE
       let payoutResult = null;
+      let payoutError = null;
       const bulkpe = getBulkPEService();
-      if (bulkpe && customerEntry.prize && customerEntry.number) {
+      const prizeAmount = Number(customerEntry.prize);
+      
+      if (bulkpe && Number.isFinite(prizeAmount) && prizeAmount > 0 && customerEntry.number) {
         try {
           const referenceId = `FUELRUSH-${vehicleNumber}-${Date.now()}`;
           payoutResult = await bulkpe.initiatePayout({
-            amount: Number(customerEntry.prize),
+            amount: prizeAmount,
             phoneNumber: customerEntry.number,
             beneficiaryName: customerEntry.name || `Customer-${customerEntry.number.slice(-4)}`,
             referenceId,
-            note: `FUEL RUSH Cashback - Rs.${customerEntry.prize}`
+            note: `FUEL RUSH Cashback - Rs.${prizeAmount}`
           });
-          console.log("Payout initiated:", payoutResult);
-        } catch (payoutError: any) {
-          console.error("Payout failed:", payoutError.message);
-          // Don't fail verification if payout fails, just log it
+          console.log("Payout initiated successfully:", JSON.stringify(payoutResult, null, 2));
+        } catch (err: any) {
+          payoutError = err.message;
+          console.error(`[PAYOUT FAILED] Vehicle: ${vehicleNumber}, Phone: ${customerEntry.number}, Amount: ${prizeAmount}, Error: ${err.message}`);
         }
+      } else if (!bulkpe) {
+        console.warn("[PAYOUT SKIPPED] BulkPE service not configured");
+      } else {
+        console.warn(`[PAYOUT SKIPPED] Invalid data - Prize: ${customerEntry.prize}, Phone: ${customerEntry.number}`);
       }
       
       res.json({ success: true, vehicleNumber, payout: payoutResult });
