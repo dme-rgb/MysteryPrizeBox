@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
@@ -46,6 +46,38 @@ export default function Home() {
   const [showWhatsAppFlow, setShowWhatsAppFlow] = useState(false);
 
   const WHATSAPP_NUMBER = "+918817828153";
+  
+  // Audio references
+  const bgMusicRef = React.useRef<HTMLAudioElement | null>(null);
+  const boxOpeningSoundRef = React.useRef<HTMLAudioElement | null>(null);
+  
+  // Initialize audio elements and background music on mount
+  useEffect(() => {
+    // Create background music element
+    if (!bgMusicRef.current) {
+      const bgAudio = new Audio('https://files.catbox.moe/p1pum1.mp3');
+      bgAudio.loop = true;
+      bgAudio.volume = 0.3;
+      bgMusicRef.current = bgAudio;
+      bgAudio.play().catch(() => {
+        // Audio playback might be blocked by browser
+      });
+    }
+    
+    // Create box opening sound element
+    if (!boxOpeningSoundRef.current) {
+      const openSound = new Audio('https://files.catbox.moe/bhtmen.mp3');
+      openSound.volume = 0.5;
+      boxOpeningSoundRef.current = openSound;
+    }
+    
+    return () => {
+      // Cleanup
+      if (bgMusicRef.current) {
+        bgMusicRef.current.pause();
+      }
+    };
+  }, []);
 
   // Health check for Google Sheets
   const { data: healthData } = useQuery<{ googleSheets: boolean; message: string }>({
@@ -249,64 +281,38 @@ export default function Home() {
     setShowFormModal(true);
   };
 
-  // Play celebration sound effects
-  const playCelebrationSounds = () => {
-    // Create audio context
-    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+  // Play box opening sound with background music pause/resume
+  const playBoxOpeningSound = () => {
+    if (bgMusicRef.current) {
+      bgMusicRef.current.pause();
+    }
     
-    // Box opening sound (short burst)
-    const openOscillator = audioContext.createOscillator();
-    const openGain = audioContext.createGain();
-    openOscillator.connect(openGain);
-    openGain.connect(audioContext.destination);
-    openOscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-    openOscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.1);
-    openGain.gain.setValueAtTime(0.3, audioContext.currentTime);
-    openGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-    openOscillator.start(audioContext.currentTime);
-    openOscillator.stop(audioContext.currentTime + 0.1);
-
-    // Celebration chime sounds (multiple pitches)
-    setTimeout(() => {
-      const chimes = [800, 1000, 1200];
-      chimes.forEach((freq, index) => {
-        setTimeout(() => {
-          const osc = audioContext.createOscillator();
-          const gain = audioContext.createGain();
-          osc.connect(gain);
-          gain.connect(audioContext.destination);
-          osc.frequency.setValueAtTime(freq, audioContext.currentTime);
-          gain.gain.setValueAtTime(0.2, audioContext.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
-          osc.start(audioContext.currentTime);
-          osc.stop(audioContext.currentTime + 0.3);
-        }, index * 100);
+    if (boxOpeningSoundRef.current) {
+      boxOpeningSoundRef.current.currentTime = 0;
+      boxOpeningSoundRef.current.play().catch(() => {
+        // Sound playback failed
       });
-    }, 200);
-
-    // Victory fanfare (longer tone)
-    setTimeout(() => {
-      const fanfare = audioContext.createOscillator();
-      const fanGain = audioContext.createGain();
-      fanfare.connect(fanGain);
-      fanGain.connect(audioContext.destination);
-      fanfare.frequency.setValueAtTime(1000, audioContext.currentTime);
-      fanfare.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.5);
-      fanGain.gain.setValueAtTime(0.2, audioContext.currentTime);
-      fanGain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
-      fanfare.start(audioContext.currentTime);
-      fanfare.stop(audioContext.currentTime + 0.5);
-    }, 600);
+      
+      // Resume background music after box opening sound finishes
+      const soundDuration = 2000; // Approximate duration in ms
+      setTimeout(() => {
+        if (bgMusicRef.current) {
+          bgMusicRef.current.play().catch(() => {
+            // Audio playback might be blocked by browser
+          });
+        }
+      }, soundDuration);
+    }
   };
 
   const handleOpen = () => {
     setIsOpening(true);
 
-    // Play celebration sounds
+    // Play box opening sound with background music pause/resume
     try {
-      playCelebrationSounds();
+      playBoxOpeningSound();
     } catch (e) {
-      // Audio context might not be available in some browsers
+      // Audio playback might fail
     }
 
     // Generate random reward amount (1-5 rupees)
