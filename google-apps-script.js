@@ -3,8 +3,35 @@
 
 function doPost(e) {
   try {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Customer detail");
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName("Customer detail");
     const data = JSON.parse(e.postData.contents);
+    
+    if (data.action === "logTransaction") {
+      // Log transaction to Transactions sheet
+      let transactionSheet = ss.getSheetByName("Transactions");
+      if (!transactionSheet) {
+        transactionSheet = ss.insertSheet("Transactions");
+        transactionSheet.appendRow(["Timestamp", "Vehicle Number", "Customer Name", "Phone Number", "Amount", "Transaction ID", "Reference ID", "Status", "Error Message"]);
+      }
+      
+      transactionSheet.appendRow([
+        data.timestamp,
+        data.vehicleNumber,
+        data.customerName,
+        data.phoneNumber,
+        data.amount,
+        data.transactionId,
+        data.referenceId,
+        data.status,
+        data.errorMessage || ""
+      ]);
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        message: "Transaction logged"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
     
     if (data.action === "add") {
       // Add new customer entry
@@ -168,6 +195,30 @@ function doGet(e) {
       for (let i = 1; i < values.length; i++) {
         if (values[i][5] === "Yes" && values[i][2] !== "") {
           count++;
+        }
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        count: count
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    if (action === "getVerifiedCountToday") {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const dataRange = sheet.getDataRange();
+      const values = dataRange.getValues();
+      let count = 0;
+      
+      // Count verified rewards from today only
+      for (let i = 1; i < values.length; i++) {
+        if (values[i][5] === "Yes" && values[i][2] !== "") {
+          const entryDate = new Date(values[i][4]);
+          entryDate.setHours(0, 0, 0, 0);
+          if (entryDate.getTime() === today.getTime()) {
+            count++;
+          }
         }
       }
       
