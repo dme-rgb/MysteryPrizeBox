@@ -53,11 +53,15 @@ export class BulkPEService {
   async initiatePayout(request: PayoutRequest): Promise<PayoutResponse> {
     const normalizedPhone = normalizePhoneNumber(request.phoneNumber);
     
+    console.log(`[BULKPE] Initiating payout for phone: ${request.phoneNumber} -> ${normalizedPhone}`);
+    
     if (normalizedPhone.length !== 10) {
+      console.error(`[BULKPE] Invalid phone: ${request.phoneNumber} (normalized: ${normalizedPhone})`);
       throw new Error(`Invalid phone number: ${request.phoneNumber} (normalized to ${normalizedPhone})`);
     }
     
     if (!Number.isFinite(request.amount) || request.amount <= 0) {
+      console.error(`[BULKPE] Invalid amount: ${request.amount}`);
       throw new Error(`Invalid payout amount: ${request.amount}`);
     }
     
@@ -72,6 +76,12 @@ export class BulkPEService {
       transcation_note: request.note || 'FUEL RUSH Cashback Reward'
     };
 
+    console.log(`[BULKPE] Sending request to ${BULKPE_API_URL}`, { 
+      amount: request.amount, 
+      upi: upiId, 
+      reference_id: request.referenceId 
+    });
+
     const response = await fetch(BULKPE_API_URL, {
       method: 'POST',
       headers: {
@@ -83,10 +93,18 @@ export class BulkPEService {
 
     const data = await response.json() as PayoutResponse;
     
+    console.log(`[BULKPE] Response status: ${response.status}`, { 
+      statusCode: data.statusCode, 
+      status: data.status, 
+      message: data.message 
+    });
+    
     if (!response.ok) {
+      console.error(`[BULKPE] Payout failed: ${data.message}`);
       throw new Error(data.message || 'Payout failed');
     }
 
+    console.log(`[BULKPE] Payout successful:`, data.data);
     return data;
   }
 }
@@ -95,10 +113,12 @@ let bulkpeService: BulkPEService | null = null;
 
 export function getBulkPEService(): BulkPEService | null {
   if (!process.env.BULKPE_API_KEY) {
+    console.warn("[BULKPE] API Key not found in environment");
     return null;
   }
   
   if (!bulkpeService) {
+    console.log("[BULKPE] Initializing BulkPE service");
     bulkpeService = new BulkPEService();
   }
   
