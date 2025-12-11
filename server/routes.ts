@@ -324,10 +324,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       if (bulkpe && Number.isFinite(prizeAmount) && prizeAmount > 0 && customerEntry.number) {
         try {
+          const phoneStr = String(customerEntry.number).trim();
           payoutResult = await bulkpe.initiatePayout({
             amount: prizeAmount,
-            phoneNumber: customerEntry.number,
-            beneficiaryName: customerEntry.name || `Customer-${customerEntry.number.slice(-4)}`,
+            phoneNumber: phoneStr,
+            beneficiaryName: customerEntry.name || `Customer-${phoneStr.slice(-4)}`,
             referenceId,
             note: `FUEL RUSH Cashback - Rs.${prizeAmount}`
           });

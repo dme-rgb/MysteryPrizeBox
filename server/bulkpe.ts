@@ -21,8 +21,14 @@ interface PayoutResponse {
   message: string;
 }
 
-function normalizePhoneNumber(phone: string): string {
-  const digitsOnly = phone.replace(/\D/g, '');
+function normalizePhoneNumber(phone: any): string {
+  if (!phone) {
+    throw new Error('Phone number is required');
+  }
+  
+  // Convert to string if it's a number
+  const phoneStr = String(phone).trim();
+  const digitsOnly = phoneStr.replace(/\D/g, '');
   
   if (digitsOnly.length === 12 && digitsOnly.startsWith('91')) {
     return digitsOnly.slice(2);
