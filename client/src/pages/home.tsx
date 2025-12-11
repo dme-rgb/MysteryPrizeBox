@@ -52,8 +52,9 @@ export default function Home() {
   // Audio references
   const bgMusicRef = React.useRef<HTMLAudioElement | null>(null);
   const boxOpeningSoundRef = React.useRef<HTMLAudioElement | null>(null);
+  const [audioInitialized, setAudioInitialized] = useState(false);
   
-  // Initialize audio elements and background music on mount
+  // Initialize audio elements on mount
   useEffect(() => {
     // Create background music element
     if (!bgMusicRef.current) {
@@ -61,9 +62,6 @@ export default function Home() {
       bgAudio.loop = true;
       bgAudio.volume = 0.3;
       bgMusicRef.current = bgAudio;
-      bgAudio.play().catch(() => {
-        // Audio playback might be blocked by browser
-      });
     }
     
     // Create box opening sound element
@@ -80,6 +78,26 @@ export default function Home() {
       }
     };
   }, []);
+  
+  // Start background music on first user interaction
+  useEffect(() => {
+    const startAudio = () => {
+      if (bgMusicRef.current && !audioInitialized) {
+        bgMusicRef.current.play().catch(() => {
+          // Audio playback might be blocked by browser
+        });
+        setAudioInitialized(true);
+      }
+    };
+    
+    window.addEventListener('click', startAudio);
+    window.addEventListener('touchstart', startAudio);
+    
+    return () => {
+      window.removeEventListener('click', startAudio);
+      window.removeEventListener('touchstart', startAudio);
+    };
+  }, [audioInitialized]);
 
   // Health check for Google Sheets
   const { data: healthData } = useQuery<{ googleSheets: boolean; message: string }>({
