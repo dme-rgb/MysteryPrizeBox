@@ -342,6 +342,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             amount: prizeAmount,
             transactionId: payoutResult.data?.transcation_id || 'N/A',
             referenceId,
+            upi: (payoutResult.data as any)?.upi || 'N/A',
+            paymentMode: 'UPI',
+            beneficiaryName: customerEntry.name || `Customer-${phoneStr.slice(-4)}`,
+            bulkpeStatus: payoutResult.data?.status || 'success',
+            bulkpeMessage: payoutResult.data?.message || payoutResult.message,
             status: 'success',
             timestamp: new Date().toISOString(),
           };
@@ -367,8 +372,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
             amount: prizeAmount,
             transactionId: 'FAILED',
             referenceId,
+            paymentMode: 'UPI',
+            beneficiaryName: customerEntry.name || `Customer-${customerEntry.number.slice(-4)}`,
             status: 'failed',
             errorMessage: payoutError,
+            bulkpeMessage: payoutError,
             timestamp: new Date().toISOString(),
           };
           

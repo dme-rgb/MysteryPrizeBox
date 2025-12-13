@@ -16,6 +16,11 @@ export interface TransactionLog {
   amount: number;
   transactionId: string;
   referenceId: string;
+  upi?: string;
+  paymentMode?: string;
+  beneficiaryName?: string;
+  bulkpeStatus?: string;
+  bulkpeMessage?: string;
   status: 'success' | 'failed';
   errorMessage?: string;
   timestamp: string;
