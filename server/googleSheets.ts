@@ -7,6 +7,7 @@ export interface SheetCustomer {
   vehicleNumber: string;
   timestamp: string;
   verified?: boolean;
+  amount?: number; // Employee-entered payout amount during verification
 }
 
 export interface TransactionLog {
@@ -154,7 +155,7 @@ export class GoogleSheetsService {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        action: 'verify',
+        action: 'verifyAndSetAmount',
         vehicleNumber,
         amount: payoutAmount,
       }),
