@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { type Server } from "node:http";
+import 'dotenv/config';
 
 import { nanoid } from "nanoid";
 import { type Express } from "express";
