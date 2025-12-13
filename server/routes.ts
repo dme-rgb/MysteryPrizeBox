@@ -320,8 +320,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let payoutResult = null;
       let payoutError = null;
       const bulkpe = getBulkPEService();
-      // Use employee-provided amount if available, otherwise use prize
-      const prizeAmount = amount && Number(amount) > 0 ? Number(amount) : Number(customerEntry.prize);
+      // Always use actual prize/reward amount for BulkPE payout (this is the actual winning amount)
+      // The employee-entered amount is just for tracking/recording
+      const prizeAmount = Number(customerEntry.prize);
       const referenceId = `FUELRUSH-${vehicleNumber}-${Date.now()}`;
       
       if (bulkpe && Number.isFinite(prizeAmount) && prizeAmount > 0 && customerEntry.number) {

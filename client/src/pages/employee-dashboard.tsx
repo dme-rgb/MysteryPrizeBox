@@ -263,11 +263,11 @@ export default function EmployeeDashboard() {
 
                     <div className="mb-3">
                       <label className="text-xs text-muted-foreground block mb-1">
-                        Payout Amount (₹)
+                        Verification Amount (₹) - For Recording
                       </label>
                       <Input
                         type="number"
-                        placeholder="Enter amount"
+                        placeholder="Enter amount from box"
                         value={amountInputs[customer.vehicleNumber] || ''}
                         onChange={(e) => handleAmountChange(customer.vehicleNumber, e.target.value)}
                         disabled={verifyingVehicles.has(customer.vehicleNumber)}
