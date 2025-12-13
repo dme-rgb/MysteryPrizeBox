@@ -137,14 +137,17 @@ function doGet(e) {
     const sheet = ss.getSheetByName("Customer detail");
     const action = e.parameter.action;
     
-    if (action === "getVPAByPhone") {
-      // Retrieve VPA from Transactions sheet by phone number
+    if (action === "getTransactionByPhone") {
+      // Retrieve cached transaction details from Transactions sheet by phone number
+      // Returns VPA and account holder name if found
       const phoneNumber = e.parameter.phone;
       const transactionSheet = ss.getSheetByName("Transactions");
       
       if (!transactionSheet) {
         return ContentService.createTextOutput(JSON.stringify({
-          vpa: null
+          found: false,
+          vpa: null,
+          accountHolderName: null
         })).setMimeType(ContentService.MimeType.JSON);
       }
       
@@ -152,18 +155,32 @@ function doGet(e) {
       const values = dataRange.getValues();
       
       // Search for most recent successful transaction with this phone number
-      // Column B is Phone Number (index 2), Column O is VPA Address (index 14)
+      // Column C (index 2): Phone Number
+      // Column O (index 14): VPA Address
+      // Column P (index 15): VPA Account Holder Name
+      // Column S (index 18): VPA Status
       for (let i = values.length - 1; i >= 1; i--) {
-        if (values[i][2] === phoneNumber && values[i][14] && values[i][14] !== "N/A") {
+        const rowPhone = String(values[i][2]).trim();
+        const vpa = values[i][14];
+        const accountHolderName = values[i][15];
+        const vpaStatus = values[i][18];
+        
+        // Match phone number and ensure VPA is valid (not N/A)
+        if (rowPhone === String(phoneNumber).trim() && vpa && vpa !== "N/A" && vpaStatus === "SUCCESS") {
+          console.log(`[SHEET VPA CACHE] Found cached VPA for ${phoneNumber}: ${vpa}`);
           return ContentService.createTextOutput(JSON.stringify({
-            vpa: values[i][14],
-            accountHolderName: values[i][15] || null
+            found: true,
+            vpa: vpa,
+            accountHolderName: accountHolderName || null
           })).setMimeType(ContentService.MimeType.JSON);
         }
       }
       
+      console.log(`[SHEET VPA CACHE] No cached VPA found for ${phoneNumber}`);
       return ContentService.createTextOutput(JSON.stringify({
-        vpa: null
+        found: false,
+        vpa: null,
+        accountHolderName: null
       })).setMimeType(ContentService.MimeType.JSON);
     }
     

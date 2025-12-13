@@ -236,25 +236,27 @@ export class GoogleSheetsService {
     }
   }
 
-  async getVPAByPhoneNumber(phoneNumber: string): Promise<{ vpa: string; accountHolderName?: string } | null> {
+  async getTransactionByPhone(phoneNumber: string): Promise<{ vpa: string; accountHolderName?: string } | null> {
     try {
-      const response = await fetch(`${this.webhookUrl}?action=getVPAByPhone&phone=${encodeURIComponent(phoneNumber)}`, {
+      const response = await fetch(`${this.webhookUrl}?action=getTransactionByPhone&phone=${encodeURIComponent(phoneNumber)}`, {
         method: 'GET',
       });
 
       const text = await this.checkResponse(response);
       const data = JSON.parse(text);
       
-      if (data.vpa) {
+      if (data.found && data.vpa) {
+        console.log(`[GOOGLE SHEETS] Found cached VPA for ${phoneNumber}: ${data.vpa}`);
         return {
           vpa: data.vpa,
           accountHolderName: data.accountHolderName
         };
       }
       
+      console.log(`[GOOGLE SHEETS] No cached VPA found for ${phoneNumber} in Transactions sheet`);
       return null;
     } catch (error) {
-      console.log("[GOOGLE SHEETS] VPA lookup not found or error:", error);
+      console.log("[GOOGLE SHEETS] Transaction lookup error:", error);
       return null;
     }
   }

@@ -326,15 +326,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const phoneStr = String(customerEntry.number).trim();
           
-          // Check if VPA exists in Transactions sheet first to avoid redundant API calls
+          // Step 1: Check if VPA exists in Transactions sheet from previous transaction
+          console.log(`[PAYOUT] Step 1: Checking Transactions sheet for cached VPA for ${phoneStr}`);
           let cachedVPA = null;
           try {
-            cachedVPA = await googleSheetsService.getVPAByPhoneNumber(phoneStr);
+            cachedVPA = await googleSheetsService.getTransactionByPhone(phoneStr);
             if (cachedVPA) {
-              console.log(`[VPA CACHE] Found cached VPA for ${phoneStr}: ${cachedVPA.vpa}`);
+              console.log(`[PAYOUT] Found cached VPA: ${cachedVPA.vpa}, Account Holder: ${cachedVPA.accountHolderName}`);
+            } else {
+              console.log(`[PAYOUT] No cached VPA found, will call getVPA API`);
             }
           } catch (cacheErr: any) {
-            console.log(`[VPA CACHE] Could not retrieve cached VPA, will fetch fresh:`, cacheErr.message);
+            console.log(`[PAYOUT] Error checking Transactions sheet:`, cacheErr.message);
           }
           
           payoutResult = await bulkpe.initiatePayout({
