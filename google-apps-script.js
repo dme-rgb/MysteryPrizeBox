@@ -73,7 +73,8 @@ function doPost(e) {
         data.prize || "",
         data.vehicleNumber,
         data.timestamp,
-        data.verified || "No"
+        data.verified || "No",
+        "" // Amount column (initially empty)
       ]);
       
       return ContentService.createTextOutput(JSON.stringify({
@@ -114,6 +115,30 @@ function doPost(e) {
       for (let i = values.length - 1; i >= 1; i--) {
         if (values[i][3] === vehicleNumber) {
           sheet.getRange(i + 1, 6).setValue("Yes"); // Column F (verified)
+          break;
+        }
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    if (data.action === "verifyAndSetAmount") {
+      // Verify reward and set the payout amount for a vehicle
+      const vehicleNumber = data.vehicleNumber;
+      const amount = data.amount;
+      
+      const dataRange = sheet.getDataRange();
+      const values = dataRange.getValues();
+      
+      // Find the row with this vehicle number (most recent)
+      for (let i = values.length - 1; i >= 1; i--) {
+        if (values[i][3] === vehicleNumber) {
+          sheet.getRange(i + 1, 6).setValue("Yes"); // Column F (verified)
+          if (amount) {
+            sheet.getRange(i + 1, 7).setValue(amount); // Column G (amount)
+          }
           break;
         }
       }
@@ -197,7 +222,8 @@ function doGet(e) {
           prize: values[i][2],
           vehicleNumber: values[i][3],
           timestamp: values[i][4],
-          verified: values[i][5] === "Yes"
+          verified: values[i][5] === "Yes",
+          amount: values[i][6] || null
         });
       }
       
@@ -221,7 +247,8 @@ function doGet(e) {
               prize: values[i][2],
               vehicleNumber: values[i][3],
               timestamp: values[i][4],
-              verified: values[i][5] === "Yes"
+              verified: values[i][5] === "Yes",
+              amount: values[i][6] || null
             }
           })).setMimeType(ContentService.MimeType.JSON);
         }
@@ -254,7 +281,8 @@ function doGet(e) {
                 prize: values[i][2],
                 vehicleNumber: values[i][3],
                 timestamp: values[i][4],
-                verified: values[i][5] === "Yes"
+                verified: values[i][5] === "Yes",
+                amount: values[i][6] || null
               }
             })).setMimeType(ContentService.MimeType.JSON);
           }
