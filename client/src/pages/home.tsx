@@ -235,6 +235,7 @@ export default function Home() {
       return await res.json();
     },
     onSuccess: (data) => {
+      // Update with real ID from backend
       setCustomerId(data.id);
       // Only show success toast for new customers, not for existing ones
       if (!data.alreadyPlayedToday) {
@@ -317,6 +318,13 @@ export default function Home() {
   const handleFormSubmit = (data: { phoneNumber: string; vehicleNumber: string }) => {
     // Generate a default name based on phone number for backend compatibility
     const defaultName = `Customer-${data.phoneNumber.slice(-4)}`;
+    
+    // Show mystery box immediately with a temporary ID
+    const tempId = `temp-${Date.now()}`;
+    setCustomerId(tempId);
+    setShowFormModal(false);
+    
+    // Make the API call in the background
     createCustomerMutation.mutate({
       name: defaultName,
       ...data,
