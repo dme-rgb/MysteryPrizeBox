@@ -7,11 +7,16 @@ interface PayoutRequest {
 }
 
 interface VpaResponse {
-  vpa?: string;
-  account_holder_name?: string;
+  status?: boolean;
+  statusCode?: number;
+  data?: {
+    vpa?: string;
+    account_holder_name?: string;
+  };
   message?: string;
   error?: string;
 }
+
 
 interface PayoutResponse {
   status: boolean;
@@ -27,6 +32,8 @@ interface PayoutResponse {
     message?: string;
   };
   message?: string;
+  vpaUsed?: string;
+  accountHolderNameFromVpa?: string;
 }
 
 function normalizePhoneNumber(phone: any): string {
@@ -47,35 +54,49 @@ export class BulkPEService {
     this.apiKey = apiKey;
   }
 
-  private async getVPA(phoneNumber: string, referenceId: string): Promise<{ vpa: string; accountHolderName?: string }> {
-    console.log(`[BULKPE] Step 1: Fetching VPA for ${phoneNumber}`);
-    
+  private async getVPA(
+    phoneNumber: string,
+    referenceId: string
+  ): Promise<{ vpa: string; accountHolderName?: string }> {
+
     const response = await fetch('https://api.bulkpe.in/client/getVpa', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`
+        Authorization: `Bearer ${this.apiKey}`
       },
       body: JSON.stringify({
         phone: phoneNumber,
         reference_id: referenceId,
-        transaction_note: "FUEL RUSH Reward Payout"
+        transaction_note: 'FUEL RUSH Reward Payout'
       })
     });
 
-    const data: VpaResponse = await response.json();
-    console.log(`[BULKPE] VPA Response:`, data);
+    const rawText = await response.text();
+    console.log('[BULKPE] RAW RESPONSE:', rawText);
 
-    if (!data.vpa) {
-      throw new Error(data.message || data.error || 'No VPA received');
+    let data: VpaResponse;
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      throw new Error('Invalid JSON returned from BulkPE');
     }
 
-    console.log(`[BULKPE] VPA received: ${data.vpa}, Account Holder: ${data.account_holder_name}`);
-    return { 
-      vpa: data.vpa,
-      accountHolderName: data.account_holder_name
-    };
+    const vpa = data?.data?.vpa;
+    const accountHolderName = data?.data?.account_holder_name;
+
+    if (!vpa) {
+      throw new Error(
+        data?.message ||
+        data?.error ||
+        'No VPA received from BulkPE'
+      );
+    }
+
+    return { vpa, accountHolderName };
   }
+
+
 
   private async initiatePayoutWithUPI(
     vpaData: { vpa: string; accountHolderName?: string },
@@ -129,7 +150,14 @@ export class BulkPEService {
 
     try {
       const vpaData = await this.getVPA(normalizedPhone, referenceId);
-      return await this.initiatePayoutWithUPI(vpaData, request_param, referenceId);
+      const payoutResponse = await this.initiatePayoutWithUPI(vpaData, request_param, referenceId);
+      
+      // Add VPA information to response for logging
+      return {
+        ...payoutResponse,
+        vpaUsed: vpaData.vpa,
+        accountHolderNameFromVpa: vpaData.accountHolderName
+      };
     } catch (err: any) {
       console.error(`[BULKPE] Payout failed:`, err.message);
       throw err;

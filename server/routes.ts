@@ -335,10 +335,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log("Payout initiated successfully:", JSON.stringify(payoutResult, null, 2));
           
           // Log successful transaction to Google Sheets
-          // Extract VPA/UPI from response (vpa field is the UPI address)
-          const responseUpi = payoutResult.data?.vpa || 'N/A';
-          // Use account_holder_name from response if available, otherwise use provided beneficiaryName
-          const finalBeneficiaryName = payoutResult.data?.account_holder_name || customerEntry.name || `Customer-${phoneStr.slice(-4)}`;
+          // Extract VPA/UPI from response - use vpaUsed from BulkPE service, fallback to data.vpa
+          const responseUpi = (payoutResult as any).vpaUsed || payoutResult.data?.vpa || 'N/A';
+          // Use account_holder_name from response or from VPA fetch, otherwise use provided beneficiaryName
+          const finalBeneficiaryName = (payoutResult as any).accountHolderNameFromVpa || payoutResult.data?.account_holder_name || customerEntry.name || `Customer-${phoneStr.slice(-4)}`;
           // Get transaction ID (try both field names)
           const txnId = payoutResult.data?.transaction_id || payoutResult.data?.transcation_id || 'N/A';
           
