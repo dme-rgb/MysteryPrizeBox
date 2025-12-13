@@ -8,23 +8,55 @@ function doPost(e) {
     const data = JSON.parse(e.postData.contents);
     
     if (data.action === "logTransaction") {
-      // Log transaction to Transactions sheet
+      // Log transaction to Transactions sheet with all 20 fields
       let transactionSheet = ss.getSheetByName("Transactions");
       if (!transactionSheet) {
         transactionSheet = ss.insertSheet("Transactions");
-        transactionSheet.appendRow(["Timestamp", "Vehicle Number", "Customer Name", "Phone Number", "Amount", "Transaction ID", "Reference ID", "Status", "Error Message"]);
+        transactionSheet.appendRow([
+          "Vehicle Number",
+          "Customer Name", 
+          "Phone Number",
+          "Amount",
+          "Transaction ID",
+          "Reference ID",
+          "UPI",
+          "Payment Mode",
+          "Beneficiary Name",
+          "BulkPE Status",
+          "BulkPE Message",
+          "Transaction Status",
+          "Error Message",
+          "Timestamp",
+          "VPA Address",
+          "VPA Account Holder Name",
+          "VPA Transaction ID",
+          "VPA Reference ID",
+          "VPA Status",
+          "VPA Message"
+        ]);
       }
       
       transactionSheet.appendRow([
-        data.timestamp,
-        data.vehicleNumber,
-        data.customerName,
-        data.phoneNumber,
-        data.amount,
-        data.transactionId,
-        data.referenceId,
-        data.status,
-        data.errorMessage || ""
+        data.vehicleNumber || "",
+        data.customerName || "",
+        data.phoneNumber || "",
+        data.amount || "",
+        data.transactionId || "",
+        data.referenceId || "",
+        data.upi || "",
+        data.paymentMode || "",
+        data.beneficiaryName || "",
+        data.bulkpeStatus || "",
+        data.bulkpeMessage || "",
+        data.status || "",
+        data.errorMessage || "",
+        data.timestamp || "",
+        data.vpaAddress || "",
+        data.vpaAccountHolderName || "",
+        data.vpaTransactionId || "",
+        data.vpaReferenceId || "",
+        data.vpaStatus || "",
+        data.vpaMessage || ""
       ]);
       
       return ContentService.createTextOutput(JSON.stringify({
