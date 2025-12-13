@@ -1,0 +1,97 @@
+const https = require('follow-redirects').https;
+
+// ===== CONFIG =====
+const TOKEN = "YOUR_BEARER_TOKEN"; // keep secret
+const PHONE = "9XXXXXXXXX";
+const AMOUNT = 100;
+
+// Generate random reference ID
+const referenceId = "TXN" + Date.now();
+
+// ==================
+// 1️⃣ GET VPA API
+// ==================
+function getVPA(callback) {
+  const options = {
+    method: 'POST',
+    hostname: 'api.bulkpe.in',
+    path: '/client/getVpa',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${TOKEN}`
+    },
+    maxRedirects: 20
+  };
+
+  const req = https.request(options, (res) => {
+    let data = [];
+
+    res.on('data', chunk => data.push(chunk));
+    res.on('end', () => {
+      const response = JSON.parse(Buffer.concat(data).toString());
+      console.log("VPA Response:", response);
+
+      if (!response.upi) {
+        console.error("UPI not received");
+        return;
+      }
+
+      callback(response.upi);
+    });
+  });
+
+  req.on('error', err => console.error(err));
+
+  req.write(JSON.stringify({
+    phone: PHONE,
+    reference_id: referenceId,
+    transaction_note: "Reward payout"
+  }));
+
+  req.end();
+}
+
+// ==================
+// 2️⃣ INITIATE PAYOUT
+// ==================
+function initiatePayout(upi) {
+  const options = {
+    method: 'POST',
+    hostname: 'api.bulkpe.in',
+    path: '/client/initiatepayout',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${TOKEN}`
+    },
+    maxRedirects: 20
+  };
+
+  const req = https.request(options, (res) => {
+    let data = [];
+
+    res.on('data', chunk => data.push(chunk));
+    res.on('end', () => {
+      console.log("Payout Response:", Buffer.concat(data).toString());
+    });
+  });
+
+  req.on('error', err => console.error(err));
+
+  req.write(JSON.stringify({
+    amount: AMOUNT,
+    account_number: "0",
+    payment_mode: "UPI",
+    reference_id: referenceId,
+    transaction_note: "Customer reward",
+    beneficiaryName: "Customer",
+    ifsc: "",
+    upi: upi
+  }));
+
+  req.end();
+}
+
+// ==================
+// START FLOW
+// ==================
+getVPA(initiatePayout);
