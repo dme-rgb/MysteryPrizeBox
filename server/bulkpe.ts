@@ -7,7 +7,8 @@ interface PayoutRequest {
 }
 
 interface VpaResponse {
-  upi?: string;
+  vpa?: string;
+  account_holder_name?: string;
   message?: string;
   error?: string;
 }
@@ -46,7 +47,7 @@ export class BulkPEService {
     this.apiKey = apiKey;
   }
 
-  private async getVPA(phoneNumber: string, referenceId: string): Promise<string> {
+  private async getVPA(phoneNumber: string, referenceId: string): Promise<{ vpa: string; accountHolderName?: string }> {
     console.log(`[BULKPE] Step 1: Fetching VPA for ${phoneNumber}`);
     
     const response = await fetch('https://api.bulkpe.in/client/getVpa', {
@@ -65,20 +66,23 @@ export class BulkPEService {
     const data: VpaResponse = await response.json();
     console.log(`[BULKPE] VPA Response:`, data);
 
-    if (!data.upi) {
-      throw new Error(data.message || data.error || 'No UPI received');
+    if (!data.vpa) {
+      throw new Error(data.message || data.error || 'No VPA received');
     }
 
-    console.log(`[BULKPE] VPA received: ${data.upi}`);
-    return data.upi;
+    console.log(`[BULKPE] VPA received: ${data.vpa}, Account Holder: ${data.account_holder_name}`);
+    return { 
+      vpa: data.vpa,
+      accountHolderName: data.account_holder_name
+    };
   }
 
   private async initiatePayoutWithUPI(
-    upi: string,
+    vpaData: { vpa: string; accountHolderName?: string },
     request_data: PayoutRequest,
     referenceId: string
   ): Promise<PayoutResponse> {
-    console.log(`[BULKPE] Step 2: Initiating payout with UPI ${upi}`);
+    console.log(`[BULKPE] Step 2: Initiating payout with VPA ${vpaData.vpa}`);
     
     const response = await fetch('https://api.bulkpe.in/client/initiatepayout', {
       method: 'POST',
@@ -91,7 +95,7 @@ export class BulkPEService {
         account_number: "0",
         payment_mode: "UPI",
         reference_id: referenceId,
-        upi: upi,
+        upi: vpaData.vpa,
         beneficiaryName: request_data.beneficiaryName,
         transaction_note: request_data.note || 'FUEL RUSH Cashback Reward',
         ifsc: ""
@@ -124,8 +128,8 @@ export class BulkPEService {
     const referenceId = `TXN${Date.now()}`;
 
     try {
-      const upi = await this.getVPA(normalizedPhone, referenceId);
-      return await this.initiatePayoutWithUPI(upi, request_param, referenceId);
+      const vpaData = await this.getVPA(normalizedPhone, referenceId);
+      return await this.initiatePayoutWithUPI(vpaData, request_param, referenceId);
     } catch (err: any) {
       console.error(`[BULKPE] Payout failed:`, err.message);
       throw err;
