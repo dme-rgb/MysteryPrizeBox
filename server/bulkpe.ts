@@ -16,13 +16,16 @@ interface PayoutResponse {
   status: boolean;
   statusCode?: number;
   data?: {
+    account_holder_name?: string;
+    vpa?: string;
     transcation_id?: string;
-    reference_id: string;
-    amount: number;
-    status: string;
-    message: string;
+    transaction_id?: string;
+    reference_id?: string;
+    amount?: number;
+    status?: string;
+    message?: string;
   };
-  message: string;
+  message?: string;
 }
 
 function normalizePhoneNumber(phone: any): string {

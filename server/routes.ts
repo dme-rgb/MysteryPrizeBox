@@ -335,18 +335,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log("Payout initiated successfully:", JSON.stringify(payoutResult, null, 2));
           
           // Log successful transaction to Google Sheets
+          // Extract VPA/UPI from response (vpa field is the UPI address)
+          const responseUpi = payoutResult.data?.vpa || 'N/A';
+          // Use account_holder_name from response if available, otherwise use provided beneficiaryName
+          const finalBeneficiaryName = payoutResult.data?.account_holder_name || customerEntry.name || `Customer-${phoneStr.slice(-4)}`;
+          // Get transaction ID (try both field names)
+          const txnId = payoutResult.data?.transaction_id || payoutResult.data?.transcation_id || 'N/A';
+          
           const transaction: TransactionLog = {
             vehicleNumber,
             customerName: customerEntry.name || 'N/A',
             phoneNumber: customerEntry.number,
             amount: prizeAmount,
-            transactionId: payoutResult.data?.transcation_id || 'N/A',
+            transactionId: txnId,
             referenceId,
-            upi: (payoutResult.data as any)?.upi || 'N/A',
+            upi: responseUpi,
             paymentMode: 'UPI',
-            beneficiaryName: customerEntry.name || `Customer-${phoneStr.slice(-4)}`,
-            bulkpeStatus: payoutResult.data?.status || 'success',
-            bulkpeMessage: payoutResult.data?.message || payoutResult.message,
+            beneficiaryName: finalBeneficiaryName,
+            bulkpeStatus: payoutResult.data?.status || 'SUCCESS',
+            bulkpeMessage: payoutResult.data?.message || 'Transaction Success',
             status: 'success',
             timestamp: new Date().toISOString(),
           };
@@ -365,6 +372,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.error(`[PAYOUT FAILED] Vehicle: ${vehicleNumber}, Phone: ${customerEntry.number}, Amount: ${prizeAmount}, Error: ${err.message}`);
           
           // Log failed transaction to Google Sheets
+          const finalBeneficiaryNameFailed = customerEntry.name || `Customer-${customerEntry.number.slice(-4)}`;
           const transaction: TransactionLog = {
             vehicleNumber,
             customerName: customerEntry.name || 'N/A',
@@ -373,7 +381,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             transactionId: 'FAILED',
             referenceId,
             paymentMode: 'UPI',
-            beneficiaryName: customerEntry.name || `Customer-${customerEntry.number.slice(-4)}`,
+            beneficiaryName: finalBeneficiaryNameFailed,
+            bulkpeStatus: 'FAILED',
             status: 'failed',
             errorMessage: payoutError,
             bulkpeMessage: payoutError,
