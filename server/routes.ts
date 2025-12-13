@@ -4,7 +4,6 @@ import { storage } from "./storage";
 import { insertCustomerSchema, employeeLoginSchema } from "@shared/schema";
 import { googleSheetsService, GoogleSheetsNotConfiguredError, type TransactionLog } from "./googleSheets";
 import { getBulkPEService } from "./bulkpe";
-import 'dotenv/config';
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Health check for Google Sheets

@@ -6,7 +6,6 @@ import express, {
   Response,
   NextFunction,
 } from "express";
- import 'dotenv/config';
 import { registerRoutes } from "./routes";
 
 export function log(message: string, source = "express") {
