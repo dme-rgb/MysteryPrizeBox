@@ -297,6 +297,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/employee/verify/:vehicleNumber", async (req, res) => {
     try {
       const { vehicleNumber } = req.params;
+      const { amount } = req.body;
       
       // Get customer details from Google Sheets before verifying
       const customerEntry = await googleSheetsService.getTodaysCustomerByVehicle(vehicleNumber);
@@ -306,7 +307,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Verify in Google Sheets
-      await googleSheetsService.verifyReward(vehicleNumber);
+      await googleSheetsService.verifyReward(vehicleNumber, amount);
       
       // Also update in local storage if exists
       const allCustomers = await storage.getAllCustomers();
@@ -319,7 +320,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       let payoutResult = null;
       let payoutError = null;
       const bulkpe = getBulkPEService();
-      const prizeAmount = Number(customerEntry.prize);
+      // Use employee-provided amount if available, otherwise use prize
+      const prizeAmount = amount && Number(amount) > 0 ? Number(amount) : Number(customerEntry.prize);
       const referenceId = `FUELRUSH-${vehicleNumber}-${Date.now()}`;
       
       if (bulkpe && Number.isFinite(prizeAmount) && prizeAmount > 0 && customerEntry.number) {

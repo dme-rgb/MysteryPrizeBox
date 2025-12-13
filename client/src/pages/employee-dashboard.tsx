@@ -6,6 +6,7 @@ import bgImage from '@assets/Gemini_Generated_Image_mnpedumnpedumnpe_17646768098
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
 import { LogOut, RefreshCw, IndianRupee, User, Car, Phone, Trash2 } from 'lucide-react';
@@ -30,6 +31,7 @@ export default function EmployeeDashboard() {
   const [, setLocation] = useLocation();
   const [employee, setEmployee] = useState<EmployeeData | null>(null);
   const [verifyingVehicles, setVerifyingVehicles] = useState<Set<string>>(new Set());
+  const [amountInputs, setAmountInputs] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const storedEmployee = localStorage.getItem('employee');
@@ -47,10 +49,12 @@ export default function EmployeeDashboard() {
   });
 
   const verifyMutation = useMutation({
-    mutationFn: async (vehicleNumber: string) => {
+    mutationFn: async ({ vehicleNumber, amount }: { vehicleNumber: string; amount: string }) => {
       const res = await fetch(`/api/employee/verify/${encodeURIComponent(vehicleNumber)}`, {
         method: 'POST',
         credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: amount ? parseInt(amount) : undefined }),
       });
 
       if (!res.ok) {
@@ -60,22 +64,27 @@ export default function EmployeeDashboard() {
 
       return await res.json();
     },
-    onSuccess: (_, vehicleNumber) => {
+    onSuccess: (_, variables) => {
       setVerifyingVehicles(prev => {
         const newSet = new Set(prev);
-        newSet.delete(vehicleNumber);
+        newSet.delete(variables.vehicleNumber);
         return newSet;
+      });
+      setAmountInputs(prev => {
+        const newInputs = { ...prev };
+        delete newInputs[variables.vehicleNumber];
+        return newInputs;
       });
       queryClient.invalidateQueries({ queryKey: ['/api/employee/unverified-customers'] });
       toast({
         title: "Customer Verified!",
-        description: `Vehicle ${vehicleNumber} has been verified successfully.`,
+        description: `Vehicle ${variables.vehicleNumber} has been verified successfully.`,
       });
     },
-    onError: (error: Error, vehicleNumber) => {
+    onError: (error: Error, variables) => {
       setVerifyingVehicles(prev => {
         const newSet = new Set(prev);
-        newSet.delete(vehicleNumber);
+        newSet.delete(variables.vehicleNumber);
         return newSet;
       });
       toast({
@@ -118,9 +127,22 @@ export default function EmployeeDashboard() {
 
   const handleVerify = (vehicleNumber: string, checked: boolean) => {
     if (checked) {
+      const amount = amountInputs[vehicleNumber] || '';
+      if (!amount.trim()) {
+        toast({
+          title: "Amount Required",
+          description: "Please enter an amount before verifying.",
+          variant: "destructive",
+        });
+        return;
+      }
       setVerifyingVehicles(prev => new Set(prev).add(vehicleNumber));
-      verifyMutation.mutate(vehicleNumber);
+      verifyMutation.mutate({ vehicleNumber, amount });
     }
+  };
+
+  const handleAmountChange = (vehicleNumber: string, value: string) => {
+    setAmountInputs(prev => ({ ...prev, [vehicleNumber]: value }));
   };
 
   const handleLogout = () => {
@@ -224,7 +246,7 @@ export default function EmployeeDashboard() {
                   </div>
                   
                   <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
                       <div className="flex items-center gap-1 text-foreground font-medium">
                         <User className="w-4 h-4 text-muted-foreground" />
                         <span data-testid={`text-name-${customer.vehicleNumber}`}>
@@ -237,6 +259,21 @@ export default function EmployeeDashboard() {
                           {customer.prize}
                         </span>
                       </Badge>
+                    </div>
+
+                    <div className="mb-3">
+                      <label className="text-xs text-muted-foreground block mb-1">
+                        Payout Amount (₹)
+                      </label>
+                      <Input
+                        type="number"
+                        placeholder="Enter amount"
+                        value={amountInputs[customer.vehicleNumber] || ''}
+                        onChange={(e) => handleAmountChange(customer.vehicleNumber, e.target.value)}
+                        disabled={verifyingVehicles.has(customer.vehicleNumber)}
+                        data-testid={`input-amount-${customer.vehicleNumber}`}
+                        className="h-8 text-sm"
+                      />
                     </div>
                     
                     <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">

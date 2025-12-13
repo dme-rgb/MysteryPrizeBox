@@ -147,7 +147,7 @@ export class GoogleSheetsService {
     await this.checkResponse(response);
   }
 
-  async verifyReward(vehicleNumber: string): Promise<void> {
+  async verifyReward(vehicleNumber: string, payoutAmount?: number): Promise<void> {
     const response = await fetch(this.webhookUrl, {
       method: 'POST',
       headers: {
@@ -156,6 +156,7 @@ export class GoogleSheetsService {
       body: JSON.stringify({
         action: 'verify',
         vehicleNumber,
+        amount: payoutAmount,
       }),
     });
 
