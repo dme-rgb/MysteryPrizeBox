@@ -71,22 +71,22 @@ export class BulkPEService {
       throw new Error(`Invalid payout amount: ${request.amount}`);
     }
     
-    const upiId = `${normalizedPhone}@ybl`;
-    
     const payload = {
       amount: request.amount,
-      payment_mode: 'UPI',
+      payment_mode: 'MOBILE',
+      mobile: normalizedPhone,
       reference_id: request.referenceId,
-      upi: upiId,
       beneficiaryName: request.beneficiaryName,
       transcation_note: request.note || 'FUEL RUSH Cashback Reward'
     };
 
+
     console.log(`[BULKPE] Sending request to ${BULKPE_API_URL}`, { 
-      amount: request.amount, 
-      upi: upiId, 
-      reference_id: request.referenceId 
+      amount: request.amount,
+      mobile: normalizedPhone,
+      reference_id: request.referenceId
     });
+
 
     const response = await fetch(BULKPE_API_URL, {
       method: 'POST',
