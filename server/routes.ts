@@ -335,11 +335,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           console.log("Payout initiated successfully:", JSON.stringify(payoutResult, null, 2));
           
           // Log successful transaction to Google Sheets
-          // Extract VPA/UPI from response - use vpaUsed from BulkPE service, fallback to data.vpa
+          // Extract all VPA response fields
           const responseUpi = (payoutResult as any).vpaUsed || payoutResult.data?.vpa || 'N/A';
-          // Use account_holder_name from response or from VPA fetch, otherwise use provided beneficiaryName
           const finalBeneficiaryName = (payoutResult as any).accountHolderNameFromVpa || payoutResult.data?.account_holder_name || customerEntry.name || `Customer-${phoneStr.slice(-4)}`;
-          // Get transaction ID (try both field names)
           const txnId = payoutResult.data?.transaction_id || payoutResult.data?.transcation_id || 'N/A';
           
           const transaction: TransactionLog = {
@@ -356,6 +354,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             bulkpeMessage: payoutResult.data?.message || 'Transaction Success',
             status: 'success',
             timestamp: new Date().toISOString(),
+            // Store all VPA response fields separately
+            vpaAddress: (payoutResult as any).vpaUsed || payoutResult.data?.vpa || 'N/A',
+            vpaAccountHolderName: (payoutResult as any).accountHolderNameFromVpa || payoutResult.data?.account_holder_name || 'N/A',
+            vpaTransactionId: payoutResult.data?.transaction_id || payoutResult.data?.transcation_id || 'N/A',
+            vpaReferenceId: payoutResult.data?.reference_id || 'N/A',
+            vpaStatus: payoutResult.data?.status || 'SUCCESS',
+            vpaMessage: payoutResult.data?.message || 'Transaction Success',
           };
           
           try {
@@ -387,6 +392,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             errorMessage: payoutError,
             bulkpeMessage: payoutError,
             timestamp: new Date().toISOString(),
+            // Store empty/N/A for VPA fields when transaction fails
+            vpaAddress: 'N/A',
+            vpaAccountHolderName: 'N/A',
+            vpaTransactionId: 'N/A',
+            vpaReferenceId: 'N/A',
+            vpaStatus: 'FAILED',
+            vpaMessage: payoutError,
           };
           
           try {

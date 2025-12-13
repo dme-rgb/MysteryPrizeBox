@@ -24,6 +24,13 @@ export interface TransactionLog {
   status: 'success' | 'failed';
   errorMessage?: string;
   timestamp: string;
+  // VPA Response Fields
+  vpaAddress?: string;
+  vpaAccountHolderName?: string;
+  vpaTransactionId?: string;
+  vpaReferenceId?: string;
+  vpaStatus?: string;
+  vpaMessage?: string;
 }
 
 export class GoogleSheetsNotConfiguredError extends Error {
