@@ -1,8 +1,12 @@
+/* =======================
+   Types
+======================= */
+
 interface PayoutRequest {
   amount: number;
   phoneNumber: string;
   beneficiaryName: string;
-  referenceId: string;
+  referenceId: string; // payout reference (must be unique per payout)
   note?: string;
   cachedVPA?: {
     vpa: string;
@@ -21,14 +25,10 @@ interface VpaResponse {
   error?: string;
 }
 
-
 interface PayoutResponse {
   status: boolean;
   statusCode?: number;
   data?: {
-    account_holder_name?: string;
-    vpa?: string;
-    transcation_id?: string;
     transaction_id?: string;
     reference_id?: string;
     amount?: number;
@@ -36,18 +36,39 @@ interface PayoutResponse {
     message?: string;
   };
   message?: string;
+
+  // added for logging
   vpaUsed?: string;
   accountHolderNameFromVpa?: string;
 }
 
+/* =======================
+   Utils
+======================= */
+
 function normalizePhoneNumber(phone: any): string {
   if (!phone) throw new Error('Phone number is required');
-  const phoneStr = String(phone).trim().replace(/\D/g, '');
-  if (phoneStr.length === 12 && phoneStr.startsWith('91')) return phoneStr.slice(2);
-  if (phoneStr.length === 10) return phoneStr;
-  if (phoneStr.length > 10) return phoneStr.slice(-10);
-  return phoneStr;
+
+  const phoneStr = String(phone).replace(/\D/g, '');
+
+  if (phoneStr.length === 12 && phoneStr.startsWith('91')) {
+    return phoneStr.slice(2);
+  }
+
+  if (phoneStr.length === 10) {
+    return phoneStr;
+  }
+
+  if (phoneStr.length > 10) {
+    return phoneStr.slice(-10);
+  }
+
+  throw new Error(`Invalid phone number: ${phone}`);
 }
+
+/* =======================
+   Service
+======================= */
 
 export class BulkPEService {
   private apiKey: string;
@@ -58,32 +79,41 @@ export class BulkPEService {
     this.apiKey = apiKey;
   }
 
+  /* =======================
+     STEP 1: Get VPA
+     IMPORTANT:
+     - This CREATES a transaction in BulkPE
+     - Must use a UNIQUE reference_id
+  ======================= */
   private async getVPA(
     phoneNumber: string,
-    referenceId: string
+    vpaReferenceId: string
   ): Promise<{ vpa: string; accountHolderName?: string }> {
 
-    const response = await fetch('https://api.bulkpe.in/client/getVpa', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.apiKey}`
-      },
-      body: JSON.stringify({
-        phone: phoneNumber,
-        reference_id: referenceId,
-        transaction_note: 'FUEL RUSH Reward Payout'
-      })
-    });
+    const response = await fetch(
+      'https://api.bulkpe.in/client/getVpa',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`
+        },
+        body: JSON.stringify({
+          phone: phoneNumber,
+          reference_id: vpaReferenceId,
+          transaction_note: 'FUEL RUSH Reward Payout'
+        })
+      }
+    );
 
     const rawText = await response.text();
-    console.log('[BULKPE] RAW RESPONSE:', rawText);
+    console.log('[BULKPE] getVpa RAW:', rawText);
 
     let data: VpaResponse;
     try {
       data = JSON.parse(rawText);
     } catch {
-      throw new Error('Invalid JSON returned from BulkPE');
+      throw new Error('Invalid JSON returned from BulkPE getVpa');
     }
 
     const vpa = data?.data?.vpa;
@@ -100,94 +130,112 @@ export class BulkPEService {
     return { vpa, accountHolderName };
   }
 
-
-
+  /* =======================
+     STEP 2: Initiate Payout
+     - MUST use a DIFFERENT reference_id
+     - Check data.status (not HTTP 200)
+  ======================= */
   private async initiatePayoutWithUPI(
     vpaData: { vpa: string; accountHolderName?: string },
-    request_data: PayoutRequest,
-    referenceId: string
+    request: PayoutRequest
   ): Promise<PayoutResponse> {
-    console.log(`[BULKPE] Step 2: Initiating payout with VPA ${vpaData.vpa}`);
-    
-    const response = await fetch('https://api.bulkpe.in/client/initiatepayout', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`
-      },
-      body: JSON.stringify({
-        amount: request_data.amount,
-        account_number: "0",
-        payment_mode: "UPI",
-        reference_id: referenceId,
-        upi: vpaData.vpa,
-        beneficiaryName: request_data.beneficiaryName,
-        transaction_note: request_data.note || 'FUEL RUSH Cashback Reward',
-        ifsc: ""
-      })
-    });
+
+    const response = await fetch(
+      'https://api.bulkpe.in/client/initiatepayout',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${this.apiKey}`
+        },
+        body: JSON.stringify({
+          amount: request.amount,
+          account_number: '0',
+          payment_mode: 'UPI',
+          reference_id: request.referenceId,
+          upi: vpaData.vpa,
+          beneficiaryName: request.beneficiaryName,
+          transaction_note: request.note || 'FUEL RUSH Cashback Reward',
+          ifsc: ''
+        })
+      }
+    );
 
     const data: PayoutResponse = await response.json();
-    console.log(`[BULKPE] Payout Response (${response.status}):`, data);
+    console.log('[BULKPE] initiatepayout:', data);
 
-    if (!response.ok) {
-      throw new Error(data.message || 'Payout failed');
+    // 🔴 IMPORTANT: Check data.status, NOT response.ok
+    if (!data.status) {
+      throw new Error(
+        data.message || 'BulkPE payout failed'
+      );
     }
 
-    console.log(`[BULKPE] Payout successful:`, data.data);
-    return data;
+    return {
+      ...data,
+      vpaUsed: vpaData.vpa,
+      accountHolderNameFromVpa: vpaData.accountHolderName
+    };
   }
 
-  async initiatePayout(request_param: PayoutRequest): Promise<PayoutResponse> {
-    const normalizedPhone = normalizePhoneNumber(request_param.phoneNumber);
+  /* =======================
+     PUBLIC METHOD
+  ======================= */
+  async initiatePayout(
+    request: PayoutRequest
+  ): Promise<PayoutResponse> {
 
-    console.log(`[BULKPE] Starting payout: ${request_param.phoneNumber} -> ${normalizedPhone}`);
+    const normalizedPhone =
+      normalizePhoneNumber(request.phoneNumber);
 
-    if (normalizedPhone.length !== 10) {
-      throw new Error(`Invalid phone: ${normalizedPhone}`);
+    if (!Number.isFinite(request.amount) || request.amount <= 0) {
+      throw new Error(`Invalid amount: ${request.amount}`);
     }
-    if (!Number.isFinite(request_param.amount) || request_param.amount <= 0) {
-      throw new Error(`Invalid amount: ${request_param.amount}`);
-    }
 
-    const referenceId = `TXN${Date.now()}`;
+    let vpaData: { vpa: string; accountHolderName?: string };
 
     try {
-      // Use cached VPA if provided, otherwise fetch from BulkPE
-      let vpaData;
-      if (request_param.cachedVPA) {
-        console.log(`[BULKPE] Using cached VPA: ${request_param.cachedVPA.vpa}`);
-        vpaData = request_param.cachedVPA;
+      // Use cached VPA if available
+      if (request.cachedVPA) {
+        console.log('[BULKPE] Using cached VPA:', request.cachedVPA.vpa);
+        vpaData = request.cachedVPA;
       } else {
-        console.log(`[BULKPE] Fetching VPA from BulkPE for phone: ${normalizedPhone}`);
-        vpaData = await this.getVPA(normalizedPhone, referenceId);
+        // Unique reference ONLY for VPA call
+        const vpaReferenceId = `VPA${Date.now()}`;
+        vpaData = await this.getVPA(
+          normalizedPhone,
+          vpaReferenceId
+        );
       }
 
-      const payoutResponse = await this.initiatePayoutWithUPI(vpaData, request_param, referenceId);
-      
-      // Add VPA information to response for logging
-      return {
-        ...payoutResponse,
-        vpaUsed: vpaData.vpa,
-        accountHolderNameFromVpa: vpaData.accountHolderName
-      };
+      // Payout uses caller-provided referenceId
+      return await this.initiatePayoutWithUPI(
+        vpaData,
+        request
+      );
+
     } catch (err: any) {
-      console.error(`[BULKPE] Payout failed:`, err.message);
+      console.error('[BULKPE] Payout failed:', err.message);
       throw err;
     }
   }
 }
 
+/* =======================
+   Singleton
+======================= */
+
 let bulkpeService: BulkPEService | null = null;
 
 export function getBulkPEService(): BulkPEService | null {
   if (!process.env.BULKPE_API_KEY) {
-    console.warn("[BULKPE] API Key not found");
+    console.warn('[BULKPE] API key missing');
     return null;
   }
+
   if (!bulkpeService) {
-    console.log("[BULKPE] Initializing");
     bulkpeService = new BulkPEService();
   }
+
   return bulkpeService;
 }

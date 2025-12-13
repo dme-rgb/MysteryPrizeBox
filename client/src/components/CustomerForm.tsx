@@ -50,6 +50,9 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
         <h2 className="text-xl font-bold text-white" data-testid="text-form-title">
           Enter Contest
         </h2>
+        <h2 className="text-sm text-white" data-testid="text-form-title">
+          Payment will be sent to your UPI account  
+        </h2>
       </div>
 
       <Form {...form}>
@@ -96,7 +99,7 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
               </FormItem>
             )}
           />
-
+      
           <FormField
             control={form.control}
             name="vehicleNumber"

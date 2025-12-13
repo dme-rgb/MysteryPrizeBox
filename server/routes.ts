@@ -349,9 +349,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           
           // Log successful transaction to Google Sheets
           // Extract all VPA response fields
-          const responseUpi = (payoutResult as any).vpaUsed || payoutResult.data?.vpa || 'N/A';
-          const finalBeneficiaryName = (payoutResult as any).accountHolderNameFromVpa || payoutResult.data?.account_holder_name || customerEntry.name || `Customer-${phoneStr.slice(-4)}`;
-          const txnId = payoutResult.data?.transaction_id || payoutResult.data?.transcation_id || 'N/A';
+          const responseUpi = (payoutResult as any).vpaUsed || 'N/A';
+          const finalBeneficiaryName = (payoutResult as any).accountHolderNameFromVpa || customerEntry.name || `Customer-${phoneStr.slice(-4)}`;
+          const txnId = payoutResult.data?.transaction_id || (payoutResult.data as any)?.transcation_id || 'N/A';
           
           const transaction: TransactionLog = {
             vehicleNumber,
@@ -368,9 +368,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             status: 'success',
             timestamp: new Date().toISOString(),
             // Store all VPA response fields separately
-            vpaAddress: (payoutResult as any).vpaUsed || payoutResult.data?.vpa || 'N/A',
-            vpaAccountHolderName: (payoutResult as any).accountHolderNameFromVpa || payoutResult.data?.account_holder_name || 'N/A',
-            vpaTransactionId: payoutResult.data?.transaction_id || payoutResult.data?.transcation_id || 'N/A',
+            vpaAddress: (payoutResult as any).vpaUsed || 'N/A',
+            vpaAccountHolderName: (payoutResult as any).accountHolderNameFromVpa || 'N/A',
+            vpaTransactionId: payoutResult.data?.transaction_id || (payoutResult.data as any)?.transcation_id || 'N/A',
             vpaReferenceId: payoutResult.data?.reference_id || 'N/A',
             vpaStatus: payoutResult.data?.status || 'SUCCESS',
             vpaMessage: payoutResult.data?.message || 'Transaction Success',
