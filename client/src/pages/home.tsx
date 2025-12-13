@@ -360,6 +360,16 @@ export default function Home() {
   };
 
   const handleOpen = () => {
+    // Prevent opening with temp ID
+    if (!customerId || customerId.startsWith('temp-')) {
+      toast({
+        title: "Loading...",
+        description: "Please wait for registration to complete.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsOpening(true);
 
     // Play box opening sound with background music pause/resume
@@ -587,7 +597,7 @@ export default function Home() {
             </div>
             <div className="relative flex items-center justify-center min-h-[400px] pl-[36px] pr-[36px] pt-[25px] pb-[25px]">
               {!showReward ? (
-                <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} disabled={customerData?.alreadyPlayedToday || false} />
+                <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} disabled={customerData?.alreadyPlayedToday || createCustomerMutation.isPending} />
               ) : rewardAmount ? (
                 <div 
                   className="relative"
