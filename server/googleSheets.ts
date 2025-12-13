@@ -236,6 +236,29 @@ export class GoogleSheetsService {
     }
   }
 
+  async getVPAByPhoneNumber(phoneNumber: string): Promise<{ vpa: string; accountHolderName?: string } | null> {
+    try {
+      const response = await fetch(`${this.webhookUrl}?action=getVPAByPhone&phone=${encodeURIComponent(phoneNumber)}`, {
+        method: 'GET',
+      });
+
+      const text = await this.checkResponse(response);
+      const data = JSON.parse(text);
+      
+      if (data.vpa) {
+        return {
+          vpa: data.vpa,
+          accountHolderName: data.accountHolderName
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.log("[GOOGLE SHEETS] VPA lookup not found or error:", error);
+      return null;
+    }
+  }
+
   getIsConfigured(): boolean | null {
     return this.isConfigured;
   }

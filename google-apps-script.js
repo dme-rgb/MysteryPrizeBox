@@ -133,8 +133,39 @@ function doPost(e) {
 
 function doGet(e) {
   try {
-    const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Customer detail");
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getSheetByName("Customer detail");
     const action = e.parameter.action;
+    
+    if (action === "getVPAByPhone") {
+      // Retrieve VPA from Transactions sheet by phone number
+      const phoneNumber = e.parameter.phone;
+      const transactionSheet = ss.getSheetByName("Transactions");
+      
+      if (!transactionSheet) {
+        return ContentService.createTextOutput(JSON.stringify({
+          vpa: null
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+      
+      const dataRange = transactionSheet.getDataRange();
+      const values = dataRange.getValues();
+      
+      // Search for most recent successful transaction with this phone number
+      // Column B is Phone Number (index 2), Column O is VPA Address (index 14)
+      for (let i = values.length - 1; i >= 1; i--) {
+        if (values[i][2] === phoneNumber && values[i][14] && values[i][14] !== "N/A") {
+          return ContentService.createTextOutput(JSON.stringify({
+            vpa: values[i][14],
+            accountHolderName: values[i][15] || null
+          })).setMimeType(ContentService.MimeType.JSON);
+        }
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        vpa: null
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
     
     if (action === "getAll") {
       const dataRange = sheet.getDataRange();

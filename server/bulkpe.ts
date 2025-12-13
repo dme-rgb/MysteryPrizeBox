@@ -4,6 +4,10 @@ interface PayoutRequest {
   beneficiaryName: string;
   referenceId: string;
   note?: string;
+  cachedVPA?: {
+    vpa: string;
+    accountHolderName?: string;
+  };
 }
 
 interface VpaResponse {
@@ -149,7 +153,16 @@ export class BulkPEService {
     const referenceId = `TXN${Date.now()}`;
 
     try {
-      const vpaData = await this.getVPA(normalizedPhone, referenceId);
+      // Use cached VPA if provided, otherwise fetch from BulkPE
+      let vpaData;
+      if (request_param.cachedVPA) {
+        console.log(`[BULKPE] Using cached VPA: ${request_param.cachedVPA.vpa}`);
+        vpaData = request_param.cachedVPA;
+      } else {
+        console.log(`[BULKPE] Fetching VPA from BulkPE for phone: ${normalizedPhone}`);
+        vpaData = await this.getVPA(normalizedPhone, referenceId);
+      }
+
       const payoutResponse = await this.initiatePayoutWithUPI(vpaData, request_param, referenceId);
       
       // Add VPA information to response for logging

@@ -325,12 +325,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (bulkpe && Number.isFinite(prizeAmount) && prizeAmount > 0 && customerEntry.number) {
         try {
           const phoneStr = String(customerEntry.number).trim();
+          
+          // Check if VPA exists in Transactions sheet first to avoid redundant API calls
+          let cachedVPA = null;
+          try {
+            cachedVPA = await googleSheetsService.getVPAByPhoneNumber(phoneStr);
+            if (cachedVPA) {
+              console.log(`[VPA CACHE] Found cached VPA for ${phoneStr}: ${cachedVPA.vpa}`);
+            }
+          } catch (cacheErr: any) {
+            console.log(`[VPA CACHE] Could not retrieve cached VPA, will fetch fresh:`, cacheErr.message);
+          }
+          
           payoutResult = await bulkpe.initiatePayout({
             amount: prizeAmount,
             phoneNumber: phoneStr,
             beneficiaryName: customerEntry.name || `Customer-${phoneStr.slice(-4)}`,
             referenceId,
-            note: `FUEL RUSH Cashback - Rs.${prizeAmount}`
+            note: `FUEL RUSH Cashback - Rs.${prizeAmount}`,
+            cachedVPA: cachedVPA || undefined
           });
           console.log("Payout initiated successfully:", JSON.stringify(payoutResult, null, 2));
           
