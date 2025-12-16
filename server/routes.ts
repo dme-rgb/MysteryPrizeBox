@@ -322,7 +322,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/employee/verify/:vehicleNumber", async (req, res) => {
     try {
       const { vehicleNumber } = req.params;
-      const { amount } = req.body;
+      const { amount, verifierName } = req.body;
       
       // Normalize vehicle number
       const normalized = normalizeVehicleNumber(vehicleNumber);
@@ -334,8 +334,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Customer not found" });
       }
       
-      // Verify in Google Sheets
-      await googleSheetsService.verifyReward(normalized, amount);
+      // Verify in Google Sheets with verifier name
+      await googleSheetsService.verifyReward(normalized, amount, verifierName);
       
       // Also update in local storage if exists
       const allCustomers = await storage.getAllCustomers();

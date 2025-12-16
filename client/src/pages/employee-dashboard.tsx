@@ -54,7 +54,10 @@ export default function EmployeeDashboard() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: amount ? parseInt(amount) : undefined }),
+        body: JSON.stringify({ 
+          amount: amount ? parseInt(amount) : undefined,
+          verifierName: employee?.name,
+        }),
       });
 
       if (!res.ok) {

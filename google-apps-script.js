@@ -74,7 +74,8 @@ function doPost(e) {
         data.vehicleNumber,
         data.timestamp,
         data.verified || "No",
-        "" // Amount column (initially empty)
+        "", // Amount column (initially empty)
+        ""  // Verified By column (initially empty)
       ]);
       
       return ContentService.createTextOutput(JSON.stringify({
@@ -128,6 +129,7 @@ function doPost(e) {
       // Verify reward and set the payout amount for a vehicle
       const vehicleNumber = data.vehicleNumber;
       const amount = data.amount;
+      const verifierName = data.verifierName || "Unknown";
       
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();
@@ -139,6 +141,7 @@ function doPost(e) {
           if (amount) {
             sheet.getRange(i + 1, 7).setValue(amount); // Column G (amount)
           }
+          sheet.getRange(i + 1, 8).setValue(verifierName); // Column H (verified by)
           break;
         }
       }
