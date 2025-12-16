@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertCustomerSchema, employeeLoginSchema } from "@shared/schema";
+import { insertCustomerSchema, employeeLoginSchema, normalizeVehicleNumber, validateVehicleNumber } from "@shared/schema";
 import { googleSheetsService, GoogleSheetsNotConfiguredError, type TransactionLog } from "./googleSheets";
 import { getBulkPEService } from "./bulkpe";
 
@@ -30,8 +30,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { phoneNumber, vehicleNumber } = req.body;
 
+      // Normalize and validate vehicle number
+      const normalized = normalizeVehicleNumber(vehicleNumber);
+      const validation = validateVehicleNumber(normalized);
+      
+      if (!validation.isValid) {
+        return res.status(400).json({
+          error: "invalid_vehicle_number",
+          message: validation.error,
+        });
+      }
+
       // Check if vehicle exists in Google Sheets
-      const existingCustomer = await googleSheetsService.getCustomerByVehicle(vehicleNumber);
+      const existingCustomer = await googleSheetsService.getCustomerByVehicle(normalized);
 
       if (existingCustomer) {
         // Vehicle exists - check if phone matches
@@ -45,7 +56,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Check if customer already played today
-        const todayEntry = await googleSheetsService.getTodaysCustomerByVehicle(vehicleNumber);
+        const todayEntry = await googleSheetsService.getTodaysCustomerByVehicle(normalized);
         if (todayEntry) {
           return res.status(400).json({
             error: "already_played_today",
@@ -75,9 +86,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertCustomerSchema.parse(req.body);
 
+      // Normalize and validate vehicle number
+      const normalized = normalizeVehicleNumber(validatedData.vehicleNumber);
+      const validation = validateVehicleNumber(normalized);
+      
+      if (!validation.isValid) {
+        return res.status(400).json({
+          error: "invalid_vehicle_number",
+          message: validation.error,
+        });
+      }
+
       // Validate against Google Sheets
       let alreadyPlayedToday = false;
-      const existingCustomer = await googleSheetsService.getCustomerByVehicle(validatedData.vehicleNumber);
+      const existingCustomer = await googleSheetsService.getCustomerByVehicle(normalized);
       if (existingCustomer) {
         // Normalize strings for comparison (trim whitespace, handle null/undefined)
         const existingPhoneNormalized = String(existingCustomer.number || '').trim();
@@ -92,15 +114,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
 
         // Same details - check if already played today
-        const todayEntry = await googleSheetsService.getTodaysCustomerByVehicle(validatedData.vehicleNumber);
+        const todayEntry = await googleSheetsService.getTodaysCustomerByVehicle(normalized);
         if (todayEntry) {
           // Same vehicle, same details, but already played today - allow registration but mark as already played
           alreadyPlayedToday = true;
         }
       }
 
-      // Create in local storage
-      const customer = await storage.createCustomer(validatedData);
+      // Create in local storage with normalized vehicle number
+      const customer = await storage.createCustomer({
+        ...validatedData,
+        vehicleNumber: normalized,
+      });
       
       // Mark as already played if applicable
       let finalCustomer = customer;
@@ -108,12 +133,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         finalCustomer = await storage.markAlreadyPlayedToday(customer.id);
       }
 
-      // Add to Google Sheets
+      // Add to Google Sheets with normalized vehicle number
       await googleSheetsService.addCustomer({
         name: validatedData.name,
         number: validatedData.phoneNumber,
         prize: null,
-        vehicleNumber: validatedData.vehicleNumber,
+        vehicleNumber: normalized,
         timestamp: new Date().toISOString(),
         verified: false,
       });
@@ -299,19 +324,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { vehicleNumber } = req.params;
       const { amount } = req.body;
       
+      // Normalize vehicle number
+      const normalized = normalizeVehicleNumber(vehicleNumber);
+      
       // Get customer details from Google Sheets before verifying
-      const customerEntry = await googleSheetsService.getTodaysCustomerByVehicle(vehicleNumber);
+      const customerEntry = await googleSheetsService.getTodaysCustomerByVehicle(normalized);
       
       if (!customerEntry) {
         return res.status(404).json({ error: "Customer not found" });
       }
       
       // Verify in Google Sheets
-      await googleSheetsService.verifyReward(vehicleNumber, amount);
+      await googleSheetsService.verifyReward(normalized, amount);
       
       // Also update in local storage if exists
       const allCustomers = await storage.getAllCustomers();
-      const customer = allCustomers.find(c => c.vehicleNumber === vehicleNumber);
+      const customer = allCustomers.find(c => normalizeVehicleNumber(c.vehicleNumber) === normalized);
       if (customer) {
         await storage.verifyCustomerReward(customer.id);
       }
@@ -323,7 +351,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Always use actual prize/reward amount for BulkPE payout (this is the actual winning amount)
       // The employee-entered amount is just for tracking/recording
       const prizeAmount = Number(customerEntry.prize);
-      const referenceId = `FUELRUSH-${vehicleNumber}-${Date.now()}`;
+      const referenceId = `FUELRUSH-${normalized}-${Date.now()}`;
       
       if (bulkpe && Number.isFinite(prizeAmount) && prizeAmount > 0 && customerEntry.number) {
         try {
@@ -360,7 +388,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const txnId = payoutResult.data?.transaction_id || (payoutResult.data as any)?.transcation_id || 'N/A';
           
           const transaction: TransactionLog = {
-            vehicleNumber,
+            vehicleNumber: normalized,
             customerName: customerEntry.name || 'N/A',
             phoneNumber: customerEntry.number,
             amount: prizeAmount,
@@ -398,7 +426,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           // Log failed transaction to Google Sheets
           const finalBeneficiaryNameFailed = customerEntry.name || `Customer-${customerEntry.number.slice(-4)}`;
           const transaction: TransactionLog = {
-            vehicleNumber,
+            vehicleNumber: normalized,
             customerName: customerEntry.name || 'N/A',
             phoneNumber: customerEntry.number,
             amount: prizeAmount,
@@ -438,7 +466,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ 
         success: true, 
-        vehicleNumber, 
+        vehicleNumber: normalized, 
         payout: payoutResult,
         paymentStatus: payoutResult ? 'success' : 'no_payout',
         errorMessage: payoutError 
@@ -461,10 +489,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { vehicleNumber } = req.params;
       
-      // Remove from verification list in Google Sheets
-      await googleSheetsService.removeFromVerification(vehicleNumber);
+      // Normalize vehicle number
+      const normalized = normalizeVehicleNumber(vehicleNumber);
       
-      res.json({ success: true, vehicleNumber });
+      // Remove from verification list in Google Sheets
+      await googleSheetsService.removeFromVerification(normalized);
+      
+      res.json({ success: true, vehicleNumber: normalized });
     } catch (error: any) {
       console.error("Employee remove error:", error);
       
@@ -483,7 +514,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { vehicleNumber } = req.params;
       
-      const todayEntry = await googleSheetsService.getTodaysCustomerByVehicle(vehicleNumber);
+      // Normalize vehicle number
+      const normalized = normalizeVehicleNumber(vehicleNumber);
+      
+      const todayEntry = await googleSheetsService.getTodaysCustomerByVehicle(normalized);
       
       if (!todayEntry) {
         return res.status(404).json({ error: "Customer not found" });
@@ -491,7 +525,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json({ 
         verified: todayEntry.verified === true,
-        vehicleNumber,
+        vehicleNumber: normalized,
         prize: todayEntry.prize
       });
     } catch (error: any) {

@@ -62,3 +62,32 @@ export const insertCustomerSchema = createInsertSchema(customers).pick({
 
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
 export type Customer = typeof customers.$inferSelect;
+
+// Vehicle number normalization function
+export function normalizeVehicleNumber(vehicleNumber: string): string {
+  // Remove all spaces and convert to uppercase
+  return vehicleNumber.replace(/\s+/g, '').toUpperCase();
+}
+
+// Validation function for vehicle number
+export function validateVehicleNumber(vehicleNumber: string): { isValid: boolean; error?: string } {
+  if (!vehicleNumber || typeof vehicleNumber !== 'string') {
+    return { isValid: false, error: 'Vehicle number is required' };
+  }
+
+  const normalized = normalizeVehicleNumber(vehicleNumber);
+
+  if (normalized.length > 10) {
+    return { isValid: false, error: 'Vehicle number must not be more than 10 characters' };
+  }
+
+  if (normalized.length < 2) {
+    return { isValid: false, error: 'Vehicle number must be at least 2 characters' };
+  }
+
+  if (/\s{2,}/.test(vehicleNumber)) {
+    return { isValid: false, error: 'Vehicle number should not have wide spaces between characters' };
+  }
+
+  return { isValid: true };
+}

@@ -42,15 +42,15 @@ export class MemStorage implements IStorage {
     const employees: Employee[] = [
       {
         id: randomUUID(),
-        username: "jhuleshwar",
+        username: "jhulesh",
         password: "Brcjhuleshwar1543",
-        name: "JHULESHWAR VERMA",
+        name: "JHULESH VERMA",
       },
       {
         id: randomUUID(),
-        username: "gautam",
-        password: "BRCgautam6785",
-        name: "GAUTAM RAJAK",
+        username: "dev kumar",
+        password: "BRCdev6785",
+        name: "DEV KUMAR",
       },
       {
         id: randomUUID(),
@@ -60,15 +60,15 @@ export class MemStorage implements IStorage {
       },
       {
         id: randomUUID(),
-        username: "likesh",
-        password: "BRClikesh2313",
-        name: "LIKESH NIRMALKAR",
+        username: "rajendra",
+        password: "BRCrajendra2313",
+        name: "RAJENDRA",
       },
       {
         id: randomUUID(),
-        username: "tishu",
-        password: "BRCtishu23463",
-        name: "TISHU SAHU",
+        username: "yashwantsahu",
+        password: "BRCyashwant23463",
+        name: "YASHWANT SAHU",
       },
       {
         id: randomUUID(),
@@ -78,9 +78,27 @@ export class MemStorage implements IStorage {
       },
       {
         id: randomUUID(),
-        username: "karan",
-        password: "karan123",
-        name: "KARAN SAHU",
+        username: "yashwant",
+        password: "yashwant3492",
+        name: "YASHWANT VERMA",
+      },
+      {
+        id: randomUUID(),
+        username: "khomlal",
+        password: "khomlalsahu3492",
+        name: "KHOMLAL SAHU",
+      },
+      {
+        id: randomUUID(),
+        username: "gaurav",
+        password: "gaurav38792",
+        name: "GOURAV MISHRA",
+      },
+      {
+        id: randomUUID(),
+        username: "jyoti",
+        password: "BRCjyoti235",
+        name: "JYOTI VERMA",
       },
     ];
     

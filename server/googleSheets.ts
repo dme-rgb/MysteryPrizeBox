@@ -1,3 +1,5 @@
+import { normalizeVehicleNumber, validateVehicleNumber } from "@shared/schema";
+
 const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbzXq3up_wE6fjX2goRcPBfWqdWkYLIBFxoDhzREVuvJHivBmp2hLDvqPRXSQcvQUq4/exec";
 
 export interface SheetCustomer {
@@ -113,7 +115,8 @@ export class GoogleSheetsService {
   }
 
   async getCustomerByVehicle(vehicleNumber: string): Promise<SheetCustomer | null> {
-    const response = await fetch(`${this.webhookUrl}?action=getByVehicle&vehicleNumber=${encodeURIComponent(vehicleNumber)}`, {
+    const normalized = normalizeVehicleNumber(vehicleNumber);
+    const response = await fetch(`${this.webhookUrl}?action=getByVehicle&vehicleNumber=${encodeURIComponent(normalized)}`, {
       method: 'GET',
     });
 
@@ -123,7 +126,8 @@ export class GoogleSheetsService {
   }
 
   async getTodaysCustomerByVehicle(vehicleNumber: string): Promise<SheetCustomer | null> {
-    const response = await fetch(`${this.webhookUrl}?action=getTodayByVehicle&vehicleNumber=${encodeURIComponent(vehicleNumber)}`, {
+    const normalized = normalizeVehicleNumber(vehicleNumber);
+    const response = await fetch(`${this.webhookUrl}?action=getTodayByVehicle&vehicleNumber=${encodeURIComponent(normalized)}`, {
       method: 'GET',
     });
 
@@ -133,6 +137,7 @@ export class GoogleSheetsService {
   }
 
   async updateReward(vehicleNumber: string, rewardAmount: number): Promise<void> {
+    const normalized = normalizeVehicleNumber(vehicleNumber);
     const response = await fetch(this.webhookUrl, {
       method: 'POST',
       headers: {
@@ -140,7 +145,7 @@ export class GoogleSheetsService {
       },
       body: JSON.stringify({
         action: 'updateReward',
-        vehicleNumber,
+        vehicleNumber: normalized,
         prize: rewardAmount,
       }),
     });
@@ -149,6 +154,7 @@ export class GoogleSheetsService {
   }
 
   async verifyReward(vehicleNumber: string, payoutAmount?: number): Promise<void> {
+    const normalized = normalizeVehicleNumber(vehicleNumber);
     const response = await fetch(this.webhookUrl, {
       method: 'POST',
       headers: {
@@ -156,7 +162,7 @@ export class GoogleSheetsService {
       },
       body: JSON.stringify({
         action: 'verifyAndSetAmount',
-        vehicleNumber,
+        vehicleNumber: normalized,
         amount: payoutAmount,
       }),
     });
@@ -165,6 +171,7 @@ export class GoogleSheetsService {
   }
 
   async removeFromVerification(vehicleNumber: string): Promise<void> {
+    const normalized = normalizeVehicleNumber(vehicleNumber);
     const response = await fetch(this.webhookUrl, {
       method: 'POST',
       headers: {
@@ -172,7 +179,7 @@ export class GoogleSheetsService {
       },
       body: JSON.stringify({
         action: 'updateReward',
-        vehicleNumber,
+        vehicleNumber: normalized,
         prize: 0, // Use 0 as a marker for removed entries
       }),
     });
@@ -191,7 +198,8 @@ export class GoogleSheetsService {
   }
 
   async getTotalVerifiedAmountByVehicle(vehicleNumber: string): Promise<number> {
-    const response = await fetch(`${this.webhookUrl}?action=getTotalVerifiedAmount&vehicleNumber=${encodeURIComponent(vehicleNumber)}`, {
+    const normalized = normalizeVehicleNumber(vehicleNumber);
+    const response = await fetch(`${this.webhookUrl}?action=getTotalVerifiedAmount&vehicleNumber=${encodeURIComponent(normalized)}`, {
       method: 'GET',
     });
 
