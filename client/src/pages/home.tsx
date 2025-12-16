@@ -379,8 +379,12 @@ export default function Home() {
       // Audio playback might fail
     }
 
-    // Generate random reward amount (1-5 rupees)
-    const reward = Math.floor(Math.random() * 5) + 1;
+    // Generate random reward amount (1-20 rupees)
+    // 80% chance for 1-9 rupees, 20% chance for 10-20 rupees (to manage costs)
+    const random = Math.random();
+    const reward = random < 0.8 
+      ? Math.floor(Math.random() * 9) + 1    // 1-9 rupees (80% chance)
+      : Math.floor(Math.random() * 11) + 10; // 10-20 rupees (20% chance)
     setRewardAmount(reward);
 
     // Update customer with reward

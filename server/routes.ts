@@ -181,13 +181,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Update customer with reward (1-5 rupees)
+  // Update customer with reward (1-20 rupees)
   app.patch("/api/customers/:id/reward", async (req, res) => {
     try {
       const { rewardAmount } = req.body;
       
-      if (!rewardAmount || rewardAmount < 1 || rewardAmount > 5) {
-        return res.status(400).json({ error: "Reward amount must be between 1 and 5 rupees" });
+      if (!rewardAmount || rewardAmount < 1 || rewardAmount > 20) {
+        return res.status(400).json({ error: "Reward amount must be between 1 and 20 rupees" });
       }
 
       const customer = await storage.getCustomer(req.params.id);
