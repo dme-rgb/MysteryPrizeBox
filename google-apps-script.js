@@ -300,6 +300,68 @@ function doGet(e) {
       })).setMimeType(ContentService.MimeType.JSON);
     }
     
+    if (action === "getTodayVerifiedCustomers") {
+      // Get today's verified customers with VPA info from Transactions sheet
+      const dataRange = sheet.getDataRange();
+      const values = dataRange.getValues();
+      const transactionSheet = ss.getSheetByName("Transactions");
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const verifiedCustomers = [];
+      
+      // Iterate through Customer Detail sheet
+      for (let i = 1; i < values.length; i++) {
+        const entryDate = new Date(values[i][4]);
+        entryDate.setHours(0, 0, 0, 0);
+        
+        // Check if verified and from today
+        if (values[i][5] === "Yes" && entryDate.getTime() === today.getTime()) {
+          const phoneNumber = String(values[i][1]).trim();
+          let vpa = null;
+          let vpaAccountHolderName = null;
+          
+          // Look up VPA from Transactions sheet
+          if (transactionSheet) {
+            const txnDataRange = transactionSheet.getDataRange();
+            const txnValues = txnDataRange.getValues();
+            
+            // Search for most recent successful transaction with this phone number
+            for (let j = txnValues.length - 1; j >= 1; j--) {
+              const txnPhone = String(txnValues[j][2]).trim();
+              if (txnPhone === phoneNumber) {
+                const txnVpa = txnValues[j][14]; // Column O
+                const txnStatus = txnValues[j][18]; // Column S
+                if (txnVpa && txnVpa !== "N/A" && txnStatus === "SUCCESS") {
+                  vpa = txnVpa;
+                  vpaAccountHolderName = txnValues[j][15] || null; // Column P
+                  break;
+                }
+              }
+            }
+          }
+          
+          verifiedCustomers.push({
+            name: values[i][0],
+            number: values[i][1],
+            prize: values[i][2],
+            vehicleNumber: values[i][3],
+            timestamp: values[i][4],
+            verified: true,
+            amount: values[i][6] || null,
+            verifiedBy: values[i][7] || null,
+            verificationTimestamp: values[i][8] || null,
+            vpa: vpa,
+            vpaAccountHolderName: vpaAccountHolderName
+          });
+        }
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        customers: verifiedCustomers
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
     if (action === "getVerifiedCount") {
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();

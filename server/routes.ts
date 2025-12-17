@@ -318,6 +318,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get today's verified customers from Google Sheets with VPA info
+  app.get("/api/employee/verified-customers", async (req, res) => {
+    try {
+      const response = await fetch(`${process.env.GOOGLE_SHEETS_WEBHOOK_URL}?action=getTodayVerifiedCustomers`, {
+        method: 'GET',
+      });
+
+      const text = await response.text();
+      const data = JSON.parse(text);
+      
+      res.json({ customers: data.customers || [] });
+    } catch (error: any) {
+      console.error("Get verified customers error:", error);
+      
+      if (error instanceof GoogleSheetsNotConfiguredError) {
+        return res.status(503).json({ 
+          error: "Google Sheets is not configured. Please complete the setup first." 
+        });
+      }
+      
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Employee verify a customer by vehicle number
   app.post("/api/employee/verify/:vehicleNumber", async (req, res) => {
     try {

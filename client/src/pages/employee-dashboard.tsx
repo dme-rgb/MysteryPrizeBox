@@ -7,9 +7,10 @@ import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
-import { LogOut, RefreshCw, IndianRupee, User, Car, Phone, Trash2 } from 'lucide-react';
+import { LogOut, RefreshCw, IndianRupee, User, Car, Phone, Trash2, CheckCircle } from 'lucide-react';
 
 interface SheetCustomer {
   name: string;
@@ -18,6 +19,11 @@ interface SheetCustomer {
   vehicleNumber: string;
   timestamp: string;
   verified?: boolean;
+  amount?: number | null;
+  verifiedBy?: string;
+  verificationTimestamp?: string;
+  vpa?: string;
+  vpaAccountHolderName?: string;
 }
 
 interface EmployeeData {
@@ -45,6 +51,12 @@ export default function EmployeeDashboard() {
   const { data: customersData, isLoading, refetch } = useQuery<{ customers: SheetCustomer[] }>({
     queryKey: ['/api/employee/unverified-customers'],
     refetchInterval: 3000,
+    enabled: !!employee,
+  });
+
+  const { data: verifiedData, isLoading: verifiedLoading } = useQuery<{ customers: SheetCustomer[] }>({
+    queryKey: ['/api/employee/verified-customers'],
+    refetchInterval: 5000,
     enabled: !!employee,
   });
 
@@ -153,8 +165,8 @@ export default function EmployeeDashboard() {
     setLocation('/employee');
   };
 
-  // Use customers directly from API (already filtered and reversed on backend)
   const unverifiedCustomers = customersData?.customers || [];
+  const verifiedCustomers = verifiedData?.customers || [];
 
   if (!employee) {
     return null;
@@ -170,7 +182,7 @@ export default function EmployeeDashboard() {
         backgroundAttachment: 'fixed',
       }}
     >
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl md:text-xl font-bold text-foreground" data-testid="text-dashboard-title">
@@ -184,11 +196,11 @@ export default function EmployeeDashboard() {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => refetch()}
-              disabled={isLoading}
+              onClick={() => { refetch(); }}
+              disabled={isLoading || verifiedLoading}
               data-testid="button-refresh"
             >
-              <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 ${isLoading || verifiedLoading ? 'animate-spin' : ''}`} />
             </Button>
             <Button
               variant="outline"
@@ -202,112 +214,204 @@ export default function EmployeeDashboard() {
           </div>
         </div>
 
-        <Card className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-foreground">
-              Pending Verifications
-            </h2>
-            <Badge variant="secondary" data-testid="badge-count">
-              {unverifiedCustomers.length} pending
-            </Badge>
-          </div>
+        <Tabs defaultValue="unverified" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="unverified" className="gap-2">
+              Pending ({unverifiedCustomers.length})
+            </TabsTrigger>
+            <TabsTrigger value="verified" className="gap-2">
+              <CheckCircle className="w-4 h-4" />
+              Verified ({verifiedCustomers.length})
+            </TabsTrigger>
+          </TabsList>
 
-          {isLoading ? (
-            <div className="text-center py-8 text-muted-foreground">
-              Loading customers...
-            </div>
-          ) : unverifiedCustomers.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              No pending verifications at the moment.
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {unverifiedCustomers.map((customer) => (
-                <div
-                  key={`${customer.vehicleNumber}-${customer.timestamp}`}
-                  className="flex items-center gap-4 p-4 border rounded-lg bg-card/50 hover-elevate"
-                  data-testid={`card-customer-${customer.vehicleNumber}`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      checked={verifyingVehicles.has(customer.vehicleNumber)}
-                      onCheckedChange={(checked) => handleVerify(customer.vehicleNumber, checked as boolean)}
-                      disabled={verifyingVehicles.has(customer.vehicleNumber)}
-                      data-testid={`checkbox-verify-${customer.vehicleNumber}`}
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeMutation.mutate(customer.vehicleNumber)}
-                      disabled={removeMutation.isPending}
-                      className="text-destructive hover:text-destructive"
-                      data-testid={`button-remove-${customer.vehicleNumber}`}
-                      title="Remove from verification list"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2 mb-2">
-                      <div className="flex items-center gap-1 text-foreground font-medium">
-                        <User className="w-4 h-4 text-muted-foreground" />
-                        <span data-testid={`text-name-${customer.vehicleNumber}`}>
-                          {customer.name}
-                        </span>
-                      </div>
-                      <Badge className="bg-primary/20 text-primary border-primary gap-1">
-                        <IndianRupee className="w-3 h-3" />
-                        <span data-testid={`text-prize-${customer.vehicleNumber}`}>
-                          {customer.prize}
-                        </span>
-                      </Badge>
-                    </div>
+          {/* Unverified Tab */}
+          <TabsContent value="unverified" className="space-y-4">
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-foreground">
+                  Pending Verifications
+                </h2>
+                <Badge variant="secondary" data-testid="badge-count">
+                  {unverifiedCustomers.length} pending
+                </Badge>
+              </div>
 
-                    <div className="mb-3">
-                      <label className="text-xs text-muted-foreground block mb-1">
-                        Verification Amount (₹) - For Recording
-                      </label>
-                      <Input
-                        type="number"
-                        placeholder="Enter amount from box"
-                        value={amountInputs[customer.vehicleNumber] || ''}
-                        onChange={(e) => handleAmountChange(customer.vehicleNumber, e.target.value)}
-                        disabled={verifyingVehicles.has(customer.vehicleNumber)}
-                        data-testid={`input-amount-${customer.vehicleNumber}`}
-                        className="h-8 text-sm"
-                      />
-                    </div>
-                    
-                    <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Car className="w-3 h-3" />
-                        <span data-testid={`text-vehicle-${customer.vehicleNumber}`}>
-                          {customer.vehicleNumber}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Phone className="w-3 h-3" />
-                        <span data-testid={`text-phone-${customer.vehicleNumber}`}>
-                          {customer.number}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {verifyingVehicles.has(customer.vehicleNumber) && (
-                    <div className="text-sm text-muted-foreground animate-pulse">
-                      Verifying...
-                    </div>
-                  )}
+              {isLoading ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Loading customers...
                 </div>
-              ))}
-            </div>
-          )}
-        </Card>
+              ) : unverifiedCustomers.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No pending verifications at the moment.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {unverifiedCustomers.map((customer) => (
+                    <div
+                      key={`${customer.vehicleNumber}-${customer.timestamp}`}
+                      className="flex items-center gap-4 p-4 border rounded-lg bg-card/50 hover-elevate"
+                      data-testid={`card-customer-${customer.vehicleNumber}`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          checked={verifyingVehicles.has(customer.vehicleNumber)}
+                          onCheckedChange={(checked) => handleVerify(customer.vehicleNumber, checked as boolean)}
+                          disabled={verifyingVehicles.has(customer.vehicleNumber)}
+                          data-testid={`checkbox-verify-${customer.vehicleNumber}`}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeMutation.mutate(customer.vehicleNumber)}
+                          disabled={removeMutation.isPending}
+                          className="text-destructive hover:text-destructive"
+                          data-testid={`button-remove-${customer.vehicleNumber}`}
+                          title="Remove from verification list"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <div className="flex items-center gap-1 text-foreground font-medium">
+                            <User className="w-4 h-4 text-muted-foreground" />
+                            <span data-testid={`text-name-${customer.vehicleNumber}`}>
+                              {customer.name}
+                            </span>
+                          </div>
+                          <Badge className="bg-primary/20 text-primary border-primary gap-1">
+                            <IndianRupee className="w-3 h-3" />
+                            <span data-testid={`text-prize-${customer.vehicleNumber}`}>
+                              {customer.prize}
+                            </span>
+                          </Badge>
+                        </div>
+
+                        <div className="mb-3">
+                          <label className="text-xs text-muted-foreground block mb-1">
+                            Verification Amount (₹) - For Recording
+                          </label>
+                          <Input
+                            type="number"
+                            placeholder="Enter amount from box"
+                            value={amountInputs[customer.vehicleNumber] || ''}
+                            onChange={(e) => handleAmountChange(customer.vehicleNumber, e.target.value)}
+                            disabled={verifyingVehicles.has(customer.vehicleNumber)}
+                            data-testid={`input-amount-${customer.vehicleNumber}`}
+                            className="h-8 text-sm"
+                          />
+                        </div>
+                        
+                        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Car className="w-3 h-3" />
+                            <span data-testid={`text-vehicle-${customer.vehicleNumber}`}>
+                              {customer.vehicleNumber}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Phone className="w-3 h-3" />
+                            <span data-testid={`text-phone-${customer.vehicleNumber}`}>
+                              {customer.number}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {verifyingVehicles.has(customer.vehicleNumber) && (
+                        <div className="text-sm text-muted-foreground animate-pulse">
+                          Verifying...
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+
+          {/* Verified Tab */}
+          <TabsContent value="verified" className="space-y-4">
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-foreground">
+                  Today's Verified Customers
+                </h2>
+                <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-300">
+                  {verifiedCustomers.length} verified
+                </Badge>
+              </div>
+
+              {verifiedLoading ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Loading verified customers...
+                </div>
+              ) : verifiedCustomers.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No verified customers yet.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {verifiedCustomers.map((customer) => (
+                    <div
+                      key={`${customer.vehicleNumber}-verified-${customer.verificationTimestamp}`}
+                      className="flex items-center gap-4 p-4 border rounded-lg bg-green-50/50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
+                      data-testid={`card-verified-${customer.vehicleNumber}`}
+                    >
+                      <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <div className="flex items-center gap-1 text-foreground font-medium">
+                            <User className="w-4 h-4 text-muted-foreground" />
+                            <span data-testid={`text-verified-name-${customer.vehicleNumber}`}>
+                              {customer.name}
+                            </span>
+                          </div>
+                          <Badge className="bg-green-600 text-white gap-1">
+                            <IndianRupee className="w-3 h-3" />
+                            <span data-testid={`text-verified-prize-${customer.vehicleNumber}`}>
+                              {customer.prize}
+                            </span>
+                          </Badge>
+                        </div>
+
+                        <div className="space-y-1 text-sm">
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Car className="w-3 h-3" />
+                            <span>{customer.vehicleNumber}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Phone className="w-3 h-3" />
+                            <span>{customer.number}</span>
+                          </div>
+                          {customer.verifiedBy && (
+                            <div className="flex items-center gap-2 text-muted-foreground text-xs">
+                              Verified by: <span className="font-medium">{customer.verifiedBy}</span>
+                            </div>
+                          )}
+                          {customer.vpa && (
+                            <div className="flex items-center gap-2 text-muted-foreground text-xs bg-white dark:bg-gray-900 p-2 rounded mt-2">
+                              <span className="font-medium">VPA:</span> {customer.vpa}
+                              {customer.vpaAccountHolderName && (
+                                <span>({customer.vpaAccountHolderName})</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+        </Tabs>
 
         <p className="text-center text-sm text-muted-foreground">
-          List refreshes automatically every 3 seconds
+          List refreshes automatically
         </p>
       </div>
     </div>
