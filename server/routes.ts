@@ -384,6 +384,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const text = await response.text();
             const data = JSON.parse(text);
             
+            console.log(`[VPA Lookup] Phone: ${customer.number}, Found: ${data.found}, VPA: ${data.vpa}, Message: ${data.vpaMessage}`);
+            
             return {
               ...customer,
               vpa: data.vpa || null,
@@ -392,6 +394,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               transactionTimestamp: data.timestamp || customer.timestamp,
             };
           } catch (error) {
+            console.error(`[VPA Lookup Error] Phone: ${customer.number}, Error: ${error}`);
             // Return customer without VPA if lookup fails
             return customer;
           }

@@ -194,15 +194,16 @@ function doGet(e) {
       // Column S (index 18): VPA Status
       // Column T (index 19): VPA Message
       for (let i = values.length - 1; i >= 1; i--) {
-        const rowPhone = String(values[i][2]).trim();
+        const rowPhone = String(values[i][2]).trim().replace(/[\s\-()]/g, '');
+        const searchPhone = String(phoneNumber).trim().replace(/[\s\-()]/g, '');
         const timestamp = values[i][13];
         const vpa = values[i][14];
         const accountHolderName = values[i][15];
         const vpaStatus = values[i][18];
         const vpaMessage = values[i][19];
         
-        // Match phone number and ensure VPA exists (not N/A), show for both SUCCESS and FAILED
-        if (rowPhone === String(phoneNumber).trim() && vpa && vpa !== "N/A") {
+        // Match phone number (normalize format) and ensure VPA exists (not N/A), show for both SUCCESS and FAILED
+        if (rowPhone === searchPhone && vpa && String(vpa).trim() !== "N/A") {
           console.log(`[SHEET VPA CACHE] Found cached VPA for ${phoneNumber}: ${vpa} (status: ${vpaStatus})`);
           return ContentService.createTextOutput(JSON.stringify({
             found: true,
