@@ -170,7 +170,7 @@ function doGet(e) {
     
     if (action === "getTransactionByPhone") {
       // Retrieve cached transaction details from Transactions sheet by phone number
-      // Returns VPA and account holder name if found
+      // Returns VPA, account holder name, and VPA message if found
       const phoneNumber = e.parameter.phone;
       const transactionSheet = ss.getSheetByName("Transactions");
       
@@ -178,7 +178,8 @@ function doGet(e) {
         return ContentService.createTextOutput(JSON.stringify({
           found: false,
           vpa: null,
-          accountHolderName: null
+          accountHolderName: null,
+          vpaMessage: null
         })).setMimeType(ContentService.MimeType.JSON);
       }
       
@@ -190,11 +191,13 @@ function doGet(e) {
       // Column O (index 14): VPA Address
       // Column P (index 15): VPA Account Holder Name
       // Column S (index 18): VPA Status
+      // Column T (index 19): VPA Message
       for (let i = values.length - 1; i >= 1; i--) {
         const rowPhone = String(values[i][2]).trim();
         const vpa = values[i][14];
         const accountHolderName = values[i][15];
         const vpaStatus = values[i][18];
+        const vpaMessage = values[i][19];
         
         // Match phone number and ensure VPA is valid (not N/A)
         if (rowPhone === String(phoneNumber).trim() && vpa && vpa !== "N/A" && vpaStatus === "SUCCESS") {
@@ -202,7 +205,8 @@ function doGet(e) {
           return ContentService.createTextOutput(JSON.stringify({
             found: true,
             vpa: vpa,
-            accountHolderName: accountHolderName || null
+            accountHolderName: accountHolderName || null,
+            vpaMessage: vpaMessage || null
           })).setMimeType(ContentService.MimeType.JSON);
         }
       }
@@ -211,7 +215,8 @@ function doGet(e) {
       return ContentService.createTextOutput(JSON.stringify({
         found: false,
         vpa: null,
-        accountHolderName: null
+        accountHolderName: null,
+        vpaMessage: null
       })).setMimeType(ContentService.MimeType.JSON);
     }
     

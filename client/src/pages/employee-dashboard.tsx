@@ -26,6 +26,7 @@ interface SheetCustomer {
   vpaAccountHolderName?: string;
   beneficiaryName?: string;
   transactionTimestamp?: string;
+  vpaMessage?: string;
 }
 
 interface EmployeeData {
@@ -424,6 +425,14 @@ export default function EmployeeDashboard() {
                                   <div className="flex gap-2">
                                     <span className="font-medium">Timestamp:</span>
                                     <span data-testid={`text-txn-timestamp-${customer.vehicleNumber}`}>{new Date(customer.transactionTimestamp).toLocaleString()}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {customer.vpaMessage && (
+                                <div className="text-xs text-muted-foreground">
+                                  <div className="flex gap-2">
+                                    <span className="font-medium">Message:</span>
+                                    <span data-testid={`text-vpa-message-${customer.vehicleNumber}`}>{customer.vpaMessage}</span>
                                   </div>
                                 </div>
                               )}

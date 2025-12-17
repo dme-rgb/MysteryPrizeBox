@@ -16,6 +16,7 @@ export interface SheetCustomer {
   vpaAccountHolderName?: string;
   beneficiaryName?: string;
   transactionTimestamp?: string;
+  vpaMessage?: string;
 }
 
 export interface TransactionLog {
