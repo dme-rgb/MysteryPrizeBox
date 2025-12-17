@@ -153,7 +153,7 @@ export class GoogleSheetsService {
     await this.checkResponse(response);
   }
 
-  async verifyReward(vehicleNumber: string, payoutAmount?: number, verifierName?: string): Promise<void> {
+  async verifyReward(vehicleNumber: string, payoutAmount?: number, verifierName?: string, verificationTimestamp?: string): Promise<void> {
     const normalized = normalizeVehicleNumber(vehicleNumber);
     const response = await fetch(this.webhookUrl, {
       method: 'POST',
@@ -165,6 +165,7 @@ export class GoogleSheetsService {
         vehicleNumber: normalized,
         amount: payoutAmount,
         verifierName: verifierName || 'Unknown',
+        verificationTimestamp: verificationTimestamp || new Date().toISOString(),
       }),
     });
 

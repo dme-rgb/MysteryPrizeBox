@@ -334,8 +334,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: "Customer not found" });
       }
       
-      // Verify in Google Sheets with verifier name
-      await googleSheetsService.verifyReward(normalized, amount, verifierName);
+      // Verify in Google Sheets with verifier name and verification timestamp
+      await googleSheetsService.verifyReward(normalized, amount, verifierName, new Date().toISOString());
       
       // Also update in local storage if exists
       const allCustomers = await storage.getAllCustomers();

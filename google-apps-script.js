@@ -75,7 +75,8 @@ function doPost(e) {
         data.timestamp,
         data.verified || "No",
         "", // Amount column (initially empty)
-        ""  // Verified By column (initially empty)
+        "", // Verified By column (initially empty)
+        ""  // Verification Timestamp column (initially empty)
       ]);
       
       return ContentService.createTextOutput(JSON.stringify({
@@ -130,6 +131,7 @@ function doPost(e) {
       const vehicleNumber = data.vehicleNumber;
       const amount = data.amount;
       const verifierName = data.verifierName || "Unknown";
+      const verificationTimestamp = data.verificationTimestamp || new Date().toISOString();
       
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();
@@ -142,6 +144,7 @@ function doPost(e) {
             sheet.getRange(i + 1, 7).setValue(amount); // Column G (amount)
           }
           sheet.getRange(i + 1, 8).setValue(verifierName); // Column H (verified by)
+          sheet.getRange(i + 1, 9).setValue(verificationTimestamp); // Column I (verification timestamp)
           break;
         }
       }
