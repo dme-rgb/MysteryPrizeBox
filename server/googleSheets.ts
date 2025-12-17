@@ -10,6 +10,8 @@ export interface SheetCustomer {
   timestamp: string;
   verified?: boolean;
   amount?: number; // Employee-entered payout amount during verification
+  verifiedBy?: string;
+  verificationTimestamp?: string;
 }
 
 export interface TransactionLog {

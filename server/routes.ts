@@ -365,9 +365,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return customerDate === today;
       });
       
-      // Filter for verified customers only
+      // Filter for verified customers (include verifiedBy and verificationTimestamp)
       const verifiedCustomers = todaysCustomers
         .filter((customer) => customer.verified === true)
+        .map(customer => ({
+          ...customer,
+          verifiedBy: (customer as any).verifiedBy || null,
+          verificationTimestamp: (customer as any).verificationTimestamp || null,
+        }))
         .sort((a, b) => {
           // Sort by timestamp, most recent first
           const aTime = new Date(a.timestamp).getTime();

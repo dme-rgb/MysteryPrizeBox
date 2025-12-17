@@ -229,7 +229,9 @@ function doGet(e) {
           vehicleNumber: values[i][3],
           timestamp: values[i][4],
           verified: values[i][5] === "Yes",
-          amount: values[i][6] || null
+          amount: values[i][6] || null,
+          verifiedBy: values[i][7] || null,
+          verificationTimestamp: values[i][8] || null
         });
       }
       
