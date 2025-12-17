@@ -186,7 +186,7 @@ function doGet(e) {
       const dataRange = transactionSheet.getDataRange();
       const values = dataRange.getValues();
       
-      // Search for most recent successful transaction with this phone number
+      // Search for most recent transaction with this phone number (SUCCESS or FAILED)
       // Column C (index 2): Phone Number
       // Column N (index 13): Timestamp
       // Column O (index 14): VPA Address
@@ -201,9 +201,9 @@ function doGet(e) {
         const vpaStatus = values[i][18];
         const vpaMessage = values[i][19];
         
-        // Match phone number and ensure VPA is valid (not N/A)
-        if (rowPhone === String(phoneNumber).trim() && vpa && vpa !== "N/A" && vpaStatus === "SUCCESS") {
-          console.log(`[SHEET VPA CACHE] Found cached VPA for ${phoneNumber}: ${vpa}`);
+        // Match phone number and ensure VPA exists (not N/A), show for both SUCCESS and FAILED
+        if (rowPhone === String(phoneNumber).trim() && vpa && vpa !== "N/A") {
+          console.log(`[SHEET VPA CACHE] Found cached VPA for ${phoneNumber}: ${vpa} (status: ${vpaStatus})`);
           return ContentService.createTextOutput(JSON.stringify({
             found: true,
             vpa: vpa,
