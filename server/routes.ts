@@ -356,18 +356,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get today's verified customers from Google Sheets with VPA info
   app.get("/api/employee/verified-customers", async (req, res) => {
     try {
-      const webhookUrl = process.env.GOOGLE_SHEETS_WEBHOOK_URL || "https://script.google.com/macros/s/AKfycbzXq3up_wE6fjX2goRcPBfWqdWkYLIBFxoDhzREVuvJHivBmp2hLDvqPRXSQcvQUq4/exec";
-      const response = await fetch(`${webhookUrl}?action=getTodayVerifiedCustomers`, {
-        method: 'GET',
-      });
-
-      const text = await response.text();
-      const data = JSON.parse(text);
+      const allCustomers = await googleSheetsService.getAllCustomers();
       
-      res.json({ customers: data.customers || [] });
+      // Filter for today's verified customers
+      const today = new Date().toISOString().split('T')[0];
+      const verifiedCustomers = allCustomers
+        .filter((customer) => {
+          const customerDate = customer.timestamp.split('T')[0];
+          return customerDate === today && customer.verified === true;
+        })
+        .sort((a, b) => {
+          // Sort by timestamp, most recent first
+          const aTime = new Date(a.timestamp).getTime();
+          const bTime = new Date(b.timestamp).getTime();
+          return bTime - aTime;
+        });
+      
+      // For each verified customer, fetch VPA data from transactions
+      const customersWithVPA = await Promise.all(
+        verifiedCustomers.map(async (customer) => {
+          try {
+            // Try to get VPA data from phone number lookup in transactions
+            const response = await fetch(
+              `${process.env.GOOGLE_SHEETS_WEBHOOK_URL || "https://script.google.com/macros/s/AKfycbzXq3up_wE6fjX2goRcPBfWqdWkYLIBFxoDhzREVuvJHivBmp2hLDvqPRXSQcvQUq4/exec"}?action=getTransactionByPhone&phone=${encodeURIComponent(customer.number)}`,
+              { method: 'GET' }
+            );
+            const text = await response.text();
+            const data = JSON.parse(text);
+            
+            return {
+              ...customer,
+              vpa: data.vpa || null,
+              vpaAccountHolderName: data.accountHolderName || null,
+            };
+          } catch (error) {
+            // Return customer without VPA if lookup fails
+            return customer;
+          }
+        })
+      );
+      
+      res.json({ customers: customersWithVPA });
     } catch (error: any) {
       console.error("Get verified customers error:", error);
-      res.status(500).json({ customers: [] });
+      
+      if (error instanceof GoogleSheetsNotConfiguredError) {
+        return res.status(503).json({ 
+          error: "Google Sheets is not configured. Please complete the setup first." 
+        });
+      }
+      
+      res.status(500).json({ error: error.message });
     }
   });
 
