@@ -12,6 +12,10 @@ export interface SheetCustomer {
   amount?: number; // Employee-entered payout amount during verification
   verifiedBy?: string;
   verificationTimestamp?: string;
+  vpa?: string; // VPA Address
+  vpaAccountHolderName?: string;
+  beneficiaryName?: string;
+  transactionTimestamp?: string;
 }
 
 export interface TransactionLog {

@@ -322,6 +322,9 @@ function doGet(e) {
           const phoneNumber = String(values[i][1]).trim();
           let vpa = null;
           let vpaAccountHolderName = null;
+          let vpaAddress = null;
+          let beneficiaryName = null;
+          let transactionTimestamp = null;
           
           // Look up VPA from Transactions sheet
           if (transactionSheet) {
@@ -329,14 +332,17 @@ function doGet(e) {
             const txnValues = txnDataRange.getValues();
             
             // Search for most recent successful transaction with this phone number
+            // Columns: A=Vehicle, B=Name, C=Phone, D=Amount, E=TxnID, F=RefID, G=UPI, H=PaymentMode, I=BenName, J=BulkPEStatus, K=BulkPEMsg, L=Status, M=Error, N=Timestamp, O=VPAAddress, P=VPAAcctHolder, Q=VPATxnID, R=VPARefID, S=VPAStatus, T=VPAMsg
             for (let j = txnValues.length - 1; j >= 1; j--) {
               const txnPhone = String(txnValues[j][2]).trim();
               if (txnPhone === phoneNumber) {
-                const txnVpa = txnValues[j][14]; // Column O
-                const txnStatus = txnValues[j][18]; // Column S
+                const txnVpa = txnValues[j][14]; // Column O - VPA Address
+                const txnStatus = txnValues[j][18]; // Column S - VPA Status
                 if (txnVpa && txnVpa !== "N/A" && txnStatus === "SUCCESS") {
-                  vpa = txnVpa;
-                  vpaAccountHolderName = txnValues[j][15] || null; // Column P
+                  vpaAddress = txnVpa;
+                  vpaAccountHolderName = txnValues[j][15] || null; // Column P - VPA Account Holder
+                  beneficiaryName = txnValues[j][8] || null; // Column I - Beneficiary Name
+                  transactionTimestamp = txnValues[j][13] || null; // Column N - Timestamp
                   break;
                 }
               }
@@ -353,8 +359,10 @@ function doGet(e) {
             amount: values[i][6] || null,
             verifiedBy: values[i][7] || null,
             verificationTimestamp: values[i][8] || null,
-            vpa: vpa,
-            vpaAccountHolderName: vpaAccountHolderName
+            vpa: vpaAddress,
+            vpaAccountHolderName: vpaAccountHolderName,
+            beneficiaryName: beneficiaryName,
+            transactionTimestamp: transactionTimestamp
           });
         }
       }

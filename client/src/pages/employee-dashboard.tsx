@@ -24,6 +24,8 @@ interface SheetCustomer {
   verificationTimestamp?: string;
   vpa?: string;
   vpaAccountHolderName?: string;
+  beneficiaryName?: string;
+  transactionTimestamp?: string;
 }
 
 interface EmployeeData {
@@ -378,7 +380,7 @@ export default function EmployeeDashboard() {
                           </Badge>
                         </div>
 
-                        <div className="space-y-1 text-sm">
+                        <div className="space-y-2 text-sm">
                           <div className="flex items-center gap-2 text-muted-foreground">
                             <Car className="w-3 h-3" />
                             <span>{customer.vehicleNumber}</span>
@@ -393,10 +395,37 @@ export default function EmployeeDashboard() {
                             </div>
                           )}
                           {customer.vpa && (
-                            <div className="flex items-center gap-2 text-muted-foreground text-xs bg-white dark:bg-gray-900 p-2 rounded mt-2">
-                              <span className="font-medium">VPA:</span> {customer.vpa}
+                            <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded border border-blue-200 dark:border-blue-800 space-y-1">
+                              <div className="font-medium text-blue-900 dark:text-blue-100">VPA Details:</div>
+                              <div className="text-xs text-muted-foreground">
+                                <div className="flex gap-2">
+                                  <span className="font-medium">VPA:</span>
+                                  <span data-testid={`text-vpa-${customer.vehicleNumber}`}>{customer.vpa}</span>
+                                </div>
+                              </div>
                               {customer.vpaAccountHolderName && (
-                                <span>({customer.vpaAccountHolderName})</span>
+                                <div className="text-xs text-muted-foreground">
+                                  <div className="flex gap-2">
+                                    <span className="font-medium">Account Holder:</span>
+                                    <span data-testid={`text-vpa-holder-${customer.vehicleNumber}`}>{customer.vpaAccountHolderName}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {customer.beneficiaryName && (
+                                <div className="text-xs text-muted-foreground">
+                                  <div className="flex gap-2">
+                                    <span className="font-medium">Beneficiary:</span>
+                                    <span data-testid={`text-beneficiary-${customer.vehicleNumber}`}>{customer.beneficiaryName}</span>
+                                  </div>
+                                </div>
+                              )}
+                              {customer.transactionTimestamp && (
+                                <div className="text-xs text-muted-foreground">
+                                  <div className="flex gap-2">
+                                    <span className="font-medium">Timestamp:</span>
+                                    <span data-testid={`text-txn-timestamp-${customer.vehicleNumber}`}>{new Date(customer.transactionTimestamp).toLocaleString()}</span>
+                                  </div>
+                                </div>
                               )}
                             </div>
                           )}
