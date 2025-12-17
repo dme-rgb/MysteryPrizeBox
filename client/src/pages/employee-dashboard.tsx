@@ -360,7 +360,7 @@ export default function EmployeeDashboard() {
                   {verifiedCustomers.map((customer) => (
                     <div
                       key={`${customer.vehicleNumber}-verified-${customer.verificationTimestamp}`}
-                      className="flex items-center gap-4 p-4 border rounded-lg bg-green-50/50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
+                      className="flex items-center gap-4 p-4 border rounded-lg bg-green- dark:bg-green-950/20 border-green-200 dark:border-green-800"
                       data-testid={`card-verified-${customer.vehicleNumber}`}
                     >
                       <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
@@ -369,9 +369,7 @@ export default function EmployeeDashboard() {
                         <div className="flex flex-wrap items-center gap-2 mb-2">
                           <div className="flex items-center gap-1 text-foreground font-medium">
                             <User className="w-4 h-4 text-muted-foreground" />
-                            <span data-testid={`text-verified-name-${customer.vehicleNumber}`}>
-                              {customer.name}
-                            </span>
+                            
                           </div>
                           <Badge className="bg-green-600 text-white gap-1">
                             <IndianRupee className="w-3 h-3" />
@@ -396,8 +394,8 @@ export default function EmployeeDashboard() {
                             </div>
                           )}
                           {customer.vpa && (
-                            <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded border border-blue-200 dark:border-blue-800 space-y-1">
-                              <div className="font-medium text-blue-900 dark:text-blue-100">VPA Details:</div>
+                            <div className="bg-blue dark:bg-blue-950 p-3 rounded border border-blue-200 dark:border-blue-800 space-y-1">
+                              <div className="font-medium text-white-900 dark:text-blue-100">VPA Details:</div>
                               <div className="text-xs text-muted-foreground">
                                 <div className="flex gap-2">
                                   <span className="font-medium">VPA:</span>

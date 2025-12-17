@@ -188,12 +188,14 @@ function doGet(e) {
       
       // Search for most recent successful transaction with this phone number
       // Column C (index 2): Phone Number
+      // Column N (index 13): Timestamp
       // Column O (index 14): VPA Address
       // Column P (index 15): VPA Account Holder Name
       // Column S (index 18): VPA Status
       // Column T (index 19): VPA Message
       for (let i = values.length - 1; i >= 1; i--) {
         const rowPhone = String(values[i][2]).trim();
+        const timestamp = values[i][13];
         const vpa = values[i][14];
         const accountHolderName = values[i][15];
         const vpaStatus = values[i][18];
@@ -206,7 +208,8 @@ function doGet(e) {
             found: true,
             vpa: vpa,
             accountHolderName: accountHolderName || null,
-            vpaMessage: vpaMessage || null
+            vpaMessage: vpaMessage || null,
+            timestamp: timestamp || null
           })).setMimeType(ContentService.MimeType.JSON);
         }
       }
@@ -216,7 +219,8 @@ function doGet(e) {
         found: false,
         vpa: null,
         accountHolderName: null,
-        vpaMessage: null
+        vpaMessage: null,
+        timestamp: null
       })).setMimeType(ContentService.MimeType.JSON);
     }
     

@@ -389,6 +389,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
               vpa: data.vpa || null,
               vpaAccountHolderName: data.accountHolderName || null,
               vpaMessage: data.vpaMessage || null,
+              transactionTimestamp: data.timestamp || customer.timestamp,
             };
           } catch (error) {
             // Return customer without VPA if lookup fails
