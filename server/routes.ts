@@ -291,18 +291,46 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const allCustomers = await googleSheetsService.getAllCustomers();
       
-      // Filter for today's date and unverified customers with prizes
+      // Filter for today's date
       const today = new Date().toISOString().split('T')[0];
-      const unverifiedCustomers = allCustomers.filter((customer) => {
+      const todaysCustomers = allCustomers.filter((customer) => {
         const customerDate = customer.timestamp.split('T')[0];
-        // Ensure prize is a valid number greater than 0
-        const prize = Number(customer.prize);
-        const hasValidPrize = !isNaN(prize) && prize > 0;
-        
-        return customerDate === today && 
-               customer.verified !== true && 
-               hasValidPrize;
-      }).reverse(); // Reverse to show most recent first
+        return customerDate === today;
+      });
+      
+      // Get all vehicles that have at least one verified entry today
+      const verifiedVehicles = new Set(
+        todaysCustomers
+          .filter(c => c.verified === true)
+          .map(c => c.vehicleNumber)
+      );
+      
+      // Filter for unverified customers with valid prizes, excluding vehicles that are already verified
+      const unverifiedCustomers = todaysCustomers
+        .filter((customer) => {
+          const prize = Number(customer.prize);
+          const hasValidPrize = !isNaN(prize) && prize > 0;
+          
+          // Exclude if: verified, invalid prize, or already verified for this vehicle
+          return customer.verified !== true && 
+                 hasValidPrize &&
+                 !verifiedVehicles.has(customer.vehicleNumber);
+        })
+        .sort((a, b) => {
+          // Sort by timestamp, most recent first (for same vehicle)
+          const aTime = new Date(a.timestamp).getTime();
+          const bTime = new Date(b.timestamp).getTime();
+          return bTime - aTime;
+        })
+        // Keep only the most recent entry per vehicle
+        .reduce((unique, customer) => {
+          const exists = unique.some(c => c.vehicleNumber === customer.vehicleNumber);
+          if (!exists) {
+            unique.push(customer);
+          }
+          return unique;
+        }, [] as typeof todaysCustomers)
+        .reverse(); // Reverse to show most recent first overall
       
       res.json({ customers: unverifiedCustomers });
     } catch (error: any) {
