@@ -171,16 +171,6 @@ export default function EmployeeDashboard() {
   const unverifiedCustomers = customersData?.customers || [];
   const verifiedCustomers = verifiedData?.customers || [];
 
-  // Debug logging
-  if (verifiedCustomers.length > 0) {
-    console.log('Verified customers:', verifiedCustomers.map(c => ({
-      phone: c.number,
-      vpa: c.vpa,
-      vpaMessage: c.vpaMessage,
-      hasMessage: !!c.vpaMessage
-    })));
-  }
-
   if (!employee) {
     return null;
   }
@@ -405,42 +395,46 @@ export default function EmployeeDashboard() {
                           )}
                           <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded border border-blue-200 dark:border-blue-800 space-y-1">
                             <div className="font-medium text-blue-900 dark:text-blue-100">VPA Details:</div>
-                            {customer.vpa ? (
+                            {customer.vpa || customer.vpaMessage ? (
                               <>
-                                <div className="text-xs text-muted-foreground">
-                                  <div className="flex gap-2">
-                                    <span className="font-medium">VPA:</span>
-                                    <span data-testid={`text-vpa-${customer.vehicleNumber}`}>{customer.vpa}</span>
-                                  </div>
-                                </div>
-                                {customer.vpaAccountHolderName && (
-                                  <div className="text-xs text-muted-foreground">
-                                    <div className="flex gap-2">
-                                      <span className="font-medium">Account Holder:</span>
-                                      <span data-testid={`text-vpa-holder-${customer.vehicleNumber}`}>{customer.vpaAccountHolderName}</span>
+                                {customer.vpa && (
+                                  <>
+                                    <div className="text-xs text-muted-foreground">
+                                      <div className="flex gap-2">
+                                        <span className="font-medium">VPA:</span>
+                                        <span data-testid={`text-vpa-${customer.vehicleNumber}`}>{customer.vpa}</span>
+                                      </div>
                                     </div>
-                                  </div>
-                                )}
-                                {customer.beneficiaryName && (
-                                  <div className="text-xs text-muted-foreground">
-                                    <div className="flex gap-2">
-                                      <span className="font-medium">Beneficiary:</span>
-                                      <span data-testid={`text-beneficiary-${customer.vehicleNumber}`}>{customer.beneficiaryName}</span>
-                                    </div>
-                                  </div>
-                                )}
-                                {customer.transactionTimestamp && (
-                                  <div className="text-xs text-muted-foreground">
-                                    <div className="flex gap-2">
-                                      <span className="font-medium">Timestamp:</span>
-                                      <span data-testid={`text-txn-timestamp-${customer.vehicleNumber}`}>{new Date(customer.transactionTimestamp).toLocaleString()}</span>
-                                    </div>
-                                  </div>
+                                    {customer.vpaAccountHolderName && (
+                                      <div className="text-xs text-muted-foreground">
+                                        <div className="flex gap-2">
+                                          <span className="font-medium">Account Holder:</span>
+                                          <span data-testid={`text-vpa-holder-${customer.vehicleNumber}`}>{customer.vpaAccountHolderName}</span>
+                                        </div>
+                                      </div>
+                                    )}
+                                    {customer.beneficiaryName && (
+                                      <div className="text-xs text-muted-foreground">
+                                        <div className="flex gap-2">
+                                          <span className="font-medium">Beneficiary:</span>
+                                          <span data-testid={`text-beneficiary-${customer.vehicleNumber}`}>{customer.beneficiaryName}</span>
+                                        </div>
+                                      </div>
+                                    )}
+                                    {customer.transactionTimestamp && (
+                                      <div className="text-xs text-muted-foreground">
+                                        <div className="flex gap-2">
+                                          <span className="font-medium">Timestamp:</span>
+                                          <span data-testid={`text-txn-timestamp-${customer.vehicleNumber}`}>{new Date(customer.transactionTimestamp).toLocaleString()}</span>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </>
                                 )}
                                 {customer.vpaMessage && (
-                                  <div className="text-xs text-muted-foreground">
+                                  <div className={`text-xs ${customer.vpa ? 'text-muted-foreground' : 'text-red-600 dark:text-red-400 font-medium'}`}>
                                     <div className="flex gap-2">
-                                      <span className="font-medium">Message:</span>
+                                      <span className="font-medium">{customer.vpa ? 'Message:' : 'Status:'}</span>
                                       <span data-testid={`text-vpa-message-${customer.vehicleNumber}`}>{customer.vpaMessage}</span>
                                     </div>
                                   </div>
