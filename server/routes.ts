@@ -133,15 +133,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         finalCustomer = await storage.markAlreadyPlayedToday(customer.id);
       }
 
-      // Add to Google Sheets with normalized vehicle number
-      await googleSheetsService.addCustomer({
-        name: validatedData.name,
-        number: validatedData.phoneNumber,
-        prize: null,
-        vehicleNumber: normalized,
-        timestamp: new Date().toISOString(),
-        verified: false,
-      });
+      // NOTE: Do NOT add to Google Sheets yet - will be added when reward is set (after box opens)
+      // This prevents entries with null/0 prizes from appearing
 
       res.json(finalCustomer);
     } catch (error: any) {
@@ -201,8 +194,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
         rewardAmount
       );
 
-      // Update in Google Sheets
-      await googleSheetsService.updateReward(customer.vehicleNumber, rewardAmount);
+      // First time adding to Google Sheets - add complete entry with reward
+      const existingEntry = await googleSheetsService.getCustomerByVehicle(customer.vehicleNumber);
+      if (!existingEntry) {
+        // Entry doesn't exist yet, add it with the reward
+        await googleSheetsService.addCustomer({
+          name: customer.name,
+          number: customer.phoneNumber,
+          prize: rewardAmount,
+          vehicleNumber: customer.vehicleNumber,
+          timestamp: new Date().toISOString(),
+          verified: false,
+        });
+      } else {
+        // Entry already exists, just update the reward
+        await googleSheetsService.updateReward(customer.vehicleNumber, rewardAmount);
+      }
 
       res.json(updatedCustomer);
     } catch (error: any) {
