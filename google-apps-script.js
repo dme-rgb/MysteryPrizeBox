@@ -202,16 +202,24 @@ function doGet(e) {
         const vpaStatus = values[i][18];
         const vpaMessage = values[i][19];
         
-        // Match phone number (normalize format) and ensure VPA exists (not N/A), show for both SUCCESS and FAILED
-        if (rowPhone === searchPhone && vpa && String(vpa).trim() !== "N/A") {
-          console.log(`[SHEET VPA CACHE] Found cached VPA for ${phoneNumber}: ${vpa} (status: ${vpaStatus})`);
-          return ContentService.createTextOutput(JSON.stringify({
-            found: true,
-            vpa: vpa,
-            accountHolderName: accountHolderName || null,
-            vpaMessage: vpaMessage || null,
-            timestamp: timestamp || null
-          })).setMimeType(ContentService.MimeType.JSON);
+        // Match phone number (normalize format)
+        // Return data if:
+        // 1. VPA exists and is valid (SUCCESS), OR
+        // 2. VPA Message exists (FAILED - has error message)
+        if (rowPhone === searchPhone) {
+          const hasValidVPA = vpa && String(vpa).trim() !== "N/A" && String(vpa).trim() !== "";
+          const hasMessage = vpaMessage && String(vpaMessage).trim() !== "";
+          
+          if (hasValidVPA || hasMessage) {
+            console.log(`[SHEET VPA CACHE] Found transaction for ${phoneNumber}: VPA=${vpa}, Message=${vpaMessage}, Status=${vpaStatus}`);
+            return ContentService.createTextOutput(JSON.stringify({
+              found: true,
+              vpa: hasValidVPA ? vpa : null,
+              accountHolderName: hasValidVPA ? (accountHolderName || null) : null,
+              vpaMessage: vpaMessage || null,
+              timestamp: timestamp || null
+            })).setMimeType(ContentService.MimeType.JSON);
+          }
         }
       }
       
