@@ -46,6 +46,7 @@ export default function Home() {
   const [showWhatsAppFlow, setShowWhatsAppFlow] = useState(false);
   const [payoutStatus, setPayoutStatus] = useState<'pending' | 'success' | 'failed' | null>(null);
   const [payoutTransactionId, setPayoutTransactionId] = useState<string | null>(null);
+  const [alreadyPlayedError, setAlreadyPlayedError] = useState(false);
 
   const WHATSAPP_NUMBER = "+918817828153";
   
@@ -235,15 +236,24 @@ export default function Home() {
       return await res.json();
     },
     onSuccess: (data) => {
+      // Check if customer already played today
+      if (data.alreadyPlayedToday) {
+        setAlreadyPlayedError(true);
+        setCustomerId(null);
+        toast({
+          title: "Already Played Today",
+          description: "You can only play once per day. Come back tomorrow!",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       // Update with real ID from backend
       setCustomerId(data.id);
-      // Only show success toast for new customers, not for existing ones
-      if (!data.alreadyPlayedToday) {
-        toast({
-          title: "Registration Successful!",
-          description: "Click the mystery box to reveal your reward!",
-        });
-      }
+      toast({
+        title: "Registration Successful!",
+        description: "Click the mystery box to reveal your reward!",
+      });
     },
     onError: (error: Error) => {
       toast({
@@ -589,6 +599,16 @@ export default function Home() {
             )}
             <div className="text-center mb-12 space-y-4 relative z-10">
              
+              {alreadyPlayedError && (
+                <Alert variant="destructive" data-testid="alert-already-played">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>You Already Played Today!</AlertTitle>
+                  <AlertDescription>
+                    Only one entry per vehicle per day is allowed. Come back tomorrow to play again!
+                  </AlertDescription>
+                </Alert>
+              )}
+              
               {customerData?.alreadyPlayedToday && (
                 <Alert className="bg-yellow-500/10 border-yellow-500/20">
                   <AlertCircle className="h-4 w-4 text-yellow-500" />
