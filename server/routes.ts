@@ -356,14 +356,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get today's verified customers from Google Sheets with VPA info
   app.get("/api/employee/verified-customers", async (req, res) => {
     try {
-      const response = await fetch(`${process.env.GOOGLE_SHEETS_WEBHOOK_URL}?action=getTodayVerifiedCustomers`, {
-        method: 'GET',
-      });
-
-      const text = await response.text();
-      const data = JSON.parse(text);
+      const allCustomers = await googleSheetsService.getAllCustomers();
       
-      res.json({ customers: data.customers || [] });
+      // Filter for today's date
+      const today = new Date().toISOString().split('T')[0];
+      const todaysCustomers = allCustomers.filter((customer) => {
+        const customerDate = customer.timestamp.split('T')[0];
+        return customerDate === today;
+      });
+      
+      // Filter for verified customers only
+      const verifiedCustomers = todaysCustomers
+        .filter((customer) => customer.verified === true)
+        .sort((a, b) => {
+          // Sort by timestamp, most recent first
+          const aTime = new Date(a.timestamp).getTime();
+          const bTime = new Date(b.timestamp).getTime();
+          return bTime - aTime;
+        });
+      
+      res.json({ customers: verifiedCustomers });
     } catch (error: any) {
       console.error("Get verified customers error:", error);
       
