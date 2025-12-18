@@ -46,6 +46,8 @@ export default function Home() {
   const [showWhatsAppFlow, setShowWhatsAppFlow] = useState(false);
   const [payoutStatus, setPayoutStatus] = useState<'pending' | 'success' | 'failed' | null>(null);
   const [payoutTransactionId, setPayoutTransactionId] = useState<string | null>(null);
+  const [vpaMessage, setVpaMessage] = useState<string | null>(null);
+  const [beneficiaryName, setBeneficiaryName] = useState<string | null>(null);
   const [alreadyPlayedError, setAlreadyPlayedError] = useState(false);
 
   const WHATSAPP_NUMBER = "+918817828153";
@@ -165,6 +167,24 @@ export default function Home() {
             // Default to success if endpoint not available (backward compatibility)
             setPayoutStatus('success');
             setPayoutTransactionId(`TXN-${Date.now()}`);
+          }
+          
+          // Fetch transaction details (VPA message and beneficiary name)
+          if (customerData?.phoneNumber) {
+            try {
+              const txnRes = await fetch(`/api/transaction-details?phone=${encodeURIComponent(customerData.phoneNumber)}`);
+              if (txnRes.ok) {
+                const txnData = await txnRes.json();
+                if (txnData.vpaMessage) {
+                  setVpaMessage(txnData.vpaMessage);
+                }
+                if (txnData.beneficiaryName) {
+                  setBeneficiaryName(txnData.beneficiaryName);
+                }
+              }
+            } catch (error) {
+              console.error('Failed to fetch transaction details:', error);
+            }
           }
         } catch (error) {
           console.error('Failed to fetch payment status:', error);
@@ -773,6 +793,16 @@ export default function Home() {
                                     <p className="text-xs text-[#8d9b8a] text-center">
                                       Check your UPI app for the cashback transfer
                                     </p>
+                                    {vpaMessage && (
+                                      <p className="text-xs text-[#a8d5a8] text-center mt-2 font-medium">
+                                        {vpaMessage}
+                                      </p>
+                                    )}
+                                    {beneficiaryName && (
+                                      <p className="text-xs text-[#8d9b8a] text-center">
+                                        Beneficiary: {beneficiaryName}
+                                      </p>
+                                    )}
                                   </div>
                                 ) : payoutStatus === 'pending' ? (
                                   <div className="space-y-2">
@@ -785,9 +815,24 @@ export default function Home() {
                                     </p>
                                   </div>
                                 ) : (
-                                  <p className="text-sm text-center text-[#c9d3c2]">
-                                    You will shortly receive the payment in your UPI account.
-                                  </p>
+                                  <div className="space-y-2">
+                                    {vpaMessage ? (
+                                      <>
+                                        <p className="text-sm text-center font-medium text-[#ff6b6b]">
+                                          {vpaMessage}
+                                        </p>
+                                        {beneficiaryName && (
+                                          <p className="text-xs text-[#c9d3c2] text-center">
+                                            Beneficiary: {beneficiaryName}
+                                          </p>
+                                        )}
+                                      </>
+                                    ) : (
+                                      <p className="text-sm text-center text-[#c9d3c2]">
+                                        You will shortly receive the payment in your UPI account.
+                                      </p>
+                                    )}
+                                  </div>
                                 )}
                               </div>
                             </div>

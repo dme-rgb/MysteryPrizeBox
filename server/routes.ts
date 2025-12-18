@@ -6,6 +6,35 @@ import { googleSheetsService, GoogleSheetsNotConfiguredError, type TransactionLo
 import { getBulkPEService } from "./bulkpe";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Fetch transaction details (VPA message and beneficiary name)
+  app.get("/api/transaction-details", async (req, res) => {
+    try {
+      const phone = req.query.phone as string;
+      if (!phone) {
+        return res.status(400).json({ error: "Phone number required" });
+      }
+
+      const txnData = await googleSheetsService.getTransactionByPhone(phone);
+      
+      if (txnData && txnData.found) {
+        return res.json({
+          vpaMessage: txnData.vpaMessage || null,
+          beneficiaryName: txnData.beneficiaryName || null,
+          vpa: txnData.vpa || null,
+        });
+      }
+      
+      res.json({
+        vpaMessage: null,
+        beneficiaryName: null,
+        vpa: null,
+      });
+    } catch (error: any) {
+      console.error("Failed to fetch transaction details:", error);
+      res.status(500).json({ error: "Failed to fetch transaction details" });
+    }
+  });
+
   // Health check for Google Sheets
   app.get("/api/health", async (req, res) => {
     try {

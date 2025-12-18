@@ -393,8 +393,8 @@ export default function EmployeeDashboard() {
                               Verified by: <span className="font-medium">{customer.verifiedBy}</span>
                             </div>
                           )}
-                          <div className="bg-blue-50 dark:bg-blue-950/30 p-3 rounded border border-blue-200 dark:border-blue-800 space-y-1">
-                            <div className="font-medium text-blue-900 dark:text-blue-100">VPA Details:</div>
+                          <div className="bg-blue dark:bg-blue-950/30 p-3 rounded border border-blue-200 dark:border-blue-800 space-y-1">
+                            <div className="font-medium text-blue dark:text-white">VPA Details:</div>
                             {customer.vpa || customer.vpaMessage ? (
                               <>
                                 {customer.vpa && (
