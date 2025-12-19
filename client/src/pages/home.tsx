@@ -484,67 +484,23 @@ export default function Home() {
     });
   };
 
-  const handleTellYourFriend = async () => {
+  const handleTellYourFriend = () => {
     if (!rewardAmount) return;
     
-    try {
-      // Create the message with prize amount and total winnings
-      const totalWinnings = customerVerifiedData?.totalAmount || 0;
-      const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
-      const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
-      
-      // Fetch the referral image
-      const response = await fetch(referralImg);
-      const blob = await response.blob();
-      const file = new File([blob], 'fuel-rush-win.png', { type: 'image/png' });
-      
-      // Check if Web Share API is supported
-      if (navigator.share) {
-        // Share image first
-        await navigator.share({
-          title: 'FUEL RUSH Mystery Box',
-          files: [file],
-        });
-        
-        // Then open WhatsApp with the message
-        setTimeout(() => {
-          const encodedMessage = encodeURIComponent(message);
-          const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-          window.open(whatsappUrl, '_blank');
-        }, 500);
-        
-        toast({
-          title: "Image Shared!",
-          description: "WhatsApp will open with your message.",
-        });
-      } else {
-        // Fallback for desktop: Download image and open WhatsApp
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'fuel-rush-win.png';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        // Open WhatsApp with message
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
-        
-        toast({
-          title: "Ready to Share!",
-          description: "Image downloaded. Attach it in WhatsApp with your message.",
-        });
-      }
-    } catch (error) {
-      console.error('Share error:', error);
-      toast({
-        title: "Cancelled",
-        description: "Share cancelled by user.",
-      });
-    }
+    // Create the message with prize amount and total winnings
+    const totalWinnings = customerVerifiedData?.totalAmount || 0;
+    const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
+    const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
+    
+    // Open WhatsApp with the message
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
+    
+    toast({
+      title: "WhatsApp Opened!",
+      description: "Share this image with your friends to spread the word!",
+    });
   };
 
   // 45-second verification timeout
