@@ -51,6 +51,8 @@ export default function Home() {
   const [beneficiaryName, setBeneficiaryName] = useState<string | null>(null);
   const [alreadyPlayedError, setAlreadyPlayedError] = useState(false);
   const [isCapturingScreenshot, setIsCapturingScreenshot] = useState(false);
+  const [screenshotDataUrl, setScreenshotDataUrl] = useState<string | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
   const prizeCardRef = useRef<HTMLDivElement>(null);
 
   const WHATSAPP_NUMBER = "+918817828153";
@@ -499,45 +501,11 @@ export default function Home() {
         logging: false,
       });
       
-      // Convert canvas to blob
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          toast({
-            title: "Error",
-            description: "Failed to capture screenshot",
-            variant: "destructive",
-          });
-          setIsCapturingScreenshot(false);
-          return;
-        }
-        
-        // Create the message with prize amount and total winnings
-        const totalWinnings = customerVerifiedData?.totalAmount || 0;
-        const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
-        const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
-        
-        // Create a download link for the screenshot
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `mystery-box-win-₹${rewardAmount}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        // Open WhatsApp with the message
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
-        
-        toast({
-          title: "Screenshot Downloaded!",
-          description: "Image has been downloaded. Now attach it in WhatsApp!",
-        });
-        
-        setIsCapturingScreenshot(false);
-      });
+      // Convert canvas to data URL
+      const dataUrl = canvas.toDataURL('image/png');
+      setScreenshotDataUrl(dataUrl);
+      setShowShareModal(true);
+      setIsCapturingScreenshot(false);
     } catch (error) {
       console.error('Screenshot capture error:', error);
       toast({
@@ -546,6 +514,49 @@ export default function Home() {
         variant: "destructive",
       });
       setIsCapturingScreenshot(false);
+    }
+  };
+
+  const handleShareOnWhatsApp = async () => {
+    if (!screenshotDataUrl) return;
+    
+    try {
+      // Create the message with prize amount and total winnings
+      const totalWinnings = customerVerifiedData?.totalAmount || 0;
+      const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
+      const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
+      
+      // Convert data URL to blob and download
+      const response = await fetch(screenshotDataUrl);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `mystery-box-win-₹${rewardAmount}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      // Open WhatsApp with the message
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+      window.open(whatsappUrl, '_blank');
+      
+      setShowShareModal(false);
+      setScreenshotDataUrl(null);
+      
+      toast({
+        title: "Screenshot Downloaded!",
+        description: "Image has been downloaded and WhatsApp is opening. Attach the downloaded image in your chat!",
+      });
+    } catch (error) {
+      console.error('Share error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to prepare share. Try again!",
+        variant: "destructive",
+      });
     }
   };
 
@@ -1049,6 +1060,79 @@ export default function Home() {
                 key={`confetti-${confettiTrigger}`}
               />
             </div>
+
+            {/* Share Preview Modal */}
+            <Dialog open={showShareModal} onOpenChange={setShowShareModal}>
+              <DialogContent className="
+                 max-w-lg
+                p-6 rounded-2xl
+                overflow-y-auto max-h-[90vh]
+                shadow-[0_0_40px_rgba(0,0,0,0.7)]
+                bg-[#0b3b2a] 
+                border-[5px] border-[#f5d67a]
+">
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <h2 className="text-xl font-bold text-[#f6d878] mb-4">Share Your Win!</h2>
+                  </div>
+                  
+                  {/* Screenshot Preview */}
+                  {screenshotDataUrl && (
+                    <div className="space-y-3">
+                      <p className="text-sm text-[#a8d5a8] text-center">Your winning screenshot:</p>
+                      <img 
+                        src={screenshotDataUrl} 
+                        alt="Screenshot preview" 
+                        className="w-full rounded-lg border-2 border-[#1a5c3d]"
+                      />
+                    </div>
+                  )}
+                  
+                  {/* Message Preview */}
+                  <div className="space-y-3">
+                    <p className="text-sm text-[#a8d5a8] text-center">Your message:</p>
+                    <div className="bg-[#0f3d2e] p-4 rounded-lg border border-[#1a5c3d] text-sm text-[#c9d3c2] whitespace-pre-wrap">
+                      {(() => {
+                        const totalWinnings = customerVerifiedData?.totalAmount || 0;
+                        const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
+                        return `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
+                      })()}
+                    </div>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 pt-4">
+                    <Button
+                      onClick={() => setShowShareModal(false)}
+                      variant="outline"
+                      className="flex-1"
+                      data-testid="button-cancel-share"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleShareOnWhatsApp}
+                      disabled={false}
+                      className="flex-1 gap-2
+                      bg-gradient-to-b from-green-400 to-green-600
+                      hover:from-green-500 hover:to-green-700
+                      text-white font-semibold
+                      shadow-[0_0_18px_rgba(34,197,94,0.3)]
+                      border border-green-300"
+                      data-testid="button-share-whatsapp"
+                    >
+                      <Share2 className="w-4 h-4" />
+                      Share on WhatsApp
+                    </Button>
+                  </div>
+                  
+                  <p className="text-xs text-[#8d9b8a] text-center mt-4">
+                    The screenshot will be automatically downloaded. Open the image in WhatsApp and attach it with your message!
+                  </p>
+                </div>
+              </DialogContent>
+            </Dialog>
+
             {/* Action Buttons */}
             {showReward && (isVerified || timeExpired) && (
               <div className="mt-12 flex gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
