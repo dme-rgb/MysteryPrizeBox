@@ -496,47 +496,80 @@ export default function Home() {
       // Fetch the referral image
       const response = await fetch(referralImg);
       const blob = await response.blob();
-      const file = new File([blob], 'fuel-rush-win.png', { type: 'image/png' });
       
-      // Check if Web Share API is supported
-      if (navigator.share) {
-        // Use native share API to share both image and text together
-        await navigator.share({
-          title: 'FUEL RUSH Mystery Box',
-          text: message,
-          files: [file],
-        });
+      // Create canvas to combine image with text
+      const img = new Image();
+      img.onload = async () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height + 150; // Add space for text at bottom
+        const ctx = canvas.getContext('2d');
         
-        toast({
-          title: "Shared!",
-          description: "Your winning moment is shared with friends!",
-        });
-      } else {
-        // Fallback: Download image and open WhatsApp
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'fuel-rush-win.png';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
-        
-        toast({
-          title: "WhatsApp Opened!",
-          description: "Image downloaded. Attach it to your message.",
-        });
-      }
+        if (ctx) {
+          // Draw the referral image
+          ctx.drawImage(img, 0, 0);
+          
+          // Add white background for text
+          ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+          ctx.fillRect(0, img.height, canvas.width, 150);
+          
+          // Add text
+          ctx.fillStyle = '#000000';
+          ctx.font = 'bold 16px Arial';
+          ctx.textAlign = 'center';
+          
+          const lines = message.split('\n');
+          let yPos = img.height + 20;
+          
+          lines.forEach((line) => {
+            ctx.fillText(line, canvas.width / 2, yPos);
+            yPos += 25;
+          });
+          
+          // Convert canvas to blob
+          canvas.toBlob(async (canvasBlob) => {
+            if (canvasBlob) {
+              const file = new File([canvasBlob], 'fuel-rush-win.png', { type: 'image/png' });
+              
+              // Share the combined image
+              if (navigator.share) {
+                await navigator.share({
+                  title: 'FUEL RUSH Mystery Box',
+                  files: [file],
+                });
+                
+                toast({
+                  title: "Shared!",
+                  description: "Your winning moment is shared with friends!",
+                });
+              } else {
+                // Fallback: Download the combined image
+                const url = URL.createObjectURL(canvasBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'fuel-rush-win.png';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                toast({
+                  title: "Image Ready!",
+                  description: "Share it on WhatsApp or any messaging app.",
+                });
+              }
+            }
+          });
+        }
+      };
+      
+      img.src = URL.createObjectURL(blob);
     } catch (error) {
       console.error('Share error:', error);
-      // Silently fail if user cancels the share dialog
       toast({
-        title: "Cancelled",
-        description: "Share cancelled by user.",
+        title: "Error",
+        description: "Failed to prepare share. Please try again.",
+        variant: "destructive",
       });
     }
   };
