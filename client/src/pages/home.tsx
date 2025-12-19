@@ -531,13 +531,34 @@ export default function Home() {
       const totalMessage = rewardAmount && totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
       const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount || 'cashback'} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
       
-      // Convert data URL to blob
+      // Convert data URL to blob for download
       const response = await fetch(screenshotDataUrl);
       const blob = await response.blob();
       
-      // Strategy: Always use fallback since Web Share API has limitations
-      // This ensures both text AND image are properly handled
-      await fallbackShare(blob, message);
+      // Step 1: Download the screenshot first
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `mystery-box-win-${rewardAmount || 'prize'}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      // Step 2: Open WhatsApp with the message (wait a moment for download to start)
+      setTimeout(() => {
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+        window.open(whatsappUrl, '_blank');
+      }, 500);
+      
+      setShowShareModal(false);
+      setScreenshotDataUrl(null);
+      
+      toast({
+        title: "Ready to Share!",
+        description: "1️⃣ WhatsApp is opening with your message\n2️⃣ Screenshot saved to Downloads\n3️⃣ Attach the image to send it",
+      });
       
     } catch (error) {
       console.error('Share error:', error);
@@ -549,42 +570,6 @@ export default function Home() {
     }
   };
 
-  const fallbackShare = async (blob: Blob, message: string) => {
-    try {
-      // For mobile: Open WhatsApp with message FIRST (this is the most reliable way)
-      const encodedMessage = encodeURIComponent(message);
-      const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-      
-      // Open WhatsApp with the message - this opens the chat with message pre-filled
-      window.open(whatsappUrl, '_blank');
-      
-      // Download the image immediately so it's ready to attach
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `mystery-box-win-${rewardAmount || 'prize'}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-      
-      setShowShareModal(false);
-      setScreenshotDataUrl(null);
-      
-      toast({
-        title: "WhatsApp Opened!",
-        description: "✓ Message is pre-filled\n✓ Screenshot downloaded\n\nOpen Downloads and attach the image to send it with your message!",
-      });
-    } catch (error) {
-      console.error('Fallback share error:', error);
-      
-      toast({
-        title: "Error",
-        description: "Failed to share. Please try again!",
-        variant: "destructive",
-      });
-    }
-  };
 
   // 45-second verification timeout
   useEffect(() => {
