@@ -511,36 +511,30 @@ export default function Home() {
           return;
         }
         
-        // Create the message with prize amount
-        const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!\n\nGet directions: ${LOCATION_LINK}`;
+        // Create the message with prize amount and total winnings
+        const totalWinnings = customerVerifiedData?.totalAmount || 0;
+        const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
+        const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
         
-        // Try to open WhatsApp (the native share functionality)
-        // Note: WhatsApp URL scheme has limitations for image attachment
-        // We'll open WhatsApp with the message text
+        // Create a download link for the screenshot
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `mystery-box-win-₹${rewardAmount}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        // Open WhatsApp with the message
         const encodedMessage = encodeURIComponent(message);
         const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+        window.open(whatsappUrl, '_blank');
         
-        // Copy screenshot to clipboard for easier sharing
-        try {
-          const item = new ClipboardItem({ 'image/png': blob });
-          await navigator.clipboard.write([item]);
-          
-          // Open WhatsApp
-          window.open(whatsappUrl, '_blank');
-          
-          toast({
-            title: "Screenshot Ready!",
-            description: "WhatsApp opened! Screenshot is copied to clipboard. Paste it in your chat!",
-          });
-        } catch (clipboardError) {
-          // If clipboard fails, just open WhatsApp
-          window.open(whatsappUrl, '_blank');
-          
-          toast({
-            title: "WhatsApp Opened",
-            description: "Share your winning moment with friends!",
-          });
-        }
+        toast({
+          title: "Screenshot Downloaded!",
+          description: "Image has been downloaded. Now attach it in WhatsApp!",
+        });
         
         setIsCapturingScreenshot(false);
       });
