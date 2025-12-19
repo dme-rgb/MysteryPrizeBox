@@ -489,18 +489,22 @@ export default function Home() {
     // Get total winnings for the share URL
     const totalWinnings = customerVerifiedData?.totalAmount || 0;
     
-    // Create shareable URL with OG meta tags
+    // Create shareable URL with OG meta tags for image preview
     const shareUrl = `/share?prize=${rewardAmount}${totalWinnings > rewardAmount ? `&total=${totalWinnings}` : ''}`;
     const fullShareUrl = `${window.location.origin}${shareUrl}`;
     
-    // Open WhatsApp with the shareable link - format it so WhatsApp fetches OG preview with image
-    const message = encodeURIComponent(`🎁 Look what I won!\n\n${fullShareUrl}`);
-    const whatsappUrl = `https://wa.me/?text=${message}`;
+    // Create the detailed message with prize info
+    const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
+    const detailedMessage = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
+    
+    // Open WhatsApp with both the message and shareable link
+    const fullMessage = encodeURIComponent(`${detailedMessage}\n\n${fullShareUrl}`);
+    const whatsappUrl = `https://wa.me/?text=${fullMessage}`;
     window.open(whatsappUrl, '_blank');
     
     toast({
       title: "WhatsApp Opened!",
-      description: "Send the link - WhatsApp will show the image preview with your prize!",
+      description: "Share the message with the link - image preview will appear!",
     });
   };
 
