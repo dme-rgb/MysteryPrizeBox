@@ -551,88 +551,30 @@ export default function Home() {
 
   const fallbackShare = async (blob: Blob, message: string) => {
     try {
-      // Convert blob to base64 for creating a proper file
-      const reader = new FileReader();
+      // For mobile: Open WhatsApp with message FIRST (this is the most reliable way)
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
       
-      reader.onload = async () => {
-        try {
-          // Create canvas to add text to image
-          const img = new Image();
-          img.onload = async () => {
-            // Create a canvas and draw the image
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            const ctx = canvas.getContext('2d');
-            if (!ctx) return;
-            
-            ctx.drawImage(img, 0, 0);
-            
-            // Convert back to blob
-            canvas.toBlob(async (finalBlob) => {
-              if (!finalBlob) return;
-              
-              // Try to use navigator.share with the combined data
-              if (navigator.share) {
-                try {
-                  const file = new File([finalBlob], `mystery-box-win-${rewardAmount}.png`, { type: 'image/png' });
-                  
-                  await navigator.share({
-                    title: 'My Mystery Box Win!',
-                    text: message,
-                    files: [file],
-                  });
-                  
-                  setShowShareModal(false);
-                  setScreenshotDataUrl(null);
-                  
-                  toast({
-                    title: "Shared!",
-                    description: "Your winning moment has been shared with your message!",
-                  });
-                  return;
-                } catch (shareError: any) {
-                  if (shareError.name !== 'AbortError') {
-                    console.log('Web share unavailable, using fallback');
-                  } else {
-                    // User cancelled
-                    return;
-                  }
-                }
-              }
-              
-              // Final fallback: Download and open WhatsApp with message
-              const url = URL.createObjectURL(finalBlob);
-              const link = document.createElement('a');
-              link.href = url;
-              link.download = `mystery-box-win-${rewardAmount || 'prize'}.png`;
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              URL.revokeObjectURL(url);
-              
-              // Open WhatsApp with message
-              const encodedMessage = encodeURIComponent(message);
-              const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-              window.open(whatsappUrl, '_blank');
-              
-              setShowShareModal(false);
-              setScreenshotDataUrl(null);
-              
-              toast({
-                title: "Screenshot Downloaded!",
-                description: "Image downloaded! Open WhatsApp and attach it with the pre-filled message.",
-              });
-            });
-          };
-          img.src = reader.result as string;
-        } catch (error) {
-          console.error('Canvas processing error:', error);
-          throw error;
-        }
-      };
+      // Open WhatsApp with the message - this opens the chat with message pre-filled
+      window.open(whatsappUrl, '_blank');
       
-      reader.readAsDataURL(blob);
+      // Download the image immediately so it's ready to attach
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `mystery-box-win-${rewardAmount || 'prize'}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      setShowShareModal(false);
+      setScreenshotDataUrl(null);
+      
+      toast({
+        title: "WhatsApp Opened!",
+        description: "✓ Message is pre-filled\n✓ Screenshot downloaded\n\nOpen Downloads and attach the image to send it with your message!",
+      });
     } catch (error) {
       console.error('Fallback share error:', error);
       
