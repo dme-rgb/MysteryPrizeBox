@@ -484,23 +484,61 @@ export default function Home() {
     });
   };
 
-  const handleTellYourFriend = () => {
+  const handleTellYourFriend = async () => {
     if (!rewardAmount) return;
     
-    // Create the message with prize amount and total winnings
-    const totalWinnings = customerVerifiedData?.totalAmount || 0;
-    const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
-    const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
-    
-    // Open WhatsApp with the message
-    const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-    window.open(whatsappUrl, '_blank');
-    
-    toast({
-      title: "WhatsApp Opened!",
-      description: "Message sent! Now attach the image in your chat.",
-    });
+    try {
+      // Create the message with prize amount and total winnings
+      const totalWinnings = customerVerifiedData?.totalAmount || 0;
+      const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
+      const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
+      
+      // Fetch the referral image
+      const response = await fetch(referralImg);
+      const blob = await response.blob();
+      const file = new File([blob], 'fuel-rush-win.png', { type: 'image/png' });
+      
+      // Check if Web Share API is supported
+      if (navigator.share) {
+        // Use native share API to share both image and text together
+        await navigator.share({
+          title: 'FUEL RUSH Mystery Box',
+          text: message,
+          files: [file],
+        });
+        
+        toast({
+          title: "Shared!",
+          description: "Your winning moment is shared with friends!",
+        });
+      } else {
+        // Fallback: Download image and open WhatsApp
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'fuel-rush-win.png';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+        window.open(whatsappUrl, '_blank');
+        
+        toast({
+          title: "WhatsApp Opened!",
+          description: "Image downloaded. Attach it to your message.",
+        });
+      }
+    } catch (error) {
+      console.error('Share error:', error);
+      // Silently fail if user cancels the share dialog
+      toast({
+        title: "Cancelled",
+        description: "Share cancelled by user.",
+      });
+    }
   };
 
   // 45-second verification timeout
