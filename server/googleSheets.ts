@@ -255,7 +255,7 @@ export class GoogleSheetsService {
     }
   }
 
-  async getTransactionByPhone(phoneNumber: string): Promise<{ vpa: string; accountHolderName?: string } | null> {
+  async getTransactionByPhone(phoneNumber: string): Promise<{ found: boolean; vpa?: string | null; accountHolderName?: string | null; beneficiaryName?: string | null; vpaMessage?: string | null; timestamp?: string | null } | null> {
     try {
       const response = await fetch(`${this.webhookUrl}?action=getTransactionByPhone&phone=${encodeURIComponent(phoneNumber)}`, {
         method: 'GET',
@@ -264,15 +264,19 @@ export class GoogleSheetsService {
       const text = await this.checkResponse(response);
       const data = JSON.parse(text);
       
-      if (data.found && data.vpa) {
-        console.log(`[GOOGLE SHEETS] Found cached VPA for ${phoneNumber}: ${data.vpa}`);
+      if (data.found) {
+        console.log(`[GOOGLE SHEETS] Found transaction for ${phoneNumber}: VPA=${data.vpa}, Message=${data.vpaMessage}, Beneficiary=${data.beneficiaryName}`);
         return {
-          vpa: data.vpa,
-          accountHolderName: data.accountHolderName
+          found: true,
+          vpa: data.vpa || null,
+          accountHolderName: data.accountHolderName || null,
+          beneficiaryName: data.beneficiaryName || null,
+          vpaMessage: data.vpaMessage || null,
+          timestamp: data.timestamp || null
         };
       }
       
-      console.log(`[GOOGLE SHEETS] No cached VPA found for ${phoneNumber} in Transactions sheet`);
+      console.log(`[GOOGLE SHEETS] No transaction found for ${phoneNumber} in Transactions sheet`);
       return null;
     } catch (error) {
       console.log("[GOOGLE SHEETS] Transaction lookup error:", error);

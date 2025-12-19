@@ -179,6 +179,7 @@ function doGet(e) {
           found: false,
           vpa: null,
           accountHolderName: null,
+          beneficiaryName: null,
           vpaMessage: null
         })).setMimeType(ContentService.MimeType.JSON);
       }
@@ -188,6 +189,7 @@ function doGet(e) {
       
       // Search for most recent transaction with this phone number (SUCCESS or FAILED)
       // Column C (index 2): Phone Number
+      // Column I (index 8): Beneficiary Name
       // Column N (index 13): Timestamp
       // Column O (index 14): VPA Address
       // Column P (index 15): VPA Account Holder Name
@@ -196,6 +198,7 @@ function doGet(e) {
       for (let i = values.length - 1; i >= 1; i--) {
         const rowPhone = String(values[i][2]).trim().replace(/[\s\-()]/g, '');
         const searchPhone = String(phoneNumber).trim().replace(/[\s\-()]/g, '');
+        const beneficiaryName = values[i][8];
         const timestamp = values[i][13];
         const vpa = values[i][14];
         const accountHolderName = values[i][15];
@@ -211,11 +214,12 @@ function doGet(e) {
           const hasMessage = vpaMessage && String(vpaMessage).trim() !== "";
           
           if (hasValidVPA || hasMessage) {
-            console.log(`[SHEET VPA CACHE] Found transaction for ${phoneNumber}: VPA=${vpa}, Message=${vpaMessage}, Status=${vpaStatus}`);
+            console.log(`[SHEET VPA CACHE] Found transaction for ${phoneNumber}: VPA=${vpa}, Message=${vpaMessage}, Beneficiary=${beneficiaryName}, Status=${vpaStatus}`);
             return ContentService.createTextOutput(JSON.stringify({
               found: true,
               vpa: hasValidVPA ? vpa : null,
               accountHolderName: hasValidVPA ? (accountHolderName || null) : null,
+              beneficiaryName: beneficiaryName || null,
               vpaMessage: vpaMessage || null,
               timestamp: timestamp || null
             })).setMimeType(ContentService.MimeType.JSON);
@@ -228,6 +232,7 @@ function doGet(e) {
         found: false,
         vpa: null,
         accountHolderName: null,
+        beneficiaryName: null,
         vpaMessage: null,
         timestamp: null
       })).setMimeType(ContentService.MimeType.JSON);
