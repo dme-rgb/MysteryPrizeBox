@@ -53,7 +53,7 @@ export default function Home() {
   const [isCapturingScreenshot, setIsCapturingScreenshot] = useState(false);
   const [screenshotDataUrl, setScreenshotDataUrl] = useState<string | null>(null);
   const [showShareModal, setShowShareModal] = useState(false);
-  const prizeCardRef = useRef<HTMLDivElement>(null);
+  const gameScreenRef = useRef<HTMLDivElement>(null);
 
   const WHATSAPP_NUMBER = "+918817828153";
   const LOCATION_LINK = "https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A";
@@ -489,14 +489,14 @@ export default function Home() {
   };
 
   const handleTellYourFriend = async () => {
-    if (!prizeCardRef.current || !rewardAmount) return;
+    if (!gameScreenRef.current || !rewardAmount) return;
     
     try {
       setIsCapturingScreenshot(true);
       
-      // Capture the prize card as image with proper background
-      const canvas = await html2canvas(prizeCardRef.current, {
-        backgroundColor: '#ffffff',
+      // Capture the entire game screen display
+      const canvas = await html2canvas(gameScreenRef.current, {
+        backgroundColor: '#1a1a1a',
         scale: 2,
         logging: false,
         useCORS: true,
@@ -526,17 +526,20 @@ export default function Home() {
     try {
       // Create the message with prize amount and total winnings
       const totalWinnings = customerVerifiedData?.totalAmount || 0;
-      const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
-      const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
+      const totalMessage = rewardAmount && totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
+      const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount || 'cashback'} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
       
       // Convert data URL to blob
       const response = await fetch(screenshotDataUrl);
       const blob = await response.blob();
       
-      // Check if Web Share API is available (mobile devices)
-      if (navigator.share) {
-        try {
-          const file = new File([blob], `mystery-box-win-₹${rewardAmount}.png`, { type: 'image/png' });
+      // Try to share directly to WhatsApp with both image and text
+      try {
+        // First check if we can share with image
+        const file = new File([blob], `mystery-box-win-${rewardAmount}.png`, { type: 'image/png' });
+        
+        // Use navigator.share if available (best for mobile)
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             title: 'My Mystery Box Win!',
             text: message,
@@ -550,17 +553,17 @@ export default function Home() {
             title: "Shared!",
             description: "Your winning moment is being shared!",
           });
-        } catch (shareError: any) {
-          if (shareError.name !== 'AbortError') {
-            console.error('Share API error:', shareError);
-            // Fallback to download method
-            await fallbackShare(blob, message);
-          }
+          return;
         }
-      } else {
-        // Fallback for desktop: download and copy to clipboard
-        await fallbackShare(blob, message);
+      } catch (shareError: any) {
+        if (shareError.name !== 'AbortError') {
+          console.error('Share API error:', shareError);
+        }
       }
+      
+      // Fallback: Share via WhatsApp direct link with downloaded image
+      await fallbackShare(blob, message);
+      
     } catch (error) {
       console.error('Share error:', error);
       toast({
@@ -573,26 +576,12 @@ export default function Home() {
 
   const fallbackShare = async (blob: Blob, message: string) => {
     try {
-      // Copy screenshot to clipboard
-      const item = new ClipboardItem({ 'image/png': blob });
-      await navigator.clipboard.write([item]);
-      
-      // Open WhatsApp with message
+      // For mobile: try to share using WhatsApp URL with message
+      // The image will need to be attached manually
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-      window.open(whatsappUrl, '_blank');
       
-      setShowShareModal(false);
-      setScreenshotDataUrl(null);
-      
-      toast({
-        title: "Screenshot Copied!",
-        description: "Screenshot is in clipboard. Paste it in WhatsApp!",
-      });
-    } catch (clipboardError) {
-      console.error('Clipboard error:', clipboardError);
-      
-      // Final fallback: just download
+      // Download the image
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -602,12 +591,25 @@ export default function Home() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
       
+      // Open WhatsApp with message
+      setTimeout(() => {
+        window.open(whatsappUrl, '_blank');
+      }, 1000);
+      
       setShowShareModal(false);
       setScreenshotDataUrl(null);
       
       toast({
         title: "Screenshot Downloaded!",
-        description: "Image downloaded. Open WhatsApp and attach it!",
+        description: "Image downloaded and WhatsApp is opening with your message!",
+      });
+    } catch (error) {
+      console.error('Fallback share error:', error);
+      
+      toast({
+        title: "Error",
+        description: "Failed to share. Please try again!",
+        variant: "destructive",
       });
     }
   };
@@ -769,7 +771,7 @@ export default function Home() {
                 </Alert>
               )}
             </div>
-            <div className="relative flex items-center justify-center min-h-[400px] pl-[36px] pr-[36px] pt-[25px] pb-[25px]">
+            <div ref={gameScreenRef} className="relative flex items-center justify-center min-h-[400px] pl-[36px] pr-[36px] pt-[25px] pb-[25px]">
               {!showReward ? (
                 <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} disabled={customerData?.alreadyPlayedToday || createCustomerMutation.isPending} />
               ) : rewardAmount ? (
@@ -802,7 +804,6 @@ export default function Home() {
                     <div className="relative flex justify-center w-full">
                     {/* Reward Card */}
                         <div
-                          ref={prizeCardRef}
                           className="
                             relative
                             w-full max-w-sm
@@ -1146,8 +1147,8 @@ export default function Home() {
                     <div className="bg-[#0f3d2e] p-4 rounded-lg border border-[#1a5c3d] text-sm text-[#c9d3c2] whitespace-pre-wrap">
                       {(() => {
                         const totalWinnings = customerVerifiedData?.totalAmount || 0;
-                        const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
-                        return `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
+                        const totalMessage = rewardAmount && totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
+                        return `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount || 'cashback'} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
                       })()}
                     </div>
                   </div>
