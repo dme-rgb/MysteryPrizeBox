@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
@@ -16,9 +16,9 @@ import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import bgImage from '@assets/Gemini_Generated_Image_mnpedumnpedumnpe_1764676809813.png';
 import mysteryBoxImg from '@assets/Gemini_Generated_Image_2rmhxj2rmhxj2rmh-Photoroom_1764679645336.png';
+import referralImg from '@assets/image_1766142984380.png';
 // @ts-ignore - canvas-confetti doesn't have TypeScript types but works fine
 import confetti from 'canvas-confetti';
-import html2canvas from 'html2canvas';
 
 interface Customer {
   id: string;
@@ -50,8 +50,6 @@ export default function Home() {
   const [vpaMessage, setVpaMessage] = useState<string | null>(null);
   const [beneficiaryName, setBeneficiaryName] = useState<string | null>(null);
   const [alreadyPlayedError, setAlreadyPlayedError] = useState(false);
-  const [isCapturingScreenshot, setIsCapturingScreenshot] = useState(false);
-  const prizeCardRef = useRef<HTMLDivElement>(null);
 
   const WHATSAPP_NUMBER = "+918817828153";
   const LOCATION_LINK = "https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A";
@@ -486,67 +484,23 @@ export default function Home() {
     });
   };
 
-  const handleTellYourFriend = async () => {
-    if (!prizeCardRef.current || !rewardAmount) return;
+  const handleTellYourFriend = () => {
+    if (!rewardAmount) return;
     
-    try {
-      setIsCapturingScreenshot(true);
-      
-      // Capture the prize card as image
-      const canvas = await html2canvas(prizeCardRef.current, {
-        backgroundColor: null,
-        scale: 2,
-        logging: false,
-      });
-      
-      // Convert canvas to blob
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          toast({
-            title: "Error",
-            description: "Failed to capture screenshot",
-            variant: "destructive",
-          });
-          setIsCapturingScreenshot(false);
-          return;
-        }
-        
-        // Create the message with prize amount and total winnings
-        const totalWinnings = customerVerifiedData?.totalAmount || 0;
-        const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
-        const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
-        
-        // Create a download link for the screenshot
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `mystery-box-win-₹${rewardAmount}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        // Open WhatsApp with the message
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
-        
-        toast({
-          title: "Screenshot Downloaded!",
-          description: "Image has been downloaded. Now attach it in WhatsApp!",
-        });
-        
-        setIsCapturingScreenshot(false);
-      });
-    } catch (error) {
-      console.error('Screenshot capture error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to capture screenshot. Try again!",
-        variant: "destructive",
-      });
-      setIsCapturingScreenshot(false);
-    }
+    // Create the message with prize amount and total winnings
+    const totalWinnings = customerVerifiedData?.totalAmount || 0;
+    const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
+    const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
+    
+    // Open WhatsApp with the message
+    const encodedMessage = encodeURIComponent(message);
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
+    
+    toast({
+      title: "WhatsApp Opened!",
+      description: "Share this image with your friends to spread the word!",
+    });
   };
 
   // 45-second verification timeout
@@ -739,7 +693,6 @@ export default function Home() {
                     <div className="relative flex justify-center w-full">
                     {/* Reward Card */}
                         <div
-                          ref={prizeCardRef}
                           className="
                             relative
                             w-full max-w-sm
@@ -916,7 +869,6 @@ export default function Home() {
                                 </div>
                                 <Button
                                   onClick={handleTellYourFriend}
-                                  disabled={isCapturingScreenshot}
                                   className="w-full gap-2
                                   bg-gradient-to-b from-blue-400 to-blue-600
                                   hover:from-blue-500 hover:to-blue-700
@@ -926,7 +878,7 @@ export default function Home() {
                                   data-testid="button-tell-friend"
                                 >
                                   <Share2 className="w-4 h-4" />
-                                  {isCapturingScreenshot ? 'Preparing...' : 'Tell Your Friend'}
+                                  Tell Your Friend
                                 </Button>
                               </div>
                             </div>
