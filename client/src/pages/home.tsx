@@ -493,16 +493,14 @@ export default function Home() {
     const shareUrl = `/share?prize=${rewardAmount}${totalWinnings > rewardAmount ? `&total=${totalWinnings}` : ''}`;
     const fullShareUrl = `${window.location.origin}${shareUrl}`;
     
-    // Open WhatsApp with the shareable link
-    const message = `Check this out! 🎁`;
-    const encodedMessage = encodeURIComponent(message);
-    const encodedUrl = encodeURIComponent(fullShareUrl);
-    const whatsappUrl = `https://wa.me/?text=${encodedMessage}%0A%0A${encodedUrl}`;
+    // Open WhatsApp with the shareable link - format it so WhatsApp fetches OG preview with image
+    const message = encodeURIComponent(`🎁 Look what I won!\n\n${fullShareUrl}`);
+    const whatsappUrl = `https://wa.me/?text=${message}`;
     window.open(whatsappUrl, '_blank');
     
     toast({
       title: "WhatsApp Opened!",
-      description: "Share the link with your friends - it includes the image preview!",
+      description: "Send the link - WhatsApp will show the image preview with your prize!",
     });
   };
 

@@ -1,4 +1,6 @@
 import { type Server } from "node:http";
+import path from "path";
+import { fileURLToPath } from "url";
 
 import express, {
   type Express,
@@ -7,6 +9,8 @@ import express, {
   NextFunction,
 } from "express";
 import { registerRoutes } from "./routes";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
@@ -32,6 +36,9 @@ app.use(express.json({
   }
 }));
 app.use(express.urlencoded({ extended: false }));
+
+// Serve static files from public folder (for screenshots, images, etc.)
+app.use(express.static(path.join(__dirname, '../client/public')));
 
 app.use((req, res, next) => {
   const start = Date.now();
