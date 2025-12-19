@@ -694,7 +694,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const appUrl = req.get('host') || 'localhost:5000';
       const protocol = req.protocol || 'http';
-      const imageUrl = `${protocol}://${appUrl}/image_1766142984380.png`;
+      const imageUrl = `${protocol}://${appUrl}/Screenshot%202025-12-19%20164618.png`;
       
       const html = `
 <!DOCTYPE html>
