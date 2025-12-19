@@ -16,7 +16,6 @@ import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import bgImage from '@assets/Gemini_Generated_Image_mnpedumnpedumnpe_1764676809813.png';
 import mysteryBoxImg from '@assets/Gemini_Generated_Image_2rmhxj2rmhxj2rmh-Photoroom_1764679645336.png';
-import referralImg from '@assets/image_1766142984380.png';
 // @ts-ignore - canvas-confetti doesn't have TypeScript types but works fine
 import confetti from 'canvas-confetti';
 
@@ -487,19 +486,23 @@ export default function Home() {
   const handleTellYourFriend = () => {
     if (!rewardAmount) return;
     
-    // Create the message with prize amount and total winnings
+    // Get total winnings for the share URL
     const totalWinnings = customerVerifiedData?.totalAmount || 0;
-    const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
-    const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
     
-    // Open WhatsApp with the message
+    // Create shareable URL with OG meta tags
+    const shareUrl = `/share?prize=${rewardAmount}${totalWinnings > rewardAmount ? `&total=${totalWinnings}` : ''}`;
+    const fullShareUrl = `${window.location.origin}${shareUrl}`;
+    
+    // Open WhatsApp with the shareable link
+    const message = `Check this out! 🎁`;
     const encodedMessage = encodeURIComponent(message);
-    const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+    const encodedUrl = encodeURIComponent(fullShareUrl);
+    const whatsappUrl = `https://wa.me/?text=${encodedMessage}%0A%0A${encodedUrl}`;
     window.open(whatsappUrl, '_blank');
     
     toast({
       title: "WhatsApp Opened!",
-      description: "Share this image with your friends to spread the word!",
+      description: "Share the link with your friends - it includes the image preview!",
     });
   };
 

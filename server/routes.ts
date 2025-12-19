@@ -503,7 +503,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             beneficiaryName: customerEntry.name || `Customer-${phoneStr.slice(-4)}`,
             referenceId,
             note: `FUEL RUSH Cashback - Rs.${prizeAmount}`,
-            cachedVPA: cachedVPA || undefined
+            cachedVPA: (cachedVPA && cachedVPA.vpa) ? cachedVPA : undefined
           });
           console.log("Payout initiated successfully:", JSON.stringify(payoutResult, null, 2));
           
@@ -679,6 +679,130 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error: any) {
       console.error("Get payment status error:", error);
       res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Share endpoint with OG meta tags for WhatsApp rich preview
+  app.get("/share", (req, res) => {
+    try {
+      const prize = req.query.prize as string || "0";
+      const total = req.query.total as string;
+      const location = "https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A";
+      
+      const totalWinnings = total && parseInt(total) > parseInt(prize) ? `\n\nTotal winnings so far: ₹${total}` : '';
+      const description = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${prize} back instantly! 🎁\n\nTry your luck here & let me know!${totalWinnings}\n\nGet directions: ${location}`;
+      
+      const appUrl = req.get('host') || 'localhost:5000';
+      const protocol = req.protocol || 'http';
+      const imageUrl = `${protocol}://${appUrl}/image_1766142984380.png`;
+      
+      const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎁 I Won ₹${prize} Cashback - JioBP Siltara Mystery Box!</title>
+  
+  <!-- Open Graph Meta Tags for WhatsApp Rich Preview -->
+  <meta property="og:title" content="🎁 I Won ₹${prize} Cashback - JioBP Siltara Mystery Box!" />
+  <meta property="og:description" content="${description.replace(/"/g, '&quot;').substring(0, 200)}" />
+  <meta property="og:image" content="${imageUrl}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="628" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="${protocol}://${appUrl}/share?prize=${prize}" />
+  
+  <!-- Twitter Card Tags -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="🎁 I Won ₹${prize} Cashback - JioBP Siltara Mystery Box!" />
+  <meta name="twitter:description" content="${description.replace(/"/g, '&quot;').substring(0, 200)}" />
+  <meta name="twitter:image" content="${imageUrl}" />
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    
+    .container {
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 40px 20px;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    h1 {
+      font-size: 28px;
+      margin: 0 0 20px 0;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .prize-box {
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #1a1a2e;
+      padding: 30px;
+      border-radius: 12px;
+      margin: 20px 0;
+      font-size: 48px;
+      font-weight: bold;
+    }
+    
+    .message {
+      font-size: 16px;
+      line-height: 1.6;
+      margin: 20px 0;
+      color: #e0e0e0;
+    }
+    
+    .button {
+      display: inline-block;
+      background: linear-gradient(135deg, #FFD700, #FFA500);
+      color: #1a1a2e;
+      padding: 12px 30px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 20px;
+      cursor: pointer;
+      border: none;
+      font-size: 16px;
+    }
+    
+    .button:hover {
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Mystery Box Win! 🎉</h1>
+    <div class="prize-box">₹${prize}</div>
+    <p class="message">${description}</p>
+    <button class="button" onclick="window.location.href='/'">Play Now</button>
+  </div>
+</body>
+</html>
+      `;
+      
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
+      res.send(html);
+    } catch (error: any) {
+      console.error("Share page error:", error);
+      res.status(500).send('<h1>Error</h1><p>Failed to generate share page</p>');
     }
   });
 
