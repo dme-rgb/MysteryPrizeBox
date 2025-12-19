@@ -494,14 +494,16 @@ export default function Home() {
     try {
       setIsCapturingScreenshot(true);
       
-      // Capture the entire game screen display
+      // Capture the entire game screen display with proper centering
       const canvas = await html2canvas(gameScreenRef.current, {
-        backgroundColor: '#1a1a1a',
-        scale: 2,
+        backgroundColor: '#000000',
+        scale: 1.5,
         logging: false,
         useCORS: true,
         allowTaint: true,
         imageTimeout: 0,
+        windowWidth: gameScreenRef.current.scrollWidth,
+        windowHeight: gameScreenRef.current.scrollHeight,
       });
       
       // Convert canvas to data URL
@@ -576,32 +578,31 @@ export default function Home() {
 
   const fallbackShare = async (blob: Blob, message: string) => {
     try {
-      // For mobile: try to share using WhatsApp URL with message
-      // The image will need to be attached manually
+      // Open WhatsApp with the message (this will be on the chat screen)
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
       
-      // Download the image
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `mystery-box-win-${rewardAmount || 'prize'}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      // Open WhatsApp with message first
+      window.open(whatsappUrl, '_blank');
       
-      // Open WhatsApp with message
+      // Then download the image so user can attach it
       setTimeout(() => {
-        window.open(whatsappUrl, '_blank');
-      }, 1000);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `mystery-box-win-${rewardAmount || 'prize'}.png`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 500);
       
       setShowShareModal(false);
       setScreenshotDataUrl(null);
       
       toast({
-        title: "Screenshot Downloaded!",
-        description: "Image downloaded and WhatsApp is opening with your message!",
+        title: "WhatsApp Opened!",
+        description: "Your message is ready to send. The screenshot will be downloaded - you can attach it to the message.",
       });
     } catch (error) {
       console.error('Fallback share error:', error);
