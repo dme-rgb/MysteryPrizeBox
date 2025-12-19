@@ -494,11 +494,14 @@ export default function Home() {
     try {
       setIsCapturingScreenshot(true);
       
-      // Capture the prize card as image
+      // Capture the prize card as image with proper background
       const canvas = await html2canvas(prizeCardRef.current, {
-        backgroundColor: null,
+        backgroundColor: '#ffffff',
         scale: 2,
         logging: false,
+        useCORS: true,
+        allowTaint: true,
+        imageTimeout: 0,
       });
       
       // Convert canvas to data URL
@@ -526,19 +529,55 @@ export default function Home() {
       const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
       const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
       
-      // Convert data URL to blob and download
+      // Convert data URL to blob
       const response = await fetch(screenshotDataUrl);
       const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `mystery-box-win-₹${rewardAmount}.png`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
       
-      // Open WhatsApp with the message
+      // Check if Web Share API is available (mobile devices)
+      if (navigator.share) {
+        try {
+          const file = new File([blob], `mystery-box-win-₹${rewardAmount}.png`, { type: 'image/png' });
+          await navigator.share({
+            title: 'My Mystery Box Win!',
+            text: message,
+            files: [file],
+          });
+          
+          setShowShareModal(false);
+          setScreenshotDataUrl(null);
+          
+          toast({
+            title: "Shared!",
+            description: "Your winning moment is being shared!",
+          });
+        } catch (shareError: any) {
+          if (shareError.name !== 'AbortError') {
+            console.error('Share API error:', shareError);
+            // Fallback to download method
+            await fallbackShare(blob, message);
+          }
+        }
+      } else {
+        // Fallback for desktop: download and copy to clipboard
+        await fallbackShare(blob, message);
+      }
+    } catch (error) {
+      console.error('Share error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to prepare share. Try again!",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fallbackShare = async (blob: Blob, message: string) => {
+    try {
+      // Copy screenshot to clipboard
+      const item = new ClipboardItem({ 'image/png': blob });
+      await navigator.clipboard.write([item]);
+      
+      // Open WhatsApp with message
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
       window.open(whatsappUrl, '_blank');
@@ -547,15 +586,28 @@ export default function Home() {
       setScreenshotDataUrl(null);
       
       toast({
-        title: "Screenshot Downloaded!",
-        description: "Image has been downloaded and WhatsApp is opening. Attach the downloaded image in your chat!",
+        title: "Screenshot Copied!",
+        description: "Screenshot is in clipboard. Paste it in WhatsApp!",
       });
-    } catch (error) {
-      console.error('Share error:', error);
+    } catch (clipboardError) {
+      console.error('Clipboard error:', clipboardError);
+      
+      // Final fallback: just download
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `mystery-box-win-${rewardAmount || 'prize'}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      setShowShareModal(false);
+      setScreenshotDataUrl(null);
+      
       toast({
-        title: "Error",
-        description: "Failed to prepare share. Try again!",
-        variant: "destructive",
+        title: "Screenshot Downloaded!",
+        description: "Image downloaded. Open WhatsApp and attach it!",
       });
     }
   };
@@ -1112,7 +1164,7 @@ export default function Home() {
                     </Button>
                     <Button
                       onClick={handleShareOnWhatsApp}
-                      disabled={false}
+                      disabled={!rewardAmount}
                       className="flex-1 gap-2
                       bg-gradient-to-b from-green-400 to-green-600
                       hover:from-green-500 hover:to-green-700
