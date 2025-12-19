@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Link } from 'wouter';
 import { Button } from '@/components/ui/button';
@@ -11,13 +11,14 @@ import Sparkles from '@/components/Sparkles';
 import ParticleEffect from '@/components/ParticleEffect';
 import CustomerForm from '@/components/CustomerForm';
 import StatsHeader from '@/components/StatsHeader';
-import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle, Clock, MessageCircle, Upload, LogIn } from 'lucide-react';
+import { RotateCcw, IndianRupee, CheckCircle, AlertCircle, AlertTriangle, Clock, MessageCircle, Upload, LogIn, Share2 } from 'lucide-react';
 import { queryClient } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
 import bgImage from '@assets/Gemini_Generated_Image_mnpedumnpedumnpe_1764676809813.png';
 import mysteryBoxImg from '@assets/Gemini_Generated_Image_2rmhxj2rmhxj2rmh-Photoroom_1764679645336.png';
 // @ts-ignore - canvas-confetti doesn't have TypeScript types but works fine
 import confetti from 'canvas-confetti';
+import html2canvas from 'html2canvas';
 
 interface Customer {
   id: string;
@@ -49,8 +50,11 @@ export default function Home() {
   const [vpaMessage, setVpaMessage] = useState<string | null>(null);
   const [beneficiaryName, setBeneficiaryName] = useState<string | null>(null);
   const [alreadyPlayedError, setAlreadyPlayedError] = useState(false);
+  const [isCapturingScreenshot, setIsCapturingScreenshot] = useState(false);
+  const prizeCardRef = useRef<HTMLDivElement>(null);
 
   const WHATSAPP_NUMBER = "+918817828153";
+  const LOCATION_LINK = "https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A";
   
   // Audio references
   const bgMusicRef = React.useRef<HTMLAudioElement | null>(null);
@@ -482,6 +486,75 @@ export default function Home() {
     });
   };
 
+  const handleTellYourFriend = async () => {
+    if (!prizeCardRef.current || !rewardAmount) return;
+    
+    try {
+      setIsCapturingScreenshot(true);
+      
+      // Capture the prize card as image
+      const canvas = await html2canvas(prizeCardRef.current, {
+        backgroundColor: null,
+        scale: 2,
+        logging: false,
+      });
+      
+      // Convert canvas to blob
+      canvas.toBlob(async (blob) => {
+        if (!blob) {
+          toast({
+            title: "Error",
+            description: "Failed to capture screenshot",
+            variant: "destructive",
+          });
+          setIsCapturingScreenshot(false);
+          return;
+        }
+        
+        // Create the message with prize amount
+        const message = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!\n\nGet directions: ${LOCATION_LINK}`;
+        
+        // Try to open WhatsApp (the native share functionality)
+        // Note: WhatsApp URL scheme has limitations for image attachment
+        // We'll open WhatsApp with the message text
+        const encodedMessage = encodeURIComponent(message);
+        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+        
+        // Copy screenshot to clipboard for easier sharing
+        try {
+          const item = new ClipboardItem({ 'image/png': blob });
+          await navigator.clipboard.write([item]);
+          
+          // Open WhatsApp
+          window.open(whatsappUrl, '_blank');
+          
+          toast({
+            title: "Screenshot Ready!",
+            description: "WhatsApp opened! Screenshot is copied to clipboard. Paste it in your chat!",
+          });
+        } catch (clipboardError) {
+          // If clipboard fails, just open WhatsApp
+          window.open(whatsappUrl, '_blank');
+          
+          toast({
+            title: "WhatsApp Opened",
+            description: "Share your winning moment with friends!",
+          });
+        }
+        
+        setIsCapturingScreenshot(false);
+      });
+    } catch (error) {
+      console.error('Screenshot capture error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to capture screenshot. Try again!",
+        variant: "destructive",
+      });
+      setIsCapturingScreenshot(false);
+    }
+  };
+
   // 45-second verification timeout
   useEffect(() => {
     if (!showReward || isVerified || timeExpired) {
@@ -672,6 +745,7 @@ export default function Home() {
                     <div className="relative flex justify-center w-full">
                     {/* Reward Card */}
                         <div
+                          ref={prizeCardRef}
                           className="
                             relative
                             w-full max-w-sm
@@ -778,7 +852,7 @@ export default function Home() {
                                   </Badge>
                               
                               {/* Payment Status */}
-                              <div className="mt-4 p-4 rounded-lg bg-[#0b3c2a] border border-[#1a5c3d]">
+                              <div className="mt-4 p-4 rounded-lg bg-[#8A987B] border border-[#1a5c3d]">
                                 {payoutStatus === 'success' ? (
                                   <div className="space-y-2">
                                     <p className="text-sm font-semibold text-[#7eff5e] flex items-center justify-center gap-2">
@@ -794,12 +868,12 @@ export default function Home() {
                                       Check your UPI app for the cashback transfer
                                     </p>
                                     {vpaMessage && (
-                                      <p className="text-xs text-[#a8d5a8] text-center mt-2 font-medium">
+                                      <p className="text-xs text-[#7eff5e] text-center mt-2 font-medium">
                                         {vpaMessage}
                                       </p>
                                     )}
                                     {beneficiaryName && (
-                                      <p className="text-xs text-[#8d9b8a] text-center">
+                                      <p className="text-xs text-[#030304] text-center">
                                         Beneficiary: {beneficiaryName}
                                       </p>
                                     )}
@@ -818,11 +892,11 @@ export default function Home() {
                                   <div className="space-y-2">
                                     {vpaMessage ? (
                                       <>
-                                        <p className="text-sm text-center font-medium text-[#ff6b6b]">
+                                        <p className="text-sm text-center font-medium text-[#7eff5e]">
                                           {vpaMessage}
                                         </p>
                                         {beneficiaryName && (
-                                          <p className="text-xs text-[#c9d3c2] text-center">
+                                          <p className="text-xs text-[#030304] text-center">
                                             Beneficiary: {beneficiaryName}
                                           </p>
                                         )}
@@ -834,6 +908,32 @@ export default function Home() {
                                     )}
                                   </div>
                                 )}
+                              </div>
+
+                              {/* Referral Section */}
+                              <div className="mt-6 p-4 rounded-lg bg-[#0f3d2e] border border-[#1a5c3d] space-y-3">
+                                <div className="space-y-2">
+                                  <p className="text-sm font-semibold text-[#7eff5e] text-center animate-pulse">
+                                    Increase the chance of win
+                                  </p>
+                                  <p className="text-xs text-[#a8d5a8] text-center">
+                                    Share your winning moment with friends!
+                                  </p>
+                                </div>
+                                <Button
+                                  onClick={handleTellYourFriend}
+                                  disabled={isCapturingScreenshot}
+                                  className="w-full gap-2
+                                  bg-gradient-to-b from-blue-400 to-blue-600
+                                  hover:from-blue-500 hover:to-blue-700
+                                  text-white font-semibold
+                                  shadow-[0_0_18px_rgba(59,130,246,0.3)]
+                                  border border-blue-300"
+                                  data-testid="button-tell-friend"
+                                >
+                                  <Share2 className="w-4 h-4" />
+                                  {isCapturingScreenshot ? 'Preparing...' : 'Tell Your Friend'}
+                                </Button>
                               </div>
                             </div>
                           ) : timeExpired ? (
