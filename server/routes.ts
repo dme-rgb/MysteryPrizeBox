@@ -807,7 +807,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     <h1>Mystery Box Win! 🎉</h1>
     <div class="prize-box">₹${prize}</div>
     <p class="message">${descriptionText}</p>
-    <button class="button" onclick="window.location.href='/'">Play Now</button>
+    <button class="button" onclick="window.location.href='https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A'">Get Directions</button>
   </div>
 </body>
 </html>
