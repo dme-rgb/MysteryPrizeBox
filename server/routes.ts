@@ -349,12 +349,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         unverifiedDoubleRewardRequests.map(req => req.vehicleNumber)
       );
       
-      // Get all double reward requests (to check which trucks have been verified through 2x)
+      // Get all double reward requests (to check which trucks have been verified through 2x or have pending 2x)
       const allDoubleRewardRequests = await storage.getDoubleRewardRequests();
       const truckVehiclesWithVerified2x = new Set(
         allDoubleRewardRequests
           .filter(req => req.verified === true)
           .map(req => req.vehicleNumber)
+      );
+      const truckVehiclesWithAny2x = new Set(
+        allDoubleRewardRequests.map(req => req.vehicleNumber)
       );
       
       // Filter for unverified customers with valid prizes, excluding vehicles that are already verified or have unverified 2x requests
@@ -369,9 +372,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
                                  !verifiedVehicles.has(customer.vehicleNumber) &&
                                  !vehiclesWithUnverified2x.has(customer.vehicleNumber);
           
-          // For truck customers: only show if they have a verified 2x request
+          // For truck customers: show if they have verified 2x request OR they don't have any 2x request (proceeding normally)
           if (customer.vehicleType === 'truck') {
-            return basicExclusions && truckVehiclesWithVerified2x.has(customer.vehicleNumber);
+            return basicExclusions && (truckVehiclesWithVerified2x.has(customer.vehicleNumber) || !truckVehiclesWithAny2x.has(customer.vehicleNumber));
           }
           
           // For non-truck customers: show normally
