@@ -164,17 +164,18 @@ function doPost(e) {
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();
       
-      // Find the row with this vehicle number (most recent, today's entry)
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+      // Extract just the date part (YYYY-MM-DD) from the timestamp to avoid timezone issues
+      const rewardDatePart = doubleRewardDate.split('T')[0]; // "2025-12-20"
       
+      // Find the row with this vehicle number (most recent, today's entry)
       for (let i = values.length - 1; i >= 1; i--) {
         if (values[i][3] === vehicleNumber) {
-          const entryDate = new Date(values[i][4]);
-          entryDate.setHours(0, 0, 0, 0);
+          // Get the date part from the entry timestamp
+          const entryTimestamp = String(values[i][4]);
+          const entryDatePart = entryTimestamp.split('T')[0]; // "2025-12-20"
           
           // Only update today's entry
-          if (entryDate.getTime() === today.getTime()) {
+          if (entryDatePart === rewardDatePart) {
             sheet.getRange(i + 1, 11).setValue(doubleRewardDate); // Column K (double reward date)
             break;
           }

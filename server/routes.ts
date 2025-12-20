@@ -925,13 +925,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.json({ hasRecentRequest: false, daysUntilAvailable: 0 });
       }
       
-      const now = new Date();
-      now.setHours(0, 0, 0, 0); // Start of today
+      // Extract just the date part (YYYY-MM-DD) to avoid time/timezone issues
+      const today = new Date().toISOString().split('T')[0]; // "2025-12-20"
+      const rewardDateStr = recentWithDoubleReward.doubleRewardDate!.split('T')[0]; // "2025-12-20"
       
-      const doubleRewardDate = new Date(recentWithDoubleReward.doubleRewardDate!);
-      doubleRewardDate.setHours(0, 0, 0, 0); // Start of that day
+      const today_date = new Date(today);
+      const reward_date = new Date(rewardDateStr);
       
-      const daysSince = (now.getTime() - doubleRewardDate.getTime()) / (1000 * 60 * 60 * 24);
+      const daysSince = (today_date.getTime() - reward_date.getTime()) / (1000 * 60 * 60 * 24);
       
       if (daysSince < 7) {
         const daysUntilAvailable = Math.ceil(7 - daysSince);
