@@ -682,6 +682,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Helper function to escape HTML special characters
+  function escapeHtml(text: string): string {
+    return text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
   // Share endpoint with OG meta tags for WhatsApp rich preview
   app.get("/share", (req, res) => {
     try {
@@ -689,12 +699,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const total = req.query.total as string;
       const location = "https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A";
       
-      const totalWinnings = total && parseInt(total) > parseInt(prize) ? `\n\nTotal winnings so far: ₹${total}` : '';
-      const description = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${prize} back instantly! 🎁\n\nTry your luck here & let me know!${totalWinnings}\n\nGet directions: ${location}`;
+      const totalWinnings = total && parseInt(total) > parseInt(prize) ? ` Total winnings so far: ₹${total}` : '';
+      const descriptionText = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${prize} back instantly! 🎁 Try your luck here & let me know!${totalWinnings} Get directions: ${location}`;
+      const shortDescription = descriptionText.substring(0, 160);
       
       const appUrl = req.get('host') || 'localhost:5000';
       const protocol = req.protocol || 'http';
+      // Use proper URL encoding for the screenshot filename with spaces
       const imageUrl = `${protocol}://${appUrl}/Screenshot%202025-12-19%20164618.png`;
+      
+      const escapedTitle = escapeHtml(`🎁 I Won ₹${prize} Cashback - JioBP Siltara Mystery Box!`);
+      const escapedDesc = escapeHtml(shortDescription);
       
       const html = `
 <!DOCTYPE html>
@@ -702,11 +717,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🎁 I Won ₹${prize} Cashback - JioBP Siltara Mystery Box!</title>
+  <title>${escapedTitle}</title>
   
   <!-- Open Graph Meta Tags for WhatsApp Rich Preview -->
-  <meta property="og:title" content="🎁 I Won ₹${prize} Cashback - JioBP Siltara Mystery Box!" />
-  <meta property="og:description" content="${description.replace(/"/g, '&quot;').substring(0, 200)}" />
+  <meta property="og:title" content="${escapedTitle}" />
+  <meta property="og:description" content="${escapedDesc}" />
   <meta property="og:image" content="${imageUrl}" />
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="628" />
@@ -715,8 +730,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   <!-- Twitter Card Tags -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="🎁 I Won ₹${prize} Cashback - JioBP Siltara Mystery Box!" />
-  <meta name="twitter:description" content="${description.replace(/"/g, '&quot;').substring(0, 200)}" />
+  <meta name="twitter:title" content="${escapedTitle}" />
+  <meta name="twitter:description" content="${escapedDesc}" />
   <meta name="twitter:image" content="${imageUrl}" />
   
   <style>
