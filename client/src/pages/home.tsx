@@ -148,6 +148,10 @@ export default function Home() {
       setIsVerified(true);
       setTimeExpired(false);
       setShowWhatsAppFlow(false);
+      // Update reward amount if it was changed (e.g., doubled by employee)
+      if (verificationStatus.prize !== null && verificationStatus.prize !== rewardAmount) {
+        setRewardAmount(verificationStatus.prize);
+      }
       // Mark payment as being processed
       setPayoutStatus('pending');
       toast({
