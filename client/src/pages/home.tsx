@@ -50,6 +50,7 @@ export default function Home() {
   const [vpaMessage, setVpaMessage] = useState<string | null>(null);
   const [beneficiaryName, setBeneficiaryName] = useState<string | null>(null);
   const [alreadyPlayedError, setAlreadyPlayedError] = useState(false);
+  const [tellYourFriendExpired, setTellYourFriendExpired] = useState(false);
 
   const WHATSAPP_NUMBER = "+918817828153";
   const LOCATION_LINK = "https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A";
@@ -207,6 +208,16 @@ export default function Home() {
       return () => clearTimeout(timeout);
     }
   }, [showReward]);
+
+  // Start 15-second timer for "Tell Your Friend" button when reward is shown
+  useEffect(() => {
+    if (showReward && !tellYourFriendExpired) {
+      const timer = setTimeout(() => {
+        setTellYourFriendExpired(true);
+      }, 15000); // 15 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [showReward, tellYourFriendExpired]);
 
   // Trigger confetti when prize card appears
   useEffect(() => {
@@ -458,6 +469,7 @@ export default function Home() {
     setShowWhatsAppFlow(false);
     setPayoutStatus(null);
     setPayoutTransactionId(null);
+    setTellYourFriendExpired(false);
   };
 
   const handleWhatsAppUpload = () => {
@@ -863,8 +875,8 @@ export default function Home() {
                                 )}
                               </div>
 
-                              {/* Referral Section - Show only for Bike and Car, not Truck */}
-                              {customerData?.vehicleType !== 'truck' && (
+                              {/* Referral Section - Show only for Bike and Car, not Truck, and within 15 seconds */}
+                              {customerData?.vehicleType !== 'truck' && !tellYourFriendExpired && (
                               <div className="mt-6 p-4 rounded-lg bg-[#0f3d2e] border border-[#1a5c3d] space-y-3">
                                 <div className="space-y-2">
                                   <p className="text-sm font-semibold text-[#7eff5e] text-center animate-pulse">
