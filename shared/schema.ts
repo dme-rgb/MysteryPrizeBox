@@ -66,6 +66,31 @@ export const insertCustomerSchema = createInsertSchema(customers).pick({
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
 export type Customer = typeof customers.$inferSelect;
 
+// Double Reward Requests table for truck drivers
+export const doubleRewardRequests = pgTable("double_reward_requests", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  customerId: varchar("customer_id").notNull(),
+  customerName: text("customer_name").notNull(),
+  phoneNumber: text("phone_number").notNull(),
+  vehicleNumber: text("vehicle_number").notNull(),
+  originalReward: integer("original_reward").notNull(),
+  verified: boolean("verified").default(false),
+  verifiedAt: timestamp("verified_at"),
+  verifiedBy: text("verified_by"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertDoubleRewardRequestSchema = createInsertSchema(doubleRewardRequests).pick({
+  customerId: true,
+  customerName: true,
+  phoneNumber: true,
+  vehicleNumber: true,
+  originalReward: true,
+});
+
+export type InsertDoubleRewardRequest = z.infer<typeof insertDoubleRewardRequestSchema>;
+export type DoubleRewardRequest = typeof doubleRewardRequests.$inferSelect;
+
 // Vehicle number normalization function
 export function normalizeVehicleNumber(vehicleNumber: string): string {
   // Remove all spaces and convert to uppercase

@@ -1,4 +1,4 @@
-import { type User, type InsertUser, type Customer, type InsertCustomer, type Employee, type InsertEmployee } from "@shared/schema";
+import { type User, type InsertUser, type Customer, type InsertCustomer, type Employee, type InsertEmployee, type DoubleRewardRequest, type InsertDoubleRewardRequest } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -21,6 +21,12 @@ export interface IStorage {
   
   setPaymentStatus(customerId: string, status: 'success' | 'failed', transactionId?: string): Promise<void>;
   getPaymentStatus(customerId: string): Promise<{ status: 'success' | 'failed' | null; transactionId: string | null }>;
+  
+  // Double Reward operations for truck drivers
+  createDoubleRewardRequest(request: InsertDoubleRewardRequest): Promise<DoubleRewardRequest>;
+  getDoubleRewardRequests(): Promise<DoubleRewardRequest[]>;
+  getUnverifiedDoubleRewardRequests(): Promise<DoubleRewardRequest[]>;
+  verifyDoubleRewardRequest(id: string, verifiedBy: string): Promise<DoubleRewardRequest>;
 }
 
 export class MemStorage implements IStorage {
@@ -28,12 +34,14 @@ export class MemStorage implements IStorage {
   private customers: Map<string, Customer>;
   private employees: Map<string, Employee>;
   private paymentStatus: Map<string, { status: 'success' | 'failed'; transactionId: string | null }>;
+  private doubleRewardRequests: Map<string, DoubleRewardRequest>;
 
   constructor() {
     this.users = new Map();
     this.customers = new Map();
     this.employees = new Map();
     this.paymentStatus = new Map();
+    this.doubleRewardRequests = new Map();
     
     this.initDefaultEmployee();
   }
@@ -210,6 +218,46 @@ export class MemStorage implements IStorage {
   async getPaymentStatus(customerId: string): Promise<{ status: 'success' | 'failed' | null; transactionId: string | null }> {
     const payment = this.paymentStatus.get(customerId);
     return payment || { status: null, transactionId: null };
+  }
+  
+  // Double Reward operations for truck drivers
+  async createDoubleRewardRequest(request: InsertDoubleRewardRequest): Promise<DoubleRewardRequest> {
+    const id = randomUUID();
+    const doubleRewardRequest: DoubleRewardRequest = {
+      ...request,
+      id,
+      verified: false,
+      verifiedAt: null,
+      verifiedBy: null,
+      createdAt: new Date(),
+    };
+    this.doubleRewardRequests.set(id, doubleRewardRequest);
+    return doubleRewardRequest;
+  }
+  
+  async getDoubleRewardRequests(): Promise<DoubleRewardRequest[]> {
+    return Array.from(this.doubleRewardRequests.values());
+  }
+  
+  async getUnverifiedDoubleRewardRequests(): Promise<DoubleRewardRequest[]> {
+    return Array.from(this.doubleRewardRequests.values()).filter(
+      (request) => request.verified === false
+    );
+  }
+  
+  async verifyDoubleRewardRequest(id: string, verifiedBy: string): Promise<DoubleRewardRequest> {
+    const request = this.doubleRewardRequests.get(id);
+    if (!request) {
+      throw new Error("Double reward request not found");
+    }
+    const updated: DoubleRewardRequest = {
+      ...request,
+      verified: true,
+      verifiedAt: new Date(),
+      verifiedBy,
+    };
+    this.doubleRewardRequests.set(id, updated);
+    return updated;
   }
 }
 
