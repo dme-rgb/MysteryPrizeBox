@@ -805,6 +805,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 <body>
   <div class="container">
     <h1>Mystery Box Win! 🎉</h1>
+    <img src="/Screenshot%202025-12-19%20164618.png" alt="Mystery Box Win" style="width: 100%; max-width: 400px; border-radius: 8px; margin: 20px 0;">
     <div class="prize-box">₹${prize}</div>
     <p class="message">${descriptionText}</p>
     <button class="button" onclick="window.location.href='https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A'">Get Directions</button>
