@@ -144,18 +144,13 @@ export default function Home() {
     staleTime: 0,
   });
 
-  // Update truck 2x cooldown state and auto-proceed if on cooldown
+  // Update truck 2x cooldown state
   useEffect(() => {
     if (doubleRewardCooldownData) {
       setTruckHas2xCooldown(doubleRewardCooldownData.hasRecentRequest);
       setDaysUntilNextDouble(doubleRewardCooldownData.daysUntilAvailable);
-      
-      // Auto-proceed to pending list if on cooldown and not already pending
-      if (doubleRewardCooldownData.hasRecentRequest && !truckProceedVerification && !truckDoubleRewardRequested) {
-        handleTruckProceedVerification();
-      }
     }
-  }, [doubleRewardCooldownData, truckProceedVerification, truckDoubleRewardRequested]);
+  }, [doubleRewardCooldownData]);
 
   // Poll for verification status every 2 seconds while waiting (continue polling even after timeout for a short grace period)
   const { data: verificationStatus } = useQuery<{ verified: boolean; vehicleNumber: string; prize: number | null }>({
