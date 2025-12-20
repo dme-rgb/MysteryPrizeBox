@@ -56,8 +56,6 @@ export default function Home() {
   // Truck-specific states
   const [truckProceedVerification, setTruckProceedVerification] = useState(false);
   const [truckDoubleRewardRequested, setTruckDoubleRewardRequested] = useState(false);
-  const [truckVerificationTimeLeft, setTruckVerificationTimeLeft] = useState<number | null>(null);
-  const [truckTimeExpired, setTruckTimeExpired] = useState(false);
 
   const WHATSAPP_NUMBER = "+918817828153";
   const LOCATION_LINK = "https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A";
@@ -491,8 +489,6 @@ export default function Home() {
     // Reset truck-specific states
     setTruckProceedVerification(false);
     setTruckDoubleRewardRequested(false);
-    setTruckVerificationTimeLeft(null);
-    setTruckTimeExpired(false);
   };
 
   const handleWhatsAppUpload = () => {
@@ -547,19 +543,6 @@ export default function Home() {
   // Truck: Handle "Proceed for Verification" button
   const handleTruckProceedVerification = () => {
     setTruckProceedVerification(true);
-    setTruckVerificationTimeLeft(45);
-    
-    // Start 45-second countdown
-    const interval = setInterval(() => {
-      setTruckVerificationTimeLeft((prev) => {
-        if (prev === null || prev <= 1) {
-          setTruckTimeExpired(true);
-          clearInterval(interval);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
   };
 
   // Truck: Handle "Double Your Reward" button
@@ -1128,8 +1111,8 @@ ${LOCATION_LINK}`;
                                 </p>
                               </div>
                             </div>
-                          ) : customerData?.vehicleType === 'truck' && truckProceedVerification && !truckTimeExpired ? (
-                            /* Truck: Waiting for verification with 45s timer */
+                          ) : customerData?.vehicleType === 'truck' && truckProceedVerification ? (
+                            /* Truck: Regular verification without timer */
                             <>
                               <Badge className="bg-[rgba(255,215,120,0.15)]
                                 text-[#f6d878]
@@ -1139,58 +1122,12 @@ ${LOCATION_LINK}`;
                                 <Clock className="w-4 h-4 mr-2 animate-pulse text-[#f6d878]" />
                                 Waiting for Verification
                               </Badge>
-                              {truckVerificationTimeLeft !== null && (
-                                <div className="text-center">
-                                  <p className="text-sm font-medium text-[#b9c5b6] mb-1">Time Remaining:</p>
-                                  <p className="text-3xl font-bold text-primary" data-testid="text-truck-verification-timer">
-                                    {truckVerificationTimeLeft}s
-                                  </p>
-                                  <p className="text-xs text-[#8d9b8a] mt-2">
-                                    Please wait while an employee verifies your reward.
-                                  </p>
-                                </div>
-                              )}
-                            </>
-                          ) : customerData?.vehicleType === 'truck' && truckTimeExpired ? (
-                            /* Truck: 45s timer expired */
-                            <div className="space-y-3">
-                              <Badge
-                                className="
-                                  bg-[rgba(255,165,90,0.15)]
-                                  text-[#ffae73]
-                                  border-[#ffae73]
-                                  px-4 py-2 text-base tracking-wide
-                                  shadow-[0_0_12px_rgba(255,165,90,0.3)]
-                                "
-                              >
-                                <Clock className="w-4 h-4 mr-2 text-[#ffae73]" />
-                                Verification Time Expired
-                              </Badge>
-                              <div className="space-y-3 p-4 bg-[#0b221a] rounded-lg border border-[#1a3c2d] shadow-lg">
-                                <p className="text-sm text-center text-[#d5e2cd]">
-                                  Send your bill photo to WhatsApp number:
-                                </p>
-                                <p className="text-lg font-bold text-[#f6d878] text-center">
-                                  {WHATSAPP_NUMBER}
-                                </p>
-                                <Button
-                                  onClick={handleWhatsAppUpload}
-                                  className="w-full gap-2
-                                  bg-[#0f3d2e]
-                                  hover:bg-[#12523c]
-                                  text-[#f6d878]
-                                  shadow-[0_0_18px_rgba(255,215,120,0.2)]
-                                  border border-[#f6d87840]"
-                                  data-testid="button-truck-open-whatsapp"
-                                >
-                                  <MessageCircle className="w-4 h-4" />
-                                  Open WhatsApp & Send
-                                </Button>
-                                <p className="text-xs text-center text-[#8d9b8a]">
-                                  After sending, you will receive your reward in the evening.
+                              <div className="text-center p-3 bg-[#0b221a] rounded-lg border border-[#1a3c2d]">
+                                <p className="text-sm text-[#d5e2cd]">
+                                  Please wait while an employee verifies your reward.
                                 </p>
                               </div>
-                            </div>
+                            </>
                           ) : (
                             /* Non-truck: Regular verification flow */
                             <>

@@ -861,7 +861,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Verify a double reward request (adds to pending list with doubled reward)
+  // Verify a double reward request (updates existing customer with doubled reward)
   app.post("/api/double-reward/verify/:id", async (req, res) => {
     try {
       const { id } = req.params;
@@ -871,22 +871,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Verifier name is required" });
       }
       
-      // Get the request
+      // Get the double reward request
       const request = await storage.verifyDoubleRewardRequest(id, verifierName);
       
       // Calculate doubled reward
       const doubledReward = request.originalReward * 2;
       
-      // Add to Google Sheets with doubled reward
-      await googleSheetsService.addCustomer({
-        name: request.customerName,
-        number: request.phoneNumber,
-        prize: doubledReward,
-        vehicleNumber: request.vehicleNumber,
-        vehicleType: 'truck',
-        timestamp: new Date().toISOString(),
-        verified: false,
-      });
+      // Update the customer's reward amount with doubled value
+      const customer = await storage.getCustomer(request.customerId);
+      if (!customer) {
+        throw new Error("Customer not found");
+      }
+      
+      // Update customer with doubled reward amount
+      await storage.updateCustomerReward(request.customerId, doubledReward);
       
       res.json({ 
         success: true, 
