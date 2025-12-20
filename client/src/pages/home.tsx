@@ -1118,8 +1118,8 @@ ${LOCATION_LINK}`;
                                 </div>
                               )}
                             </div>
-                          ) : customerData?.vehicleType === 'truck' && !truckProceedVerification && !truckDoubleRewardRequested ? (
-                            /* Truck: Show two buttons before verification */
+                          ) : customerData?.vehicleType === 'truck' && !truckProceedVerification && !truckDoubleRewardRequested && !truckHas2xCooldown ? (
+                            /* Truck: Show two buttons before verification (only if not on cooldown) */
                             <div className="space-y-4">
                               <p className="text-sm text-center text-[#d5e2cd] mb-2">
                                 Choose an option in 45 sec:
@@ -1127,31 +1127,20 @@ ${LOCATION_LINK}`;
                               <p className="text-sm text-center text-[#d5e2cd] mb-2">
                                 for 2x reward plz contact to the DEO 
                               </p>
-                              {truckHas2xCooldown ? (
-                                <div className="p-4 rounded-lg bg-[rgba(255,165,0,0.1)] border border-[#ffa500] space-y-2">
-                                  <p className="text-sm text-center text-[#ffa500] font-semibold">
-                                    2x Reward Unavailable
-                                  </p>
-                                  <p className="text-sm text-center text-[#d5e2cd]">
-                                    Come back in {daysUntilNextDouble} day{daysUntilNextDouble !== 1 ? 's' : ''} to use the 2x button again
-                                  </p>
-                                </div>
-                              ) : (
-                                <Button
-                                  onClick={handleTruckDoubleReward}
-                                  className="w-full gap-2 py-4
-                                  bg-gradient-to-b from-amber-400 to-amber-600
-                                  hover:from-amber-500 hover:to-amber-700
-                                  text-black font-bold text-base
-                                  shadow-[0_4px_0_#b45309,0_6px_15px_rgba(0,0,0,0.3)]
-                                  border border-amber-300
-                                  rounded-xl"
-                                  data-testid="button-double-reward"
-                                >
-                                  <span className="text-xl">2x</span>
-                                  Double Your Reward
-                                </Button>
-                              )}
+                              <Button
+                                onClick={handleTruckDoubleReward}
+                                className="w-full gap-2 py-4
+                                bg-gradient-to-b from-amber-400 to-amber-600
+                                hover:from-amber-500 hover:to-amber-700
+                                text-black font-bold text-base
+                                shadow-[0_4px_0_#b45309,0_6px_15px_rgba(0,0,0,0.3)]
+                                border border-amber-300
+                                rounded-xl"
+                                data-testid="button-double-reward"
+                              >
+                                <span className="text-xl">2x</span>
+                                Double Your Reward
+                              </Button>
                               <Button
                                 onClick={handleTruckProceedVerification}
                                 className="w-full gap-2 py-3
@@ -1170,6 +1159,26 @@ ${LOCATION_LINK}`;
                                 Double Reward: Share with friends & get 2x cashback after verification
                               </p>
                             </div>
+                          ) : customerData?.vehicleType === 'truck' && truckHas2xCooldown && !truckProceedVerification && !truckDoubleRewardRequested ? (
+                            /* Truck: 2x button on cooldown - show in pending list directly */
+                            <>
+                              <Badge className="bg-[rgba(255,165,0,0.15)]
+                                text-[#ffa500]
+                                border-[#ffa500]
+                                px-4 py-2 text-base tracking-wide
+                                shadow-[0_0_12px_rgba(255,165,0,0.3)]" data-testid="badge-cooldown-pending">
+                                <Clock className="w-4 h-4 mr-2 animate-pulse text-[#ffa500]" />
+                                Waiting for Verification
+                              </Badge>
+                              <div className="text-center p-3 bg-[#0b221a] rounded-lg border border-[#1a3c2d]">
+                                <p className="text-sm text-[#d5e2cd]">
+                                  Please wait while an employee verifies your reward.
+                                </p>
+                                <p className="text-xs text-[#8d9b8a] mt-2">
+                                  2x button will be available in {daysUntilNextDouble} day{daysUntilNextDouble !== 1 ? 's' : ''}.
+                                </p>
+                              </div>
+                            </>
                           ) : customerData?.vehicleType === 'truck' && truckDoubleRewardRequested ? (
                             /* Truck: Double reward requested - waiting for employee verification */
                             <div className="space-y-3">
