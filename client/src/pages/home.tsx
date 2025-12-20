@@ -24,6 +24,7 @@ interface Customer {
   name: string;
   phoneNumber: string;
   vehicleNumber: string;
+  vehicleType?: string; // bike, car, or truck
   rewardAmount: number | null;
   isVerified: boolean;
   alreadyPlayedToday: boolean;
@@ -862,7 +863,8 @@ export default function Home() {
                                 )}
                               </div>
 
-                              {/* Referral Section */}
+                              {/* Referral Section - Show only for Bike and Car, not Truck */}
+                              {customerData?.vehicleType !== 'truck' && (
                               <div className="mt-6 p-4 rounded-lg bg-[#0f3d2e] border border-[#1a5c3d] space-y-3">
                                 <div className="space-y-2">
                                   <p className="text-sm font-semibold text-[#7eff5e] text-center animate-pulse">
@@ -886,6 +888,7 @@ export default function Home() {
                                   Tell Your Friend
                                 </Button>
                               </div>
+                              )}
                             </div>
                           ) : timeExpired ? (
                             <div className="space-y-3">
