@@ -441,12 +441,33 @@ export default function Home() {
       // Audio playback might fail
     }
 
-    // Generate random reward amount (1-20 rupees)
-    // 80% chance for 1-9 rupees, 20% chance for 10-20 rupees (to manage costs)
+    // Generate random reward amount based on vehicle type
+    let reward: number;
     const random = Math.random();
-    const reward = random < 0.8 
-      ? Math.floor(Math.random() * 9) + 1    // 1-9 rupees (80% chance)
-      : Math.floor(Math.random() * 11) + 10; // 10-20 rupees (20% chance)
+    const vehicleType = customerData?.vehicleType;
+
+    if (vehicleType === 'bike') {
+      // Bike: 20% chance 11-15, 80% chance 1-10
+      reward = random < 0.8
+        ? Math.floor(Math.random() * 10) + 1      // 1-10 rupees (80% chance)
+        : Math.floor(Math.random() * 5) + 11;     // 11-15 rupees (20% chance)
+    } else if (vehicleType === 'car') {
+      // Car: 20% chance 15-20, 80% chance 1-14
+      reward = random < 0.8
+        ? Math.floor(Math.random() * 14) + 1      // 1-14 rupees (80% chance)
+        : Math.floor(Math.random() * 6) + 15;     // 15-20 rupees (20% chance)
+    } else if (vehicleType === 'truck') {
+      // Truck: 10% chance 16-25, 90% chance 1-15
+      reward = random < 0.9
+        ? Math.floor(Math.random() * 15) + 1      // 1-15 rupees (90% chance)
+        : Math.floor(Math.random() * 10) + 16;    // 16-25 rupees (10% chance)
+    } else {
+      // Fallback for unknown vehicle type
+      reward = random < 0.8
+        ? Math.floor(Math.random() * 9) + 1       // 1-9 rupees (80% chance)
+        : Math.floor(Math.random() * 11) + 10;    // 10-20 rupees (20% chance)
+    }
+
     setRewardAmount(reward);
 
     // Update customer with reward
