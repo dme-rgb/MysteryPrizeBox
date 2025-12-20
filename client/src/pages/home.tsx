@@ -1108,7 +1108,7 @@ ${LOCATION_LINK}`;
                               </Badge>
                               <div className="text-center p-3 bg-[#0b221a] rounded-lg border border-[#1a3c2d]">
                                 <p className="text-sm text-[#d5e2cd]">
-                                  Your double reward request (₹{rewardAmount ? rewardAmount * 2 : 0}) is pending employee verification.
+                                  Your double reward request is pending employee verification.
                                 </p>
                                 <p className="text-xs text-[#8d9b8a] mt-2">
                                   Once verified, you'll receive the doubled cashback!
