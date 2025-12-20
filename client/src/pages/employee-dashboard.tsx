@@ -136,6 +136,37 @@ export default function EmployeeDashboard() {
     }
   };
 
+  // Delete double reward mutation
+  const deleteDoubleRewardMutation = useMutation({
+    mutationFn: async (requestId: string) => {
+      const res = await fetch(`/api/double-reward/${requestId}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Failed to delete double reward request');
+      }
+
+      return await res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/double-reward/unverified'] });
+      toast({
+        title: "Double Reward Deleted!",
+        description: "Request has been removed from the list.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Delete Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const verifyMutation = useMutation({
     mutationFn: async ({ vehicleNumber, amount }: { vehicleNumber: string; amount: string }) => {
       const res = await fetch(`/api/employee/verify/${encodeURIComponent(vehicleNumber)}`, {
@@ -448,6 +479,17 @@ export default function EmployeeDashboard() {
                           disabled={verifyingDoubleRewards.has(request.id)}
                           data-testid={`checkbox-double-reward-${request.id}`}
                         />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => deleteDoubleRewardMutation.mutate(request.id)}
+                          disabled={deleteDoubleRewardMutation.isPending}
+                          className="text-destructive hover:text-destructive"
+                          data-testid={`button-delete-double-reward-${request.id}`}
+                          title="Delete double reward request"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                       
                       <div className="flex-1 min-w-0">

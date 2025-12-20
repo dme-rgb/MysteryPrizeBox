@@ -259,6 +259,13 @@ export class MemStorage implements IStorage {
     this.doubleRewardRequests.set(id, updated);
     return updated;
   }
+
+  async deleteDoubleRewardRequest(id: string): Promise<void> {
+    if (!this.doubleRewardRequests.has(id)) {
+      throw new Error("Double reward request not found");
+    }
+    this.doubleRewardRequests.delete(id);
+  }
 }
 
 export const storage = new MemStorage();

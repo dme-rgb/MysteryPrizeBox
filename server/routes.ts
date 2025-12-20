@@ -861,6 +861,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Delete a double reward request
+  app.delete("/api/double-reward/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteDoubleRewardRequest(id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Delete double reward request error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
   // Verify a double reward request (updates existing customer with doubled reward)
   app.post("/api/double-reward/verify/:id", async (req, res) => {
     try {
