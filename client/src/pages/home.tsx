@@ -150,10 +150,10 @@ export default function Home() {
       setTruckHas2xCooldown(doubleRewardCooldownData.hasRecentRequest);
       setDaysUntilNextDouble(doubleRewardCooldownData.daysUntilAvailable);
       
-      // If truck is on cooldown and hasn't already been marked as verified, auto-set them as pending
+      // If truck is on cooldown, mark them as pending in the backend for the employee dashboard
       if (doubleRewardCooldownData.hasRecentRequest && !truckDoubleRewardRequested) {
-        setTruckProceedVerification(true);
-        // Mark them as pending in the backend for the employee dashboard
+        // Mark them as pending in the backend for the employee dashboard (DO NOT set truckProceedVerification to true)
+        // This allows the cooldown countdown message to display properly
         fetch('/api/truck/mark-pending-from-cooldown', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
