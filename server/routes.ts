@@ -224,10 +224,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         rewardAmount
       );
 
-      // First time adding to Google Sheets - add complete entry with reward
-      const existingEntry = await googleSheetsService.getCustomerByVehicle(customer.vehicleNumber);
-      if (!existingEntry) {
-        // Entry doesn't exist yet, add it with the reward and vehicle type
+      // Check if TODAY'S entry exists (not yesterday's)
+      const todayEntry = await googleSheetsService.getTodaysCustomerByVehicle(customer.vehicleNumber);
+      if (!todayEntry) {
+        // No entry for today yet, add new entry with the reward and vehicle type
         await googleSheetsService.addCustomer({
           name: customer.name,
           number: customer.phoneNumber,
@@ -238,7 +238,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           verified: false,
         });
       } else {
-        // Entry already exists, just update the reward
+        // Today's entry already exists, just update the reward amount
         await googleSheetsService.updateReward(customer.vehicleNumber, rewardAmount);
       }
 
@@ -267,8 +267,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update in local storage
       const updatedCustomer = await storage.verifyCustomerReward(req.params.id);
 
-      // Update in Google Sheets
-      await googleSheetsService.verifyReward(customer.vehicleNumber);
+      // Update TODAY'S entry in Google Sheets (to ensure we verify today's entry, not old ones)
+      const todayEntry = await googleSheetsService.getTodaysCustomerByVehicle(customer.vehicleNumber);
+      if (todayEntry) {
+        await googleSheetsService.verifyReward(customer.vehicleNumber);
+      }
 
       res.json(updatedCustomer);
     } catch (error: any) {
