@@ -545,8 +545,29 @@ export default function Home() {
   };
 
   // Truck: Handle "Proceed for Verification" button
-  const handleTruckProceedVerification = () => {
-    setTruckProceedVerification(true);
+  const handleTruckProceedVerification = async () => {
+    if (!customerData?.vehicleNumber) return;
+    
+    try {
+      // Mark on backend that truck is proceeding for verification
+      const res = await fetch(`/api/truck/proceed-verification/${encodeURIComponent(customerData.vehicleNumber)}`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      
+      if (!res.ok) {
+        throw new Error('Failed to mark proceed for verification');
+      }
+      
+      setTruckProceedVerification(true);
+    } catch (error: any) {
+      console.error('Error marking proceed for verification:', error);
+      toast({
+        title: "Error",
+        description: "Failed to proceed. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   // Truck: Handle "Double Your Reward" button

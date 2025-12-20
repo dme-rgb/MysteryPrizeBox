@@ -357,6 +357,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .map(req => req.vehicleNumber)
       );
       
+      // Get trucks that chose "Proceed for Verification" (standard path without 2x)
+      const trucksProceedingForVerification = await storage.getTrucksProceedingForVerification();
+      
       // Filter for unverified customers with valid prizes, excluding vehicles that are already verified or have unverified 2x requests
       const unverifiedCustomers = todaysCustomers
         .filter((customer) => {
@@ -369,10 +372,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
                                  !verifiedVehicles.has(customer.vehicleNumber) &&
                                  !vehiclesWithUnverified2x.has(customer.vehicleNumber);
           
-          // For truck customers: ONLY show if they have a verified 2x request (came through 2x list)
-          // Do NOT show if they don't have any 2x request (haven't made a choice yet)
+          // For truck customers: ONLY show if they have a verified 2x request OR clicked "Proceed for Verification"
           if (customer.vehicleType === 'truck') {
-            return basicExclusions && truckVehiclesWithVerified2x.has(customer.vehicleNumber);
+            const hasVerified2x = truckVehiclesWithVerified2x.has(customer.vehicleNumber);
+            const isProceedingNormally = trucksProceedingForVerification.has(customer.vehicleNumber.toUpperCase());
+            return basicExclusions && (hasVerified2x || isProceedingNormally);
           }
           
           // For non-truck customers: show normally
@@ -657,6 +661,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // Mark truck as proceeding for verification (standard path without 2x)
+  app.post("/api/truck/proceed-verification/:vehicleNumber", async (req, res) => {
+    try {
+      const { vehicleNumber } = req.params;
+      const normalized = normalizeVehicleNumber(vehicleNumber);
+      
+      await storage.markTruckProceedForVerification(normalized);
+      
+      res.json({ success: true, vehicleNumber: normalized });
+    } catch (error: any) {
+      console.error("Mark truck proceed verification error:", error);
       res.status(500).json({ error: error.message });
     }
   });

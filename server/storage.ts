@@ -27,6 +27,11 @@ export interface IStorage {
   getDoubleRewardRequests(): Promise<DoubleRewardRequest[]>;
   getUnverifiedDoubleRewardRequests(): Promise<DoubleRewardRequest[]>;
   verifyDoubleRewardRequest(id: string, verifiedBy: string): Promise<DoubleRewardRequest>;
+  deleteDoubleRewardRequest(id: string): Promise<void>;
+  
+  // Truck verification path tracking
+  markTruckProceedForVerification(vehicleNumber: string): Promise<void>;
+  getTrucksProceedingForVerification(): Promise<Set<string>>;
 }
 
 export class MemStorage implements IStorage {
@@ -35,6 +40,7 @@ export class MemStorage implements IStorage {
   private employees: Map<string, Employee>;
   private paymentStatus: Map<string, { status: 'success' | 'failed'; transactionId: string | null }>;
   private doubleRewardRequests: Map<string, DoubleRewardRequest>;
+  private trucksProceedingForVerification: Set<string>;
 
   constructor() {
     this.users = new Map();
@@ -42,6 +48,7 @@ export class MemStorage implements IStorage {
     this.employees = new Map();
     this.paymentStatus = new Map();
     this.doubleRewardRequests = new Map();
+    this.trucksProceedingForVerification = new Set();
     
     this.initDefaultEmployee();
   }
@@ -265,6 +272,14 @@ export class MemStorage implements IStorage {
       throw new Error("Double reward request not found");
     }
     this.doubleRewardRequests.delete(id);
+  }
+  
+  async markTruckProceedForVerification(vehicleNumber: string): Promise<void> {
+    this.trucksProceedingForVerification.add(vehicleNumber.toUpperCase());
+  }
+  
+  async getTrucksProceedingForVerification(): Promise<Set<string>> {
+    return new Set(this.trucksProceedingForVerification);
   }
 }
 
