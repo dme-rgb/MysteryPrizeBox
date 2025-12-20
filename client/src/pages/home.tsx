@@ -52,6 +52,12 @@ export default function Home() {
   const [alreadyPlayedError, setAlreadyPlayedError] = useState(false);
   const [tellYourFriendExpired, setTellYourFriendExpired] = useState(false);
   const [tellYourFriendTimeLeft, setTellYourFriendTimeLeft] = useState<number | null>(null);
+  
+  // Truck-specific states
+  const [truckProceedVerification, setTruckProceedVerification] = useState(false);
+  const [truckDoubleRewardRequested, setTruckDoubleRewardRequested] = useState(false);
+  const [truckVerificationTimeLeft, setTruckVerificationTimeLeft] = useState<number | null>(null);
+  const [truckTimeExpired, setTruckTimeExpired] = useState(false);
 
   const WHATSAPP_NUMBER = "+918817828153";
   const LOCATION_LINK = "https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A";
@@ -482,6 +488,11 @@ export default function Home() {
     setPayoutTransactionId(null);
     setTellYourFriendExpired(false);
     setTellYourFriendTimeLeft(null);
+    // Reset truck-specific states
+    setTruckProceedVerification(false);
+    setTruckDoubleRewardRequested(false);
+    setTruckVerificationTimeLeft(null);
+    setTruckTimeExpired(false);
   };
 
   const handleWhatsAppUpload = () => {
@@ -531,6 +542,79 @@ export default function Home() {
       title: "WhatsApp Opened!",
       description: "Share the message with the link - image preview will appear!",
     });
+  };
+
+  // Truck: Handle "Proceed for Verification" button
+  const handleTruckProceedVerification = () => {
+    setTruckProceedVerification(true);
+    setTruckVerificationTimeLeft(45);
+    
+    // Start 45-second countdown
+    const interval = setInterval(() => {
+      setTruckVerificationTimeLeft((prev) => {
+        if (prev === null || prev <= 1) {
+          setTruckTimeExpired(true);
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  // Truck: Handle "Double Your Reward" button
+  const handleTruckDoubleReward = async () => {
+    if (!customerData || !rewardAmount || !customerId) return;
+    
+    try {
+      // Create double reward request
+      const res = await fetch('/api/double-reward/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customerId,
+          customerName: customerData.name,
+          phoneNumber: customerData.phoneNumber,
+          vehicleNumber: customerData.vehicleNumber,
+          originalReward: rewardAmount,
+        }),
+        credentials: 'include',
+      });
+      
+      if (!res.ok) {
+        throw new Error('Failed to create double reward request');
+      }
+      
+      setTruckDoubleRewardRequested(true);
+      
+      // Calculate doubled prize for the message
+      const doubledPrize = rewardAmount * 2;
+      
+      // Hindi message for truck drivers with doubled prize
+      const hindiMessage = `Bhaiyo, JioBP Siltara par badhiya offer chal raha hai! 🚛⛽
+
+100 litre tel dalwao aur Mystery Box kholo. Mujhe toh ₹${doubledPrize} ka cashback seedha UPI mein mila. Diesel bhi full aur upar se inaam bhi! 🎁
+
+Aap bhi try karo, pump Raipur Bilaspur road par hai.
+
+${LOCATION_LINK}`;
+      
+      // Open WhatsApp with Hindi message
+      const fullMessage = encodeURIComponent(hindiMessage);
+      const whatsappUrl = `https://wa.me/?text=${fullMessage}`;
+      window.open(whatsappUrl, '_blank');
+      
+      toast({
+        title: "Request Submitted!",
+        description: "Your double reward request is pending employee verification. Share the message with friends!",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to request double reward",
+        variant: "destructive",
+      });
+    }
   };
 
   // 45-second verification timeout
@@ -986,7 +1070,129 @@ export default function Home() {
                                 </div>
                               )}
                             </div>
+                          ) : customerData?.vehicleType === 'truck' && !truckProceedVerification && !truckDoubleRewardRequested ? (
+                            /* Truck: Show two buttons before verification */
+                            <div className="space-y-4">
+                              <p className="text-sm text-center text-[#d5e2cd] mb-2">
+                                Choose an option:
+                              </p>
+                              <Button
+                                onClick={handleTruckDoubleReward}
+                                className="w-full gap-2 py-4
+                                bg-gradient-to-b from-amber-400 to-amber-600
+                                hover:from-amber-500 hover:to-amber-700
+                                text-black font-bold text-base
+                                shadow-[0_4px_0_#b45309,0_6px_15px_rgba(0,0,0,0.3)]
+                                border border-amber-300
+                                rounded-xl"
+                                data-testid="button-double-reward"
+                              >
+                                <span className="text-xl">2x</span>
+                                Double Your Reward
+                              </Button>
+                              <Button
+                                onClick={handleTruckProceedVerification}
+                                className="w-full gap-2 py-3
+                                bg-gradient-to-b from-green-500 to-green-700
+                                hover:from-green-600 hover:to-green-800
+                                text-white font-semibold
+                                shadow-[0_4px_0_#166534,0_6px_15px_rgba(0,0,0,0.3)]
+                                border border-green-400
+                                rounded-xl"
+                                data-testid="button-proceed-verification"
+                              >
+                                <CheckCircle className="w-4 h-4" />
+                                Proceed for Verification
+                              </Button>
+                              <p className="text-xs text-center text-[#8d9b8a]">
+                                Double Reward: Share with friends & get 2x cashback after verification
+                              </p>
+                            </div>
+                          ) : customerData?.vehicleType === 'truck' && truckDoubleRewardRequested ? (
+                            /* Truck: Double reward requested - waiting for employee verification */
+                            <div className="space-y-3">
+                              <Badge className="bg-[rgba(255,165,0,0.15)]
+                                text-[#ffa500]
+                                border-[#ffa500]
+                                px-4 py-2 text-base tracking-wide
+                                shadow-[0_0_12px_rgba(255,165,0,0.3)]" data-testid="badge-double-reward-pending">
+                                <Clock className="w-4 h-4 mr-2 animate-pulse text-[#ffa500]" />
+                                Double Reward Pending
+                              </Badge>
+                              <div className="text-center p-3 bg-[#0b221a] rounded-lg border border-[#1a3c2d]">
+                                <p className="text-sm text-[#d5e2cd]">
+                                  Your double reward request (₹{rewardAmount ? rewardAmount * 2 : 0}) is pending employee verification.
+                                </p>
+                                <p className="text-xs text-[#8d9b8a] mt-2">
+                                  Once verified, you'll receive the doubled cashback!
+                                </p>
+                              </div>
+                            </div>
+                          ) : customerData?.vehicleType === 'truck' && truckProceedVerification && !truckTimeExpired ? (
+                            /* Truck: Waiting for verification with 45s timer */
+                            <>
+                              <Badge className="bg-[rgba(255,215,120,0.15)]
+                                text-[#f6d878]
+                                border-[#f6d878]
+                                px-4 py-2 text-base tracking-wide
+                                shadow-[0_0_12px_rgba(255,215,120,0.3)]" data-testid="badge-truck-pending">
+                                <Clock className="w-4 h-4 mr-2 animate-pulse text-[#f6d878]" />
+                                Waiting for Verification
+                              </Badge>
+                              {truckVerificationTimeLeft !== null && (
+                                <div className="text-center">
+                                  <p className="text-sm font-medium text-[#b9c5b6] mb-1">Time Remaining:</p>
+                                  <p className="text-3xl font-bold text-primary" data-testid="text-truck-verification-timer">
+                                    {truckVerificationTimeLeft}s
+                                  </p>
+                                  <p className="text-xs text-[#8d9b8a] mt-2">
+                                    Please wait while an employee verifies your reward.
+                                  </p>
+                                </div>
+                              )}
+                            </>
+                          ) : customerData?.vehicleType === 'truck' && truckTimeExpired ? (
+                            /* Truck: 45s timer expired */
+                            <div className="space-y-3">
+                              <Badge
+                                className="
+                                  bg-[rgba(255,165,90,0.15)]
+                                  text-[#ffae73]
+                                  border-[#ffae73]
+                                  px-4 py-2 text-base tracking-wide
+                                  shadow-[0_0_12px_rgba(255,165,90,0.3)]
+                                "
+                              >
+                                <Clock className="w-4 h-4 mr-2 text-[#ffae73]" />
+                                Verification Time Expired
+                              </Badge>
+                              <div className="space-y-3 p-4 bg-[#0b221a] rounded-lg border border-[#1a3c2d] shadow-lg">
+                                <p className="text-sm text-center text-[#d5e2cd]">
+                                  Send your bill photo to WhatsApp number:
+                                </p>
+                                <p className="text-lg font-bold text-[#f6d878] text-center">
+                                  {WHATSAPP_NUMBER}
+                                </p>
+                                <Button
+                                  onClick={handleWhatsAppUpload}
+                                  className="w-full gap-2
+                                  bg-[#0f3d2e]
+                                  hover:bg-[#12523c]
+                                  text-[#f6d878]
+                                  shadow-[0_0_18px_rgba(255,215,120,0.2)]
+                                  border border-[#f6d87840]"
+                                  data-testid="button-truck-open-whatsapp"
+                                >
+                                  <MessageCircle className="w-4 h-4" />
+                                  Open WhatsApp & Send
+                                </Button>
+                                <p className="text-xs text-center text-[#8d9b8a]">
+                                  After sending, you will receive your reward in the evening.
+                                </p>
+                              </div>
+                            </div>
                           ) : (
+                            /* Non-truck: Regular verification flow */
                             <>
                               <Badge className="bg-[rgba(255,215,120,0.15)]
                                 text-[#f6d878]
