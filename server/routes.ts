@@ -913,7 +913,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // First check Google Sheets for the actual 2x reward date (source of truth for persistence)
       const allCustomers = await googleSheetsService.getAllCustomers();
-      const customerEntries = allCustomers.filter((c) => normalizeVehicleNumber(c.vehicleNumber) === normalized);
+      const customerEntries = allCustomers.filter((c) => {
+        try {
+          return c.vehicleNumber && normalizeVehicleNumber(String(c.vehicleNumber)) === normalized;
+        } catch {
+          return false;
+        }
+      });
       
       // Find the most recent entry with a doubleRewardDate
       const recentWithDoubleReward = customerEntries
