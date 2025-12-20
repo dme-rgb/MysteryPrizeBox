@@ -883,8 +883,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         throw new Error("Customer not found");
       }
       
-      // Update customer with doubled reward amount
+      // Update customer with doubled reward amount in storage
       await storage.updateCustomerReward(request.customerId, doubledReward);
+      
+      // Also add/update in Google Sheets with doubled reward
+      await googleSheetsService.addCustomer({
+        name: request.customerName,
+        number: request.phoneNumber,
+        prize: doubledReward,
+        vehicleNumber: request.vehicleNumber,
+        vehicleType: 'truck',
+        timestamp: new Date().toISOString(),
+        verified: false,
+      });
       
       res.json({ 
         success: true, 
