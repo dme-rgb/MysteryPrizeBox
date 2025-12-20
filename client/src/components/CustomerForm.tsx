@@ -18,6 +18,9 @@ import fuelRushLogo from '@assets/Gemini_Generated_Image_qj35yaqj35yaqj35-remove
 const formSchema = z.object({
   phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
   vehicleNumber: z.string().min(2, "Vehicle number is required"),
+  vehicleType: z.enum(["bike", "car", "truck"], {
+    errorMap: () => ({ message: "Please select a vehicle type" })
+  }),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -33,6 +36,7 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
     defaultValues: {
       phoneNumber: '',
       vehicleNumber: '',
+      vehicleType: undefined,
     },
   });
   
@@ -136,6 +140,57 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
                       aria-label="Vehicle Number"
                       {...field}
                     />
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="vehicleType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-white text-sm">Select Vehicle Type</FormLabel>
+                <FormControl>
+                  <div className="flex gap-3">
+                    <Button
+                      type="button"
+                      onClick={() => field.onChange('bike')}
+                      data-testid="button-vehicle-bike"
+                      className={`flex-1 py-3 rounded-xl font-bold transition-all ${
+                        field.value === 'bike'
+                          ? 'bg-gradient-to-b from-[#ffe28a] to-[#d19c00] text-black border border-[#f8e7a0] shadow-[0_4px_0_#b68600]'
+                          : 'bg-transparent border-2 border-[#e8c253] text-white hover:bg-[#e8c253]/20'
+                      }`}
+                    >
+                      🏍️ Bike
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() => field.onChange('car')}
+                      data-testid="button-vehicle-car"
+                      className={`flex-1 py-3 rounded-xl font-bold transition-all ${
+                        field.value === 'car'
+                          ? 'bg-gradient-to-b from-[#ffe28a] to-[#d19c00] text-black border border-[#f8e7a0] shadow-[0_4px_0_#b68600]'
+                          : 'bg-transparent border-2 border-[#e8c253] text-white hover:bg-[#e8c253]/20'
+                      }`}
+                    >
+                      🚗 Car
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={() => field.onChange('truck')}
+                      data-testid="button-vehicle-truck"
+                      className={`flex-1 py-3 rounded-xl font-bold transition-all ${
+                        field.value === 'truck'
+                          ? 'bg-gradient-to-b from-[#ffe28a] to-[#d19c00] text-black border border-[#f8e7a0] shadow-[0_4px_0_#b68600]'
+                          : 'bg-transparent border-2 border-[#e8c253] text-white hover:bg-[#e8c253]/20'
+                      }`}
+                    >
+                      🚛 Truck
+                    </Button>
                   </div>
                 </FormControl>
                 <FormMessage />

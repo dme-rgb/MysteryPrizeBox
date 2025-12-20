@@ -44,6 +44,7 @@ export const customers = pgTable("customers", {
   name: text("name").notNull(),
   phoneNumber: text("phone_number").notNull(),
   vehicleNumber: text("vehicle_number").notNull(),
+  vehicleType: text("vehicle_type"), // bike, car, or truck
   rewardAmount: integer("reward_amount"),
   verified: boolean("verified").default(false),
   alreadyPlayedToday: boolean("already_played_today").default(false),
@@ -54,10 +55,12 @@ export const insertCustomerSchema = createInsertSchema(customers).pick({
   name: true,
   phoneNumber: true,
   vehicleNumber: true,
+  vehicleType: true,
 }).extend({
   name: z.string().min(2, "Name must be at least 2 characters"),
   phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
   vehicleNumber: z.string().min(2, "Vehicle number is required"),
+  vehicleType: z.enum(["bike", "car", "truck"]),
 });
 
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;

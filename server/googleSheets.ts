@@ -7,6 +7,7 @@ export interface SheetCustomer {
   number: string;
   prize: number | null;
   vehicleNumber: string;
+  vehicleType?: string; // bike, car, or truck
   timestamp: string;
   verified?: boolean;
   amount?: number; // Employee-entered payout amount during verification

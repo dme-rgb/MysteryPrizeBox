@@ -154,6 +154,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const customer = await storage.createCustomer({
         ...validatedData,
         vehicleNumber: normalized,
+        vehicleType: validatedData.vehicleType,
       });
       
       // Mark as already played if applicable
