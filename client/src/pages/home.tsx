@@ -142,6 +142,7 @@ export default function Home() {
     queryKey: ['/api/double-reward/recent', customerData?.vehicleNumber],
     enabled: !!customerData?.vehicleNumber && customerData?.vehicleType === 'truck',
     staleTime: 0,
+    refetchInterval: 60000, // Re-check every 60 seconds to detect when 7-day cooldown expires
   });
 
   // Update truck 2x cooldown state and auto-set pending when on cooldown
