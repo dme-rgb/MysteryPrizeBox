@@ -343,16 +343,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
           .map(c => c.vehicleNumber)
       );
       
-      // Filter for unverified customers with valid prizes, excluding vehicles that are already verified
+      // Get all vehicles with unverified 2x double reward requests
+      const unverifiedDoubleRewardRequests = await storage.getUnverifiedDoubleRewardRequests();
+      const vehiclesWithUnverified2x = new Set(
+        unverifiedDoubleRewardRequests.map(req => req.vehicleNumber)
+      );
+      
+      // Filter for unverified customers with valid prizes, excluding vehicles that are already verified or have unverified 2x requests
       const unverifiedCustomers = todaysCustomers
         .filter((customer) => {
           const prize = Number(customer.prize);
           const hasValidPrize = !isNaN(prize) && prize > 0;
           
-          // Exclude if: verified, invalid prize, or already verified for this vehicle
+          // Exclude if: verified, invalid prize, already verified for this vehicle, or has unverified 2x request
           return customer.verified !== true && 
                  hasValidPrize &&
-                 !verifiedVehicles.has(customer.vehicleNumber);
+                 !verifiedVehicles.has(customer.vehicleNumber) &&
+                 !vehiclesWithUnverified2x.has(customer.vehicleNumber);
         })
         .sort((a, b) => {
           // Sort by timestamp, most recent first (for same vehicle)
@@ -899,9 +906,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.updateCustomerReward(request.customerId, doubledReward);
       
       // Update the existing Google Sheets entry with doubled reward (not add new)
-      // Do NOT mark as verified here - only update the amount
-      // Employee must verify from the PENDING list to mark as verified
+      // Do NOT mark customer as verified yet - only update the amount
+      // Employee must verify from the PENDING list to mark customer as verified
       await googleSheetsService.updateReward(request.vehicleNumber, doubledReward);
+      
+      // Mark the 2x request as verified so customer moves from 2x list to pending list
+      // This does NOT verify the customer - just confirms the 2x request was processed
+      await storage.verifyDoubleRewardRequest(request.id, verifierName);
       
       res.json({ 
         success: true, 
