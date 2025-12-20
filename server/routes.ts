@@ -886,16 +886,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Update customer with doubled reward amount in storage
       await storage.updateCustomerReward(request.customerId, doubledReward);
       
-      // Also add/update in Google Sheets with doubled reward
-      await googleSheetsService.addCustomer({
-        name: request.customerName,
-        number: request.phoneNumber,
-        prize: doubledReward,
-        vehicleNumber: request.vehicleNumber,
-        vehicleType: 'truck',
-        timestamp: new Date().toISOString(),
-        verified: false,
-      });
+      // Update the existing Google Sheets entry with doubled reward (not add new)
+      await googleSheetsService.updateReward(request.vehicleNumber, doubledReward);
       
       res.json({ 
         success: true, 
