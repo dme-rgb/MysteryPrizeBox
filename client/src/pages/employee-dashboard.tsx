@@ -10,7 +10,21 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { queryClient } from '@/lib/queryClient';
-import { LogOut, RefreshCw, IndianRupee, User, Car, Phone, Trash2, CheckCircle } from 'lucide-react';
+import { LogOut, RefreshCw, IndianRupee, User, Car, Phone, Trash2, CheckCircle, Truck, Gift } from 'lucide-react';
+
+interface DoubleRewardRequest {
+  id: string;
+  customerId: string;
+  customerName: string;
+  phoneNumber: string;
+  vehicleNumber: string;
+  originalReward: number;
+  doubledReward: number;
+  createdAt: string;
+  isVerified: boolean;
+  verifiedBy: string | null;
+  verifiedAt: string | null;
+}
 
 interface SheetCustomer {
   name: string;
@@ -41,6 +55,7 @@ export default function EmployeeDashboard() {
   const [employee, setEmployee] = useState<EmployeeData | null>(null);
   const [verifyingVehicles, setVerifyingVehicles] = useState<Set<string>>(new Set());
   const [amountInputs, setAmountInputs] = useState<Record<string, string>>({});
+  const [verifyingDoubleRewards, setVerifyingDoubleRewards] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const storedEmployee = localStorage.getItem('employee');
@@ -62,6 +77,64 @@ export default function EmployeeDashboard() {
     refetchInterval: 5000,
     enabled: !!employee,
   });
+
+  // Double reward requests query
+  const { data: doubleRewardData, isLoading: doubleRewardLoading } = useQuery<{ requests: DoubleRewardRequest[] }>({
+    queryKey: ['/api/double-reward/unverified'],
+    refetchInterval: 3000,
+    enabled: !!employee,
+  });
+
+  // Double reward verification mutation
+  const verifyDoubleRewardMutation = useMutation({
+    mutationFn: async (requestId: string) => {
+      const res = await fetch(`/api/double-reward/verify/${requestId}`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ verifierName: employee?.name }),
+      });
+
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || 'Double reward verification failed');
+      }
+
+      return await res.json();
+    },
+    onSuccess: (data, requestId) => {
+      setVerifyingDoubleRewards(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(requestId);
+        return newSet;
+      });
+      queryClient.invalidateQueries({ queryKey: ['/api/double-reward/unverified'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/employee/unverified-customers'] });
+      toast({
+        title: "Double Reward Verified!",
+        description: `Customer will receive ₹${data.doubledReward} (doubled from ₹${data.doubledReward / 2}).`,
+      });
+    },
+    onError: (error: Error, requestId) => {
+      setVerifyingDoubleRewards(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(requestId);
+        return newSet;
+      });
+      toast({
+        title: "Verification Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDoubleRewardVerify = (requestId: string, checked: boolean) => {
+    if (checked) {
+      setVerifyingDoubleRewards(prev => new Set(prev).add(requestId));
+      verifyDoubleRewardMutation.mutate(requestId);
+    }
+  };
 
   const verifyMutation = useMutation({
     mutationFn: async ({ vehicleNumber, amount }: { vehicleNumber: string; amount: string }) => {
@@ -170,6 +243,7 @@ export default function EmployeeDashboard() {
 
   const unverifiedCustomers = customersData?.customers || [];
   const verifiedCustomers = verifiedData?.customers || [];
+  const doubleRewardRequests = doubleRewardData?.requests || [];
 
   if (!employee) {
     return null;
@@ -218,9 +292,13 @@ export default function EmployeeDashboard() {
         </div>
 
         <Tabs defaultValue="unverified" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="unverified" className="gap-2">
               Pending ({unverifiedCustomers.length})
+            </TabsTrigger>
+            <TabsTrigger value="double-reward" className="gap-2">
+              <Truck className="w-4 h-4" />
+              2x ({doubleRewardRequests.length})
             </TabsTrigger>
             <TabsTrigger value="verified" className="gap-2">
               <CheckCircle className="w-4 h-4" />
@@ -324,6 +402,96 @@ export default function EmployeeDashboard() {
                       </div>
 
                       {verifyingVehicles.has(customer.vehicleNumber) && (
+                        <div className="text-sm text-muted-foreground animate-pulse">
+                          Verifying...
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+
+          {/* Double Reward Tab */}
+          <TabsContent value="double-reward" className="space-y-4">
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-foreground">
+                  Truck Double Reward Requests
+                </h2>
+                <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-300" data-testid="badge-double-reward-count">
+                  {doubleRewardRequests.length} pending
+                </Badge>
+              </div>
+
+              {doubleRewardLoading ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Loading double reward requests...
+                </div>
+              ) : doubleRewardRequests.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No pending double reward requests.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {doubleRewardRequests.map((request) => (
+                    <div
+                      key={request.id}
+                      className="flex items-center gap-4 p-4 border rounded-lg bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800"
+                      data-testid={`card-double-reward-${request.id}`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          checked={verifyingDoubleRewards.has(request.id)}
+                          onCheckedChange={(checked) => handleDoubleRewardVerify(request.id, checked as boolean)}
+                          disabled={verifyingDoubleRewards.has(request.id)}
+                          data-testid={`checkbox-double-reward-${request.id}`}
+                        />
+                      </div>
+                      
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
+                          <div className="flex items-center gap-1 text-foreground font-medium">
+                            <User className="w-4 h-4 text-muted-foreground" />
+                            <span data-testid={`text-double-name-${request.id}`}>
+                              {request.customerName}
+                            </span>
+                          </div>
+                          <Badge className="bg-amber-600 text-white gap-1">
+                            <Gift className="w-3 h-3" />
+                            <span className="line-through opacity-60 mr-1">₹{request.originalReward}</span>
+                            <span className="font-bold" data-testid={`text-doubled-prize-${request.id}`}>
+                              ₹{request.originalReward * 2}
+                            </span>
+                          </Badge>
+                          <Badge variant="outline" className="gap-1">
+                            <Truck className="w-3 h-3" />
+                            Truck
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-1">
+                            <Car className="w-3 h-3" />
+                            <span data-testid={`text-double-vehicle-${request.id}`}>
+                              {request.vehicleNumber}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Phone className="w-3 h-3" />
+                            <span data-testid={`text-double-phone-${request.id}`}>
+                              {request.phoneNumber}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Requested: {new Date(request.createdAt).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })}
+                        </p>
+                      </div>
+
+                      {verifyingDoubleRewards.has(request.id) && (
                         <div className="text-sm text-muted-foreground animate-pulse">
                           Verifying...
                         </div>
