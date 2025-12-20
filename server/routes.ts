@@ -887,10 +887,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.updateCustomerReward(request.customerId, doubledReward);
       
       // Update the existing Google Sheets entry with doubled reward (not add new)
+      // Do NOT mark as verified here - only update the amount
+      // Employee must verify from the PENDING list to mark as verified
       await googleSheetsService.updateReward(request.vehicleNumber, doubledReward);
-      
-      // Mark as verified in Google Sheets so the frontend detects the doubled amount
-      await googleSheetsService.verifyReward(request.vehicleNumber, doubledReward, verifierName, new Date().toISOString());
       
       res.json({ 
         success: true, 
