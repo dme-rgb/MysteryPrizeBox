@@ -905,27 +905,33 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Check if customer has a recent 2x request (within 7 days)
+  // Check if customer has a recent 2x request (within 7 days) - Check Google Sheets for persistent data
   app.get("/api/double-reward/recent/:vehicleNumber", async (req, res) => {
     try {
       const { vehicleNumber } = req.params;
       const normalized = normalizeVehicleNumber(vehicleNumber);
       
-      const allRequests = await storage.getDoubleRewardRequests();
-      const customerRequests = allRequests.filter(req => normalizeVehicleNumber(req.vehicleNumber) === normalized);
+      // First check Google Sheets for the actual 2x reward date (source of truth for persistence)
+      const allCustomers = await googleSheetsService.getAllCustomers();
+      const customerEntries = allCustomers.filter((c) => normalizeVehicleNumber(c.vehicleNumber) === normalized);
       
-      if (customerRequests.length === 0) {
+      // Find the most recent entry with a doubleRewardDate
+      const recentWithDoubleReward = customerEntries
+        .filter((c) => c.doubleRewardDate && c.doubleRewardDate.trim())
+        .sort((a, b) => new Date(b.doubleRewardDate!).getTime() - new Date(a.doubleRewardDate!).getTime())
+        [0];
+      
+      if (!recentWithDoubleReward) {
         return res.json({ hasRecentRequest: false, daysUntilAvailable: 0 });
       }
       
-      // Check the most recent request
-      const mostRecent = customerRequests.sort((a, b) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      )[0];
-      
       const now = new Date();
-      const createdDate = new Date(mostRecent.createdAt);
-      const daysSince = (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24);
+      now.setHours(0, 0, 0, 0); // Start of today
+      
+      const doubleRewardDate = new Date(recentWithDoubleReward.doubleRewardDate!);
+      doubleRewardDate.setHours(0, 0, 0, 0); // Start of that day
+      
+      const daysSince = (now.getTime() - doubleRewardDate.getTime()) / (1000 * 60 * 60 * 24);
       
       if (daysSince < 7) {
         const daysUntilAvailable = Math.ceil(7 - daysSince);
