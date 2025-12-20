@@ -76,7 +76,8 @@ function doPost(e) {
         data.verified || "No",
         "", // Amount column (initially empty)
         "", // Verified By column (initially empty)
-        ""  // Verification Timestamp column (initially empty)
+        "", // Verification Timestamp column (initially empty)
+        data.vehicleType || "" // Vehicle Type (bike, car, truck)
       ]);
       
       return ContentService.createTextOutput(JSON.stringify({
@@ -254,7 +255,8 @@ function doGet(e) {
           verified: values[i][5] === "Yes",
           amount: values[i][6] || null,
           verifiedBy: values[i][7] || null,
-          verificationTimestamp: values[i][8] || null
+          verificationTimestamp: values[i][8] || null,
+          vehicleType: values[i][9] || null // Vehicle type (bike, car, truck)
         });
       }
       
@@ -279,7 +281,8 @@ function doGet(e) {
               vehicleNumber: values[i][3],
               timestamp: values[i][4],
               verified: values[i][5] === "Yes",
-              amount: values[i][6] || null
+              amount: values[i][6] || null,
+              vehicleType: values[i][9] || null
             }
           })).setMimeType(ContentService.MimeType.JSON);
         }
@@ -313,7 +316,8 @@ function doGet(e) {
                 vehicleNumber: values[i][3],
                 timestamp: values[i][4],
                 verified: values[i][5] === "Yes",
-                amount: values[i][6] || null
+                amount: values[i][6] || null,
+                vehicleType: values[i][9] || null
               }
             })).setMimeType(ContentService.MimeType.JSON);
           }
@@ -382,6 +386,7 @@ function doGet(e) {
             amount: values[i][6] || null,
             verifiedBy: values[i][7] || null,
             verificationTimestamp: values[i][8] || null,
+            vehicleType: values[i][9] || null,
             vpa: vpaAddress,
             vpaAccountHolderName: vpaAccountHolderName,
             beneficiaryName: beneficiaryName,

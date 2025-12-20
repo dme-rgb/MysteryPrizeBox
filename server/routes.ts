@@ -227,12 +227,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // First time adding to Google Sheets - add complete entry with reward
       const existingEntry = await googleSheetsService.getCustomerByVehicle(customer.vehicleNumber);
       if (!existingEntry) {
-        // Entry doesn't exist yet, add it with the reward
+        // Entry doesn't exist yet, add it with the reward and vehicle type
         await googleSheetsService.addCustomer({
           name: customer.name,
           number: customer.phoneNumber,
           prize: rewardAmount,
           vehicleNumber: customer.vehicleNumber,
+          vehicleType: customer.vehicleType, // Send vehicle type (bike, car, truck) to Google Sheets
           timestamp: new Date().toISOString(),
           verified: false,
         });
