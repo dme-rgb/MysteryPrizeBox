@@ -18,6 +18,7 @@ export interface SheetCustomer {
   beneficiaryName?: string;
   transactionTimestamp?: string;
   vpaMessage?: string;
+  doubleRewardDate?: string; // Date when 2x reward was used (ISO format)
 }
 
 export interface TransactionLog {
@@ -191,6 +192,23 @@ export class GoogleSheetsService {
         action: 'updateReward',
         vehicleNumber: normalized,
         prize: 0, // Use 0 as a marker for removed entries
+      }),
+    });
+
+    await this.checkResponse(response);
+  }
+
+  async updateDoubleRewardDate(vehicleNumber: string, doubleRewardDate: string): Promise<void> {
+    const normalized = normalizeVehicleNumber(vehicleNumber);
+    const response = await fetch(this.webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'updateDoubleRewardDate',
+        vehicleNumber: normalized,
+        doubleRewardDate: doubleRewardDate,
       }),
     });
 

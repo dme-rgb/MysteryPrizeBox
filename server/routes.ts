@@ -889,6 +889,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         originalReward,
       });
       
+      // Update Google Sheets with the 2x reward date for today's entry
+      const normalized = normalizeVehicleNumber(vehicleNumber);
+      try {
+        await googleSheetsService.updateDoubleRewardDate(normalized, new Date().toISOString());
+      } catch (sheetError: any) {
+        console.error("Failed to update 2x reward date in Google Sheets:", sheetError);
+        // Don't fail the entire request if Google Sheets update fails
+      }
+      
       res.json({ success: true, request });
     } catch (error: any) {
       console.error("Create double reward request error:", error);
