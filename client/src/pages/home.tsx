@@ -51,6 +51,7 @@ export default function Home() {
   const [beneficiaryName, setBeneficiaryName] = useState<string | null>(null);
   const [alreadyPlayedError, setAlreadyPlayedError] = useState(false);
   const [tellYourFriendExpired, setTellYourFriendExpired] = useState(false);
+  const [tellYourFriendTimeLeft, setTellYourFriendTimeLeft] = useState<number | null>(null);
 
   const WHATSAPP_NUMBER = "+918817828153";
   const LOCATION_LINK = "https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A";
@@ -211,13 +212,24 @@ export default function Home() {
 
   // Start 15-second timer for "Tell Your Friend" button when reward is shown
   useEffect(() => {
-    if (showReward && !tellYourFriendExpired) {
-      const timer = setTimeout(() => {
-        setTellYourFriendExpired(true);
-      }, 15000); // 15 seconds
-      return () => clearTimeout(timer);
+    if (showReward) {
+      // Reset timer when reward is shown
+      setTellYourFriendExpired(false);
+      setTellYourFriendTimeLeft(15);
+      
+      const interval = setInterval(() => {
+        setTellYourFriendTimeLeft((prev) => {
+          if (prev === null || prev <= 1) {
+            setTellYourFriendExpired(true);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000); // Update every second
+      
+      return () => clearInterval(interval);
     }
-  }, [showReward, tellYourFriendExpired]);
+  }, [showReward]);
 
   // Trigger confetti when prize card appears
   useEffect(() => {
@@ -470,6 +482,7 @@ export default function Home() {
     setPayoutStatus(null);
     setPayoutTransactionId(null);
     setTellYourFriendExpired(false);
+    setTellYourFriendTimeLeft(null);
   };
 
   const handleWhatsAppUpload = () => {
@@ -885,6 +898,11 @@ export default function Home() {
                                   <p className="text-xs text-[#a8d5a8] text-center">
                                     Share your winning moment with friends!
                                   </p>
+                                  {tellYourFriendTimeLeft !== null && (
+                                    <p className="text-lg font-bold text-[#ffae73] text-center" data-testid="text-share-timer">
+                                      {tellYourFriendTimeLeft}s remaining
+                                    </p>
+                                  )}
                                 </div>
                                 <Button
                                   onClick={handleTellYourFriend}
