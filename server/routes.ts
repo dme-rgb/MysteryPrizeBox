@@ -926,6 +926,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: error.message });
     }
   });
+
+  // Mark a truck as pending for verification (when on 2x cooldown)
+  app.post("/api/truck/mark-pending-from-cooldown", async (req, res) => {
+    try {
+      const { vehicleNumber } = req.body;
+      if (!vehicleNumber) {
+        return res.status(400).json({ error: "Vehicle number is required" });
+      }
+      
+      const normalized = normalizeVehicleNumber(vehicleNumber);
+      await storage.markTruckProceedForVerification(normalized);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Mark truck pending error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
   
   // Get all unverified double reward requests (for employee dashboard)
   app.get("/api/double-reward/unverified", async (req, res) => {

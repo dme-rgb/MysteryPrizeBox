@@ -144,13 +144,26 @@ export default function Home() {
     staleTime: 0,
   });
 
-  // Update truck 2x cooldown state
+  // Update truck 2x cooldown state and auto-set pending when on cooldown
   useEffect(() => {
-    if (doubleRewardCooldownData) {
+    if (doubleRewardCooldownData && customerData?.vehicleNumber) {
       setTruckHas2xCooldown(doubleRewardCooldownData.hasRecentRequest);
       setDaysUntilNextDouble(doubleRewardCooldownData.daysUntilAvailable);
+      
+      // If truck is on cooldown and hasn't already been marked as verified, auto-set them as pending
+      if (doubleRewardCooldownData.hasRecentRequest && !truckDoubleRewardRequested) {
+        setTruckProceedVerification(true);
+        // Mark them as pending in the backend for the employee dashboard
+        fetch('/api/truck/mark-pending-from-cooldown', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ vehicleNumber: customerData.vehicleNumber }),
+        }).catch(() => {
+          // Silently fail if marking fails, frontend state is already set
+        });
+      }
     }
-  }, [doubleRewardCooldownData]);
+  }, [doubleRewardCooldownData, customerData?.vehicleNumber, truckDoubleRewardRequested]);
 
   // Poll for verification status every 2 seconds while waiting (continue polling even after timeout for a short grace period)
   const { data: verificationStatus } = useQuery<{ verified: boolean; vehicleNumber: string; prize: number | null }>({
