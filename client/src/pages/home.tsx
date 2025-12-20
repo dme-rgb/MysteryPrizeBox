@@ -1011,7 +1011,7 @@ ${LOCATION_LINK}`;
                               </div>
                               )}
                             </div>
-                          ) : timeExpired ? (
+                          ) : timeExpired || payoutStatus === 'failed' ? (
                             <div className="space-y-3">
                               <Badge
                                 className="
@@ -1023,7 +1023,7 @@ ${LOCATION_LINK}`;
                                 "
                               >
                                 <Clock className="w-4 h-4 mr-2 text-[#ffae73]" />
-                                Verification Time Expired
+                                {timeExpired ? 'Verification Time Expired' : 'Payment Failed'}
                               </Badge>
                               {!showWhatsAppFlow ? (
                                 <Button
