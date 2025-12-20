@@ -824,6 +824,81 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // === DOUBLE REWARD ENDPOINTS FOR TRUCK DRIVERS ===
+  
+  // Create a double reward request (when truck driver clicks "Double Your Reward")
+  app.post("/api/double-reward/request", async (req, res) => {
+    try {
+      const { customerId, customerName, phoneNumber, vehicleNumber, originalReward } = req.body;
+      
+      if (!customerId || !customerName || !phoneNumber || !vehicleNumber || !originalReward) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+      
+      const request = await storage.createDoubleRewardRequest({
+        customerId,
+        customerName,
+        phoneNumber,
+        vehicleNumber,
+        originalReward,
+      });
+      
+      res.json({ success: true, request });
+    } catch (error: any) {
+      console.error("Create double reward request error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+  // Get all unverified double reward requests (for employee dashboard)
+  app.get("/api/double-reward/unverified", async (req, res) => {
+    try {
+      const requests = await storage.getUnverifiedDoubleRewardRequests();
+      res.json({ requests });
+    } catch (error: any) {
+      console.error("Get unverified double reward requests error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+  // Verify a double reward request (adds to pending list with doubled reward)
+  app.post("/api/double-reward/verify/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { verifierName } = req.body;
+      
+      if (!verifierName) {
+        return res.status(400).json({ error: "Verifier name is required" });
+      }
+      
+      // Get the request
+      const request = await storage.verifyDoubleRewardRequest(id, verifierName);
+      
+      // Calculate doubled reward
+      const doubledReward = request.originalReward * 2;
+      
+      // Add to Google Sheets with doubled reward
+      await googleSheetsService.addCustomer({
+        name: request.customerName,
+        number: request.phoneNumber,
+        prize: doubledReward,
+        vehicleNumber: request.vehicleNumber,
+        vehicleType: 'truck',
+        timestamp: new Date().toISOString(),
+        verified: false,
+      });
+      
+      res.json({ 
+        success: true, 
+        request,
+        doubledReward 
+      });
+    } catch (error: any) {
+      console.error("Verify double reward request error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
 
   return httpServer;
