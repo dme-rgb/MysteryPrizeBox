@@ -505,7 +505,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             beneficiaryName: customerEntry.name || `Customer-${phoneStr.slice(-4)}`,
             referenceId,
             note: `FUEL RUSH Cashback - Rs.${prizeAmount}`,
-            cachedVPA: (cachedVPA && cachedVPA.vpa) ? { vpa: cachedVPA.vpa, accountHolderName: cachedVPA.accountHolderName } : undefined
+            cachedVPA: (cachedVPA && cachedVPA.vpa) ? { vpa: cachedVPA.vpa, accountHolderName: cachedVPA.accountHolderName || undefined } : undefined
           });
           console.log("Payout initiated successfully:", JSON.stringify(payoutResult, null, 2));
           
@@ -887,8 +887,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       await storage.updateCustomerReward(request.customerId, doubledReward);
       
       // Update the existing Google Sheets entry with doubled reward (not add new)
-      // Do NOT mark as verified - keep as pending until employee manually verifies
       await googleSheetsService.updateReward(request.vehicleNumber, doubledReward);
+      
+      // Mark as verified in Google Sheets so the frontend detects the doubled amount
+      await googleSheetsService.verifyReward(request.vehicleNumber, doubledReward, verifierName, new Date().toISOString());
       
       res.json({ 
         success: true, 
