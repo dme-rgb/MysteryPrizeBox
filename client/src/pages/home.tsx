@@ -210,11 +210,10 @@ export default function Home() {
     }
   }, [showReward]);
 
-  // Start 15-second timer for "Tell Your Friend" button when reward is shown
+  // Start 15-second timer for "Tell Your Friend" button when reward is verified
   useEffect(() => {
-    if (showReward) {
-      // Reset timer when reward is shown
-      setTellYourFriendExpired(false);
+    if (isVerified && !tellYourFriendExpired) {
+      // Reset timer when reward is verified
       setTellYourFriendTimeLeft(15);
       
       const interval = setInterval(() => {
@@ -229,7 +228,7 @@ export default function Home() {
       
       return () => clearInterval(interval);
     }
-  }, [showReward]);
+  }, [isVerified, tellYourFriendExpired]);
 
   // Trigger confetti when prize card appears
   useEffect(() => {
