@@ -11,6 +11,11 @@
    - Column D: `vehicleNumber`
    - Column E: `timestamp`
    - Column F: `verified`
+   - Column G: `amount`
+   - Column H: `verifiedBy`
+   - Column I: `verificationTimestamp`
+   - Column J: `vehicleType`
+   - Column K: `doubleRewardDate`
 
 ## Step 2: Add the Apps Script Code
 
@@ -150,7 +155,7 @@ Once you've completed the setup, test these scenarios to verify everything works
 
 Your sheet should look like this after some entries:
 
-| name | number | prize | vehicleNumber | timestamp | verified |
-|------|--------|-------|--------------|-----------|----------|
-| Test User | 1234567890 | 3 | TEST123 | 2024-11-21T10:30:00.000Z | Yes |
-| Another User | 5555555555 | 5 | XYZ789 | 2024-11-21T11:45:00.000Z | No |
+| name | number | prize | vehicleNumber | timestamp | verified | amount | verifiedBy | verificationTimestamp | vehicleType | doubleRewardDate |
+|------|--------|-------|--------------|-----------|----------|--------|------------|----------------------|-------------|-----------------|
+| Test User | 1234567890 | 3 | TEST123 | 2024-11-21T10:30:00.000Z | Yes | 3 | JHULESH VERMA | 2024-11-21T10:35:00.000Z | truck | 2024-11-21T10:30:00.000Z |
+| Another User | 5555555555 | 5 | XYZ789 | 2024-11-21T11:45:00.000Z | No | | | | bike | |

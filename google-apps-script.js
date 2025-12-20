@@ -77,7 +77,8 @@ function doPost(e) {
         "", // Amount column (initially empty)
         "", // Verified By column (initially empty)
         "", // Verification Timestamp column (initially empty)
-        data.vehicleType || "" // Vehicle Type (bike, car, truck)
+        data.vehicleType || "", // Vehicle Type (bike, car, truck)
+        data.doubleRewardDate || "" // Double Reward Date (when 2x was used)
       ]);
       
       return ContentService.createTextOutput(JSON.stringify({
@@ -147,6 +148,36 @@ function doPost(e) {
           sheet.getRange(i + 1, 8).setValue(verifierName); // Column H (verified by)
           sheet.getRange(i + 1, 9).setValue(verificationTimestamp); // Column I (verification timestamp)
           break;
+        }
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    if (data.action === "updateDoubleRewardDate") {
+      // Update the double reward date for a vehicle (when 2x reward was used)
+      const vehicleNumber = data.vehicleNumber;
+      const doubleRewardDate = data.doubleRewardDate;
+      
+      const dataRange = sheet.getDataRange();
+      const values = dataRange.getValues();
+      
+      // Find the row with this vehicle number (most recent, today's entry)
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      for (let i = values.length - 1; i >= 1; i--) {
+        if (values[i][3] === vehicleNumber) {
+          const entryDate = new Date(values[i][4]);
+          entryDate.setHours(0, 0, 0, 0);
+          
+          // Only update today's entry
+          if (entryDate.getTime() === today.getTime()) {
+            sheet.getRange(i + 1, 11).setValue(doubleRewardDate); // Column K (double reward date)
+            break;
+          }
         }
       }
       
@@ -256,7 +287,8 @@ function doGet(e) {
           amount: values[i][6] || null,
           verifiedBy: values[i][7] || null,
           verificationTimestamp: values[i][8] || null,
-          vehicleType: values[i][9] || null // Vehicle type (bike, car, truck)
+          vehicleType: values[i][9] || null, // Vehicle type (bike, car, truck)
+          doubleRewardDate: values[i][10] || null // When 2x reward was used
         });
       }
       
@@ -282,7 +314,8 @@ function doGet(e) {
               timestamp: values[i][4],
               verified: values[i][5] === "Yes",
               amount: values[i][6] || null,
-              vehicleType: values[i][9] || null
+              vehicleType: values[i][9] || null,
+              doubleRewardDate: values[i][10] || null
             }
           })).setMimeType(ContentService.MimeType.JSON);
         }
@@ -317,7 +350,8 @@ function doGet(e) {
                 timestamp: values[i][4],
                 verified: values[i][5] === "Yes",
                 amount: values[i][6] || null,
-                vehicleType: values[i][9] || null
+                vehicleType: values[i][9] || null,
+                doubleRewardDate: values[i][10] || null
               }
             })).setMimeType(ContentService.MimeType.JSON);
           }
@@ -387,6 +421,7 @@ function doGet(e) {
             verifiedBy: values[i][7] || null,
             verificationTimestamp: values[i][8] || null,
             vehicleType: values[i][9] || null,
+            doubleRewardDate: values[i][10] || null,
             vpa: vpaAddress,
             vpaAccountHolderName: vpaAccountHolderName,
             beneficiaryName: beneficiaryName,
