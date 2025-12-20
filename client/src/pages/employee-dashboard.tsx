@@ -429,6 +429,12 @@ export default function EmployeeDashboard() {
                               {customer.number}
                             </span>
                           </div>
+                          {doubleRewardRequests.find(req => req.vehicleNumber === customer.vehicleNumber) && (
+                            <Badge className="bg-amber-600/20 text-amber-600 border-amber-600/30 gap-1">
+                              <Gift className="w-3 h-3" />
+                              2x: {new Date(doubleRewardRequests.find(req => req.vehicleNumber === customer.vehicleNumber)?.createdAt || '').toLocaleDateString('en-IN')}
+                            </Badge>
+                          )}
                         </div>
                       </div>
 
