@@ -893,6 +893,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Check if customer has a recent 2x request (within 7 days)
+  app.get("/api/double-reward/recent/:vehicleNumber", async (req, res) => {
+    try {
+      const { vehicleNumber } = req.params;
+      const normalized = normalizeVehicleNumber(vehicleNumber);
+      
+      const allRequests = await storage.getDoubleRewardRequests();
+      const customerRequests = allRequests.filter(req => normalizeVehicleNumber(req.vehicleNumber) === normalized);
+      
+      if (customerRequests.length === 0) {
+        return res.json({ hasRecentRequest: false, daysUntilAvailable: 0 });
+      }
+      
+      // Check the most recent request
+      const mostRecent = customerRequests.sort((a, b) => 
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      )[0];
+      
+      const now = new Date();
+      const createdDate = new Date(mostRecent.createdAt);
+      const daysSince = (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24);
+      
+      if (daysSince < 7) {
+        const daysUntilAvailable = Math.ceil(7 - daysSince);
+        return res.json({ hasRecentRequest: true, daysUntilAvailable });
+      }
+      
+      res.json({ hasRecentRequest: false, daysUntilAvailable: 0 });
+    } catch (error: any) {
+      console.error("Check recent double reward request error:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
   // Get all unverified double reward requests (for employee dashboard)
   app.get("/api/double-reward/unverified", async (req, res) => {
     try {

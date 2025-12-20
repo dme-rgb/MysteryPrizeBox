@@ -56,6 +56,8 @@ export default function Home() {
   // Truck-specific states
   const [truckProceedVerification, setTruckProceedVerification] = useState(false);
   const [truckDoubleRewardRequested, setTruckDoubleRewardRequested] = useState(false);
+  const [truckHas2xCooldown, setTruckHas2xCooldown] = useState(false);
+  const [daysUntilNextDouble, setDaysUntilNextDouble] = useState(0);
 
   const WHATSAPP_NUMBER = "+918817828153";
   const LOCATION_LINK = "https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A";
@@ -134,6 +136,21 @@ export default function Home() {
     enabled: !!customerData?.vehicleNumber,
     staleTime: 0, // Always fresh when invalidated
   });
+
+  // Check if truck customer has recent 2x request (7-day cooldown)
+  const { data: doubleRewardCooldownData } = useQuery<{ hasRecentRequest: boolean; daysUntilAvailable: number }>({
+    queryKey: ['/api/double-reward/recent', customerData?.vehicleNumber],
+    enabled: !!customerData?.vehicleNumber && customerData?.vehicleType === 'truck',
+    staleTime: 0,
+  });
+
+  // Update truck 2x cooldown state
+  useEffect(() => {
+    if (doubleRewardCooldownData) {
+      setTruckHas2xCooldown(doubleRewardCooldownData.hasRecentRequest);
+      setDaysUntilNextDouble(doubleRewardCooldownData.daysUntilAvailable);
+    }
+  }, [doubleRewardCooldownData]);
 
   // Poll for verification status every 2 seconds while waiting (continue polling even after timeout for a short grace period)
   const { data: verificationStatus } = useQuery<{ verified: boolean; vehicleNumber: string; prize: number | null }>({
@@ -514,6 +531,8 @@ export default function Home() {
     // Reset truck-specific states
     setTruckProceedVerification(false);
     setTruckDoubleRewardRequested(false);
+    setTruckHas2xCooldown(false);
+    setDaysUntilNextDouble(0);
   };
 
   const handleWhatsAppUpload = () => {
@@ -1103,22 +1122,36 @@ ${LOCATION_LINK}`;
                             /* Truck: Show two buttons before verification */
                             <div className="space-y-4">
                               <p className="text-sm text-center text-[#d5e2cd] mb-2">
-                                Choose an option:
+                                Choose an option in 45 sec:
                               </p>
-                              <Button
-                                onClick={handleTruckDoubleReward}
-                                className="w-full gap-2 py-4
-                                bg-gradient-to-b from-amber-400 to-amber-600
-                                hover:from-amber-500 hover:to-amber-700
-                                text-black font-bold text-base
-                                shadow-[0_4px_0_#b45309,0_6px_15px_rgba(0,0,0,0.3)]
-                                border border-amber-300
-                                rounded-xl"
-                                data-testid="button-double-reward"
-                              >
-                                <span className="text-xl">2x</span>
-                                Double Your Reward
-                              </Button>
+                              <p className="text-sm text-center text-[#d5e2cd] mb-2">
+                                for 2x reward plz contact to the DEO 
+                              </p>
+                              {truckHas2xCooldown ? (
+                                <div className="p-4 rounded-lg bg-[rgba(255,165,0,0.1)] border border-[#ffa500] space-y-2">
+                                  <p className="text-sm text-center text-[#ffa500] font-semibold">
+                                    2x Reward Unavailable
+                                  </p>
+                                  <p className="text-sm text-center text-[#d5e2cd]">
+                                    Come back in {daysUntilNextDouble} day{daysUntilNextDouble !== 1 ? 's' : ''} to use the 2x button again
+                                  </p>
+                                </div>
+                              ) : (
+                                <Button
+                                  onClick={handleTruckDoubleReward}
+                                  className="w-full gap-2 py-4
+                                  bg-gradient-to-b from-amber-400 to-amber-600
+                                  hover:from-amber-500 hover:to-amber-700
+                                  text-black font-bold text-base
+                                  shadow-[0_4px_0_#b45309,0_6px_15px_rgba(0,0,0,0.3)]
+                                  border border-amber-300
+                                  rounded-xl"
+                                  data-testid="button-double-reward"
+                                >
+                                  <span className="text-xl">2x</span>
+                                  Double Your Reward
+                                </Button>
+                              )}
                               <Button
                                 onClick={handleTruckProceedVerification}
                                 className="w-full gap-2 py-3
