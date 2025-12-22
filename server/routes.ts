@@ -984,6 +984,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/double-reward/:id", async (req, res) => {
     try {
       const { id } = req.params;
+      
+      // Get the request first to know the vehicle number
+      const requests = await storage.getDoubleRewardRequests();
+      const request = requests.find(r => r.id === id);
+      
+      if (request) {
+        // Mark the truck as "Proceed for Verification" so it appears in the pending list
+        await storage.markTruckProceedForVerification(request.vehicleNumber);
+      }
+      
       await storage.deleteDoubleRewardRequest(id);
       res.json({ success: true });
     } catch (error: any) {
