@@ -585,7 +585,7 @@ export default function Home() {
     
     // Create the detailed message with prize info
     const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
-    const detailedMessage = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
+    const detailedMessage = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}`;
     
     // Open WhatsApp with both the message and shareable link
     const fullMessage = encodeURIComponent(`${detailedMessage}\n\n${fullShareUrl}`);
@@ -1135,12 +1135,7 @@ ${LOCATION_LINK}`;
                           ) : customerData?.vehicleType === 'truck' && !truckProceedVerification && !truckDoubleRewardRequested && !truckHas2xCooldown ? (
                             /* Truck: Show two buttons before verification (only if not on cooldown) */
                             <div className="space-y-4">
-                              <p className="text-sm text-center text-[#d5e2cd] mb-2">
-                                Choose an option in 45 sec:
-                              </p>
-                              <p className="text-sm text-center text-[#d5e2cd] mb-2">
-                                for 2x reward plz contact to the DEO 
-                              </p>
+                              
                               <Button
                                 onClick={handleTruckDoubleReward}
                                 className="w-full gap-2 py-4

@@ -475,7 +475,7 @@ export default function EmployeeDashboard() {
                   {doubleRewardRequests.map((request) => (
                     <div
                       key={request.id}
-                      className="flex items-center gap-4 p-4 border rounded-lg bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800"
+                      className="flex items-center gap-4 p-4 border rounded-lg bg-amber dark:bg-amber-950/20 border-amber-200 dark:border-amber-800"
                       data-testid={`card-double-reward-${request.id}`}
                     >
                       <div className="flex items-center gap-2">

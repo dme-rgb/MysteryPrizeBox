@@ -209,8 +209,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { rewardAmount } = req.body;
       
-      if (!rewardAmount || rewardAmount < 1 || rewardAmount > 20) {
-        return res.status(400).json({ error: "Reward amount must be between 1 and 20 rupees" });
+      if (!rewardAmount || rewardAmount < 1 || rewardAmount > 25) {
+        return res.status(400).json({ error: "Reward amount must be between 1 and 25 rupees" });
       }
 
       const customer = await storage.getCustomer(req.params.id);
@@ -748,7 +748,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const location = "https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A";
       
       const totalWinnings = total && parseInt(total) > parseInt(prize) ? ` Total winnings so far: ₹${total}` : '';
-      const descriptionText = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${prize} back instantly! 🎁 Try your luck here & let me know!${totalWinnings} Get directions: ${location}`;
+      const descriptionText = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${prize} back instantly! 🎁 Try your luck here & let me know!${totalWinnings}`;
       const shortDescription = descriptionText.substring(0, 160);
       
       const appUrl = req.get('host') || 'localhost:5000';
