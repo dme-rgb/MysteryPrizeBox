@@ -561,7 +561,7 @@ export default function Home() {
       minute: '2-digit',
     });
     
-    const message = `Vehicle Number: ${customerData.vehicleNumber}%0ATimestamp: ${timestamp}%0A%0APlease find my bill photo attached for verification.`;
+    const message = `Vehicle Number: ${customerData.vehicleNumber}%0ATimestamp: ${timestamp}%0A%0AView verification status: ${encodeURIComponent(`${window.location.origin}/share?prize=${rewardAmount}`)}%0A%0APlease find my bill photo attached for verification.`;
     
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}?text=${message}`;
     window.open(whatsappUrl, '_blank');
@@ -585,10 +585,10 @@ export default function Home() {
     
     // Create the detailed message with prize info
     const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
-    const detailedMessage = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}`;
+    const detailedMessage = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
     
     // Open WhatsApp with both the message and shareable link
-    const fullMessage = encodeURIComponent(`${detailedMessage}\n\n${fullShareUrl}`);
+    const fullMessage = encodeURIComponent(`${detailedMessage}\n\nView details: ${fullShareUrl}`);
     const whatsappUrl = `https://wa.me/?text=${fullMessage}`;
     window.open(whatsappUrl, '_blank');
     
