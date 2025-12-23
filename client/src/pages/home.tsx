@@ -585,7 +585,7 @@ export default function Home() {
     
     // Create the detailed message with prize info
     const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
-    const detailedMessage = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\nGet directions: ${LOCATION_LINK}`;
+    const detailedMessage = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\n`;
     
     // Open WhatsApp with both the message and shareable link
     const fullMessage = encodeURIComponent(`${detailedMessage}\n\nView details: ${fullShareUrl}`);
