@@ -74,7 +74,7 @@ export class BulkPEService {
   private apiKey: string;
 
   constructor() {
-    const apiKey = "aWSVQNyt+z3IiJHV+YX9Un46h/mj2mEkYcsghRiWBmefIOHcCWqc8DK+ZISb1j+FbvlYwmJZNDhLzChIwULUHA==";
+    const apiKey = process.env.BULKPE_API_KEY;
     if (!apiKey) throw new Error('BULKPE_API_KEY not set');
     this.apiKey = apiKey;
   }
