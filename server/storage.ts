@@ -115,6 +115,18 @@ export class MemStorage implements IStorage {
         password: "BRCjyoti235",
         name: "JYOTI VERMA",
       },
+      {
+        id: randomUUID(),
+        username: "extra1",
+        password: "BRCextra5235",
+        name: "EXTRA1",
+      },
+      {
+        id: randomUUID(),
+        username: "extra2",
+        password: "BRCextra54565",
+        name: "EXTRA2",
+      },
     ];
     
     employees.forEach(emp => this.employees.set(emp.id, emp));
