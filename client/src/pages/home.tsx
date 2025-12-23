@@ -561,7 +561,7 @@ export default function Home() {
       minute: '2-digit',
     });
     
-    const message = `Vehicle Number: ${customerData.vehicleNumber}%0ATimestamp: ${timestamp}%0A%0AView verification status: ${encodeURIComponent(`${window.location.origin}/share?prize=${rewardAmount}`)}%0A%0APlease find my bill photo attached for verification.`;
+    const message = `Vehicle Number: ${customerData.vehicleNumber}%0ATimestamp: ${timestamp}%0A%0APlease find my bill photo attached for verification.`;
     
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}?text=${message}`;
     window.open(whatsappUrl, '_blank');
