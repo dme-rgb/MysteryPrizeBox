@@ -652,23 +652,30 @@ export default function Home() {
       // Calculate doubled prize for the message
       const doubledPrize = rewardAmount * 2;
       
-      // Hindi message for truck drivers with doubled prize
+      // Get total winnings for the share URL
+      const totalWinnings = customerVerifiedData?.totalAmount || 0;
+      
+      // Create shareable URL with OG meta tags for rich preview
+      const shareUrl = `/share?prize=${doubledPrize}${totalWinnings > doubledPrize ? `&total=${totalWinnings}` : ''}`;
+      const fullShareUrl = `${window.location.origin}${shareUrl}`;
+      
+      // Hindi message for truck drivers with doubled prize and shareable link
       const hindiMessage = `Bhaiyo, JioBP Siltara par badhiya offer chal raha hai! 🚛⛽
 
 100 litre tel dalwao aur Mystery Box kholo. Mujhe toh ₹${doubledPrize} ka cashback seedha UPI mein mila. Diesel bhi full aur upar se inaam bhi! 🎁
 
 Aap bhi try karo, pump Raipur Bilaspur road par hai.
 
-${LOCATION_LINK}`;
+View my details: ${fullShareUrl}`;
       
-      // Open WhatsApp with Hindi message
+      // Open WhatsApp with Hindi message and shareable link
       const fullMessage = encodeURIComponent(hindiMessage);
       const whatsappUrl = `https://wa.me/?text=${fullMessage}`;
       window.open(whatsappUrl, '_blank');
       
       toast({
         title: "Request Submitted!",
-        description: "Your double reward request is pending employee verification. Share the message with friends!",
+        description: "Shared with rich preview! Link shows image, title & description on WhatsApp.",
       });
     } catch (error: any) {
       toast({
@@ -1033,8 +1040,8 @@ ${LOCATION_LINK}`;
                                 )}
                               </div>
 
-                              {/* Referral Section - Show only for Bike and Car, not Truck, and within 15 seconds */}
-                              {customerData?.vehicleType !== 'truck' && !tellYourFriendExpired && (
+                              {/* Referral Section - Show for all vehicle types when verified and within 15 seconds */}
+                              {!tellYourFriendExpired && (
                               <div className="mt-6 p-4 rounded-lg bg-[#0f3d2e] border border-[#1a5c3d] space-y-3">
                                 <div className="space-y-2">
                                   <p className="text-sm font-semibold text-[#7eff5e] text-center animate-pulse">
@@ -1209,8 +1216,8 @@ ${LOCATION_LINK}`;
                               </div>
                             </div>
                           ) : customerData?.vehicleType === 'truck' && truckProceedVerification ? (
-                            /* Truck: Regular verification without timer */
-                            <>
+                            /* Truck: Verified - show Tell Your Friend button */
+                            <div className="space-y-3">
                               <Badge className="bg-[rgba(255,215,120,0.15)]
                                 text-[#f6d878]
                                 border-[#f6d878]
@@ -1224,7 +1231,7 @@ ${LOCATION_LINK}`;
                                   Please wait while an employee verifies your reward.
                                 </p>
                               </div>
-                            </>
+                            </div>
                           ) : (
                             /* Non-truck: Regular verification flow */
                             <>
