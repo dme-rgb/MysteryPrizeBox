@@ -730,6 +730,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Track link opens for shared links
+  app.post("/api/track-link-open", async (req, res) => {
+    try {
+      const { prize } = req.body;
+      
+      if (!prize) {
+        return res.status(400).json({ error: "Prize amount is required" });
+      }
+      
+      // Update link opens counter in Google Sheets
+      await googleSheetsService.incrementLinkOpens(prize);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Track link open error:", error);
+      // Don't fail the share page if tracking fails
+      res.json({ success: true });
+    }
+  });
+
   // Helper function to escape HTML special characters
   function escapeHtml(text: string): string {
     return text
@@ -858,6 +877,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     <p class="message">${descriptionText}</p>
     <button class="button" onclick="window.location.href='https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A'">Get Directions</button>
   </div>
+  <script>
+    // Track link open
+    fetch('/api/track-link-open', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prize: '${prize}' })
+    }).catch(() => {});
+  </script>
 </body>
 </html>
       `;

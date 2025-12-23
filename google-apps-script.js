@@ -78,7 +78,8 @@ function doPost(e) {
         "", // Verified By column (initially empty)
         "", // Verification Timestamp column (initially empty)
         data.vehicleType || "", // Vehicle Type (bike, car, truck)
-        data.doubleRewardDate || "" // Double Reward Date (when 2x was used)
+        data.doubleRewardDate || "", // Double Reward Date (when 2x was used)
+        0 // Link Opens counter (Column L)
       ]);
       
       return ContentService.createTextOutput(JSON.stringify({
@@ -147,6 +148,39 @@ function doPost(e) {
           }
           sheet.getRange(i + 1, 8).setValue(verifierName); // Column H (verified by)
           sheet.getRange(i + 1, 9).setValue(verificationTimestamp); // Column I (verification timestamp)
+          break;
+        }
+      }
+      
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+    
+    if (data.action === "incrementLinkOpens") {
+      // Increment link opens counter for a customer by prize amount (today's entry)
+      const prize = data.prize;
+      
+      const dataRange = sheet.getDataRange();
+      const values = dataRange.getValues();
+      
+      // Extract just the date part (YYYY-MM-DD) from today's date
+      const today = new Date();
+      const todayDatePart = today.getFullYear() + '-' + 
+                           String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                           String(today.getDate()).padStart(2, '0');
+      
+      // Find today's entry with this prize amount
+      for (let i = values.length - 1; i >= 1; i--) {
+        const entryPrize = String(values[i][2]); // Column C (prize)
+        const entryTimestamp = String(values[i][4]);
+        const entryDatePart = entryTimestamp.split('T')[0]; // Extract date part
+        
+        // Match today's entry with the same prize amount
+        if (entryPrize === prize && entryDatePart === todayDatePart) {
+          // Increment the link opens counter in Column L (index 11)
+          const currentCount = parseInt(values[i][11]) || 0;
+          sheet.getRange(i + 1, 12).setValue(currentCount + 1);
           break;
         }
       }

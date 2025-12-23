@@ -123,6 +123,21 @@ export class GoogleSheetsService {
     return data.customers || [];
   }
 
+  async incrementLinkOpens(prize: string | number): Promise<void> {
+    const response = await fetch(this.webhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        action: 'incrementLinkOpens',
+        prize: String(prize),
+      }),
+    });
+
+    await this.checkResponse(response);
+  }
+
   async getCustomerByVehicle(vehicleNumber: string): Promise<SheetCustomer | null> {
     const normalized = normalizeVehicleNumber(vehicleNumber);
     const response = await fetch(`${this.webhookUrl}?action=getByVehicle&vehicleNumber=${encodeURIComponent(normalized)}`, {
