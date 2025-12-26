@@ -2,6 +2,9 @@ import fs from "node:fs";
 import path from "node:path";
 import { type Server } from "node:http";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 import express, { type Express } from "express";
 import { default as runApp } from "./server/app";
 
