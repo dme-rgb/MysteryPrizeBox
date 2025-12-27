@@ -455,7 +455,7 @@ export default function EmployeeDashboard() {
             <Card className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-foreground">
-                  Truck Double Reward Requests
+                  Double Reward Requests
                 </h2>
                 <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-300" data-testid="badge-double-reward-count">
                   {doubleRewardRequests.length} pending
@@ -512,10 +512,6 @@ export default function EmployeeDashboard() {
                             <span className="font-bold" data-testid={`text-doubled-prize-${request.id}`}>
                               ₹{request.originalReward * 2}
                             </span>
-                          </Badge>
-                          <Badge variant="outline" className="gap-1">
-                            <Truck className="w-3 h-3" />
-                            Truck
                           </Badge>
                         </div>
                         
