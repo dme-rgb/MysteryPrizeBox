@@ -137,10 +137,10 @@ export default function Home() {
     staleTime: 0, // Always fresh when invalidated
   });
 
-  // Check if truck customer has recent 2x request (7-day cooldown)
+  // Check if customer has recent 2x request (7-day cooldown) - works for all vehicle types
   const { data: doubleRewardCooldownData } = useQuery<{ hasRecentRequest: boolean; daysUntilAvailable: number }>({
     queryKey: ['/api/double-reward/recent', customerData?.vehicleNumber],
-    enabled: !!customerData?.vehicleNumber && customerData?.vehicleType === 'truck',
+    enabled: !!customerData?.vehicleNumber,
     staleTime: 0,
     refetchInterval: 60000, // Re-check every 60 seconds to detect when 7-day cooldown expires
   });
@@ -249,25 +249,7 @@ export default function Home() {
     }
   }, [showReward]);
 
-  // Start 15-second timer for "Tell Your Friend" button when reward is verified
-  useEffect(() => {
-    if (isVerified && !tellYourFriendExpired) {
-      // Reset timer when reward is verified
-      setTellYourFriendTimeLeft(15);
-      
-      const interval = setInterval(() => {
-        setTellYourFriendTimeLeft((prev) => {
-          if (prev === null || prev <= 1) {
-            setTellYourFriendExpired(true);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000); // Update every second
-      
-      return () => clearInterval(interval);
-    }
-  }, [isVerified, tellYourFriendExpired]);
+  // No timer needed - "Tell Your Friend" button shows permanently after verification
 
   // Trigger confetti when prize card appears
   useEffect(() => {
@@ -624,12 +606,12 @@ export default function Home() {
     }
   };
 
-  // Truck: Handle "Double Your Reward" button
-  const handleTruckDoubleReward = async () => {
+  // Handle "Double Your Reward" button for all vehicle types
+  const handleDoubleYourReward = async () => {
     if (!customerData || !rewardAmount || !customerId) return;
     
     try {
-      // Create double reward request
+      // Create double reward request for all vehicle types
       const res = await fetch('/api/double-reward/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -649,7 +631,7 @@ export default function Home() {
       
       setTruckDoubleRewardRequested(true);
       
-      // Calculate doubled prize for the message
+      // Get doubled prize amount
       const doubledPrize = rewardAmount * 2;
       
       // Get total winnings for the share URL
@@ -659,17 +641,28 @@ export default function Home() {
       const shareUrl = `/share?prize=${doubledPrize}${totalWinnings > doubledPrize ? `&total=${totalWinnings}` : ''}`;
       const fullShareUrl = `${window.location.origin}${shareUrl}`;
       
-      // Hindi message for truck drivers with doubled prize and shareable link
-      const hindiMessage = `Bhaiyo, JioBP Siltara par badhiya offer chal raha hai! 🚛⛽
+      // Create message based on vehicle type
+      let message = '';
+      if (customerData.vehicleType === 'truck') {
+        // Hindi message for truck drivers
+        message = `Bhaiyo, JioBP Siltara par badhiya offer chal raha hai! 🚛⛽
 
 100 litre tel dalwao aur Mystery Box kholo. Mujhe toh ₹${doubledPrize} ka cashback seedha UPI mein mila. Diesel bhi full aur upar se inaam bhi! 🎁
 
 Aap bhi try karo, pump Raipur Bilaspur road par hai.
 
 View my details: ${fullShareUrl}`;
+      } else {
+        // English message for bike and car - Tell Your Friends
+        message = `Tell Your Friends! I just won ₹${doubledPrize} at JioBP Siltara Mystery Box! 🎁⛽
+
+Play the mystery box game and win instant cashback. Double your reward by telling friends!
+
+Check it out: ${fullShareUrl}`;
+      }
       
-      // Open WhatsApp with Hindi message and shareable link
-      const fullMessage = encodeURIComponent(hindiMessage);
+      // Open WhatsApp with message and shareable link
+      const fullMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${fullMessage}`;
       window.open(whatsappUrl, '_blank');
       
@@ -761,7 +754,7 @@ View my details: ${fullShareUrl}`;
             </Button>
 
             {/* Employee Login Link - Bottom Right */}
-            <div className="fixed bottom-8 right-8 z-50">
+            <div className="fixed bottom-7 right-3 z-50">
               <Link href="/employee">
                 <Button 
                   variant="outline" 
@@ -769,8 +762,9 @@ View my details: ${fullShareUrl}`;
                   className="gap-2 text-xs font-medium"
                   data-testid="button-employee-login"
                 >
+                  <div className="flex flex-row items-center justify-center gap-1">
                   <LogIn className="w-4 h-4" />
-                  Employee Login
+                  Employee Login</div>
                 </Button>
               </Link>
             </div>
@@ -1040,21 +1034,15 @@ View my details: ${fullShareUrl}`;
                                 )}
                               </div>
 
-                              {/* Referral Section - Show for all vehicle types when verified and within 15 seconds */}
-                              {!tellYourFriendExpired && (
+                              {/* Referral Section - Show for all vehicle types after verification */}
                               <div className="mt-6 p-4 rounded-lg bg-[#0f3d2e] border border-[#1a5c3d] space-y-3">
                                 <div className="space-y-2">
                                   <p className="text-sm font-semibold text-[#7eff5e] text-center animate-pulse">
-                                    Increase the chance of win
+                                    Bonus Rewards
                                   </p>
                                   <p className="text-xs text-[#a8d5a8] text-center">
-                                    Share your winning moment with friends!
+                                    ₹1 for each share, upto 2x your reward
                                   </p>
-                                  {tellYourFriendTimeLeft !== null && (
-                                    <p className="text-lg font-bold text-[#ffae73] text-center" data-testid="text-share-timer">
-                                      {tellYourFriendTimeLeft}s remaining
-                                    </p>
-                                  )}
                                 </div>
                                 <Button
                                   onClick={handleTellYourFriend}
@@ -1066,11 +1054,12 @@ View my details: ${fullShareUrl}`;
                                   border border-blue-300"
                                   data-testid="button-tell-friend"
                                 >
-                                  <Share2 className="w-4 h-4" />
-                                  Tell Your Friend
+                                  <div className="flex flex-row items-center justify-center gap-2">
+                                    <Share2 className="w-4 h-4" />
+                                    <span>Tell Your Friend</span>
+                                  </div>
                                 </Button>
                               </div>
-                              )}
                             </div>
                           ) : timeExpired || payoutStatus === 'failed' ? (
                             <div className="space-y-3">
@@ -1139,44 +1128,65 @@ View my details: ${fullShareUrl}`;
                                 </div>
                               )}
                             </div>
-                          ) : customerData?.vehicleType === 'truck' && !truckProceedVerification && !truckDoubleRewardRequested && !truckHas2xCooldown ? (
-                            /* Truck: Show two buttons before verification (only if not on cooldown) */
-                            <div className="space-y-4">
-                              
-                              <Button
-                                onClick={handleTruckDoubleReward}
-                                className="w-full gap-2 py-4
-                                bg-gradient-to-b from-amber-400 to-amber-600
-                                hover:from-amber-500 hover:to-amber-700
-                                text-black font-bold text-base
-                                shadow-[0_4px_0_#b45309,0_6px_15px_rgba(0,0,0,0.3)]
-                                border border-amber-300
-                                rounded-xl"
-                                data-testid="button-double-reward"
-                              >
-                                <span className="text-xl">2x</span>
-                                Double Your Reward
-                              </Button>
-                              <Button
-                                onClick={handleTruckProceedVerification}
-                                className="w-full gap-2 py-3
-                                bg-gradient-to-b from-green-500 to-green-700
-                                hover:from-green-600 hover:to-green-800
-                                text-white font-semibold
-                                shadow-[0_4px_0_#166534,0_6px_15px_rgba(0,0,0,0.3)]
-                                border border-green-400
-                                rounded-xl"
-                                data-testid="button-proceed-verification"
-                              >
-                                <CheckCircle className="w-4 h-4" />
-                                Proceed for Verification
-                              </Button>
-                              <p className="text-xs text-center text-[#8d9b8a]">
-                                Double Reward: Share with friends & get 2x cashback after verification
-                              </p>
-                            </div>
-                          ) : customerData?.vehicleType === 'truck' && truckHas2xCooldown && !truckProceedVerification && !truckDoubleRewardRequested ? (
-                            /* Truck: 2x button on cooldown - show in pending list directly */
+                          ) : !truckProceedVerification && !truckDoubleRewardRequested && !truckHas2xCooldown ? (
+                            /* Show 2x button for all vehicle types before verification */
+                            customerData?.vehicleType === 'truck' ? (
+                              <div className="space-y-4">
+                                <Button
+                                  onClick={handleDoubleYourReward}
+                                  className="w-full gap-2 py-4
+                                  bg-gradient-to-b from-amber-400 to-amber-600
+                                  hover:from-amber-500 hover:to-amber-700
+                                  text-black font-bold text-base
+                                  shadow-[0_4px_0_#b45309,0_6px_15px_rgba(0,0,0,0.3)]
+                                  border border-amber-300
+                                  rounded-xl"
+                                  data-testid="button-double-reward"
+                                >
+                                  <span className="text-xl">2x</span>
+                                  Double Your Reward
+                                </Button>
+                                <Button
+                                  onClick={handleTruckProceedVerification}
+                                  className="w-full gap-2 py-3
+                                  bg-gradient-to-b from-green-500 to-green-700
+                                  hover:from-green-600 hover:to-green-800
+                                  text-white font-semibold
+                                  shadow-[0_4px_0_#166534,0_6px_15px_rgba(0,0,0,0.3)]
+                                  border border-green-400
+                                  rounded-xl"
+                                  data-testid="button-proceed-verification"
+                                >
+                                  <CheckCircle className="w-4 h-4" />
+                                  Proceed for Verification
+                                </Button>
+                                <p className="text-xs text-center text-[#8d9b8a]">
+                                  Double Reward: Share with friends & get 2x cashback after verification
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="space-y-3">
+                                <Button
+                                  onClick={handleDoubleYourReward}
+                                  className="w-full gap-2 py-4
+                                  bg-gradient-to-b from-amber-400 to-amber-600
+                                  hover:from-amber-500 hover:to-amber-700
+                                  text-black font-bold text-base
+                                  shadow-[0_4px_0_#b45309,0_6px_15px_rgba(0,0,0,0.3)]
+                                  border border-amber-300
+                                  rounded-xl"
+                                  data-testid="button-double-reward"
+                                >
+                                  <span className="text-xl">2x</span>
+                                  Double Your Reward
+                                </Button>
+                                <p className="text-xs text-center text-[#8d9b8a]">
+                                  Tell your friends and get 2x cashback!
+                                </p>
+                              </div>
+                            )
+                          ) : truckHas2xCooldown && !truckProceedVerification && !truckDoubleRewardRequested ? (
+                            /* 2x button on cooldown - show in pending list directly (all vehicle types) */
                             <>
                               <Badge className="bg-[rgba(255,165,0,0.15)]
                                 text-[#ffa500]
@@ -1195,8 +1205,8 @@ View my details: ${fullShareUrl}`;
                                 </p>
                               </div>
                             </>
-                          ) : customerData?.vehicleType === 'truck' && truckDoubleRewardRequested ? (
-                            /* Truck: Double reward requested - waiting for employee verification */
+                          ) : truckDoubleRewardRequested ? (
+                            /* Double reward requested - waiting for employee verification (all vehicle types) */
                             <div className="space-y-3">
                               <Badge className="bg-[rgba(255,165,0,0.15)]
                                 text-[#ffa500]
@@ -1215,8 +1225,8 @@ View my details: ${fullShareUrl}`;
                                 </p>
                               </div>
                             </div>
-                          ) : customerData?.vehicleType === 'truck' && truckProceedVerification ? (
-                            /* Truck: Verified - show Tell Your Friend button */
+                          ) : truckProceedVerification ? (
+                            /* Verified - show Tell Your Friend button (all vehicle types) */
                             <div className="space-y-3">
                               <Badge className="bg-[rgba(255,215,120,0.15)]
                                 text-[#f6d878]
