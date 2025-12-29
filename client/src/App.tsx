@@ -29,16 +29,4 @@ function App() {
     </QueryClientProvider>
   );
 }
-
-import { useEffect } from "react";
-
-function App() {
-  useEffect(() => {
-    throw new Error("Sentry client test error");
-  }, []);
-
-  return <div>App Loaded</div>;
-}
-
-
 export default App;
