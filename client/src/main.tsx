@@ -9,8 +9,7 @@ Sentry.init({
   tracesSampleRate: 1.0,
 });
 
-// ✅ ONE-LINE TEST
-Sentry.captureMessage("SENTRY CLIENT STARTED ✅");
+
 
 createRoot(document.getElementById("root")!).render(<App />);
 
