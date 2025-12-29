@@ -1181,7 +1181,7 @@ Check it out: ${fullShareUrl}`;
                                   Double Your Reward
                                 </Button>
                                 <p className="text-xs text-center text-[#8d9b8a]">
-                                  Tell your friends and get 2x cashback!
+                                  Verify your full tank entry for 2x
                                 </p>
                               </div>
                             )
