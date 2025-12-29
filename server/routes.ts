@@ -415,6 +415,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get employee statistics - all employees with their total verification counts
+  app.get("/api/employees/stats", async (req, res) => {
+    try {
+      const allCustomers = await googleSheetsService.getAllCustomers();
+      
+      // Count verifications by employee (verifiedBy field)
+      const employeeStats = new Map<string, { name: string; count: number }>();
+      
+      allCustomers.forEach(customer => {
+        if (customer.verified && customer.verifiedBy) {
+          const name = customer.verifiedBy;
+          const existing = employeeStats.get(name) || { name, count: 0 };
+          employeeStats.set(name, { name, count: existing.count + 1 });
+        }
+      });
+      
+      // Convert to sorted array
+      const stats = Array.from(employeeStats.values())
+        .sort((a, b) => b.count - a.count); // Sort by count descending
+      
+      res.json({ employees: stats });
+    } catch (error: any) {
+      console.error("Get employee stats error:", error);
+      
+      if (error instanceof GoogleSheetsNotConfiguredError) {
+        return res.status(503).json({ 
+          error: "Google Sheets is not configured. Please complete the setup first." 
+        });
+      }
+      
+      res.status(500).json({ error: error.message });
+    }
+  });
+
   // Get today's verified customers from Google Sheets with VPA info
   app.get("/api/employee/verified-customers", async (req, res) => {
     try {
