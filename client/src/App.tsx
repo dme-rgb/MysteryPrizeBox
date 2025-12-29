@@ -29,13 +29,4 @@ function App() {
     </QueryClientProvider>
   );
 }
-
-<button
-  onClick={() => {
-    throw new Error("Sentry client test error");
-  }}
->
-  Test Sentry
-</button>
-
 export default App;
