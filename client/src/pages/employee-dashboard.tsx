@@ -85,6 +85,13 @@ export default function EmployeeDashboard() {
     enabled: !!employee,
   });
 
+  // Employee stats query
+  const { data: employeeStatsData, isLoading: employeeStatsLoading } = useQuery<{ employees: Array<{ name: string; count: number }> }>({
+    queryKey: ['/api/employees/stats'],
+    refetchInterval: 5000,
+    enabled: !!employee,
+  });
+
   // Double reward verification mutation
   const verifyDoubleRewardMutation = useMutation({
     mutationFn: async (requestId: string) => {
@@ -323,7 +330,7 @@ export default function EmployeeDashboard() {
         </div>
 
         <Tabs defaultValue="unverified" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="unverified" className="gap-2">
               Pending ({unverifiedCustomers.length})
             </TabsTrigger>
@@ -334,6 +341,10 @@ export default function EmployeeDashboard() {
             <TabsTrigger value="verified" className="gap-2">
               <CheckCircle className="w-4 h-4" />
               Verified ({verifiedCustomers.length})
+            </TabsTrigger>
+            <TabsTrigger value="employees" className="gap-2">
+              <User className="w-4 h-4" />
+              Team
             </TabsTrigger>
           </TabsList>
 
@@ -659,6 +670,57 @@ export default function EmployeeDashboard() {
                             )}
                           </div>
                         </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+
+          {/* Employee Stats Tab */}
+          <TabsContent value="employees" className="space-y-4">
+            <Card className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-semibold text-foreground">
+                  Team Performance
+                </h2>
+                <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-300" data-testid="badge-employee-count">
+                  {employeeStatsData?.employees.length || 0} employees
+                </Badge>
+              </div>
+
+              {employeeStatsLoading ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  Loading employee statistics...
+                </div>
+              ) : !employeeStatsData?.employees || employeeStatsData.employees.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No verification data yet.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {employeeStatsData.employees.map((emp, index) => (
+                    <div
+                      key={emp.name}
+                      className="flex items-center gap-4 p-4 border rounded-lg bg-card/50 hover-elevate"
+                      data-testid={`card-employee-${emp.name}`}
+                    >
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 font-bold text-blue-600 dark:text-blue-300">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-foreground" data-testid={`text-employee-name-${index}`}>
+                          {emp.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Total Verifications
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge className="bg-blue-600 text-white gap-1 text-lg px-3 py-1" data-testid={`badge-count-${index}`}>
+                          {emp.count}
+                        </Badge>
                       </div>
                     </div>
                   ))}
