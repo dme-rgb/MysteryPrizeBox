@@ -461,12 +461,12 @@ export default function Home() {
 
     if (vehicleType === 'bike') {
       // Bike: 20% chance 11-15, 80% chance 1-10
-      reward = random < 0.8
-        ? Math.floor(Math.random() * 10) + 1      // 1-10 rupees (80% chance)
-        : Math.floor(Math.random() * 5) + 11;     // 11-15 rupees (20% chance)
+      reward = random < 0.9
+        ? Math.floor(Math.random() * 8) + 1      // 1-8 rupees (90% chance)
+        : Math.floor(Math.random() * 4) + 9;     // 9-12 rupees (10% chance)
     } else if (vehicleType === 'car') {
       // Car: 20% chance 15-20, 80% chance 1-14
-      reward = random < 0.8
+      reward = random < 0.9
         ? Math.floor(Math.random() * 14) + 1      // 1-14 rupees (80% chance)
         : Math.floor(Math.random() * 6) + 15;     // 15-20 rupees (20% chance)
     } else if (vehicleType === 'truck') {
