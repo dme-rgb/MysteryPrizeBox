@@ -415,19 +415,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get employee statistics - all employees with their total verification counts
+    // Get employee statistics - all employees with their total verification counts and total amount
   app.get("/api/employees/stats", async (req, res) => {
     try {
       const allCustomers = await googleSheetsService.getAllCustomers();
       
-      // Count verifications by employee (verifiedBy field)
-      const employeeStats = new Map<string, { name: string; count: number }>();
+      // Count verifications and total amount by employee (verifiedBy field)
+      const employeeStats = new Map<string, { name: string; count: number; totalAmount: number; amountDivided: number }>();
       
       allCustomers.forEach(customer => {
         if (customer.verified && customer.verifiedBy) {
           const name = customer.verifiedBy;
-          const existing = employeeStats.get(name) || { name, count: 0 };
-          employeeStats.set(name, { name, count: existing.count + 1 });
+          const existing = employeeStats.get(name) || { name, count: 0, totalAmount: 0, amountDivided: 0 };
+          const amount = customer.amount || 0;
+          const newTotalAmount = existing.totalAmount + amount;
+          
+          employeeStats.set(name, { 
+            name, 
+            count: existing.count + 1,
+            totalAmount: newTotalAmount,
+            amountDivided: parseFloat((newTotalAmount / 95).toFixed(2))
+          });
         }
       });
       
