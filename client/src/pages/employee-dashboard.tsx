@@ -86,7 +86,7 @@ export default function EmployeeDashboard() {
   });
 
   // Employee stats query
-  const { data: employeeStatsData, isLoading: employeeStatsLoading } = useQuery<{ employees: Array<{ name: string; count: number }> }>({
+  const { data: employeeStatsData, isLoading: employeeStatsLoading } = useQuery<{ employees: Array<{ name: string; count: number; totalAmount: number; amountDivided: number }> }>({
     queryKey: ['/api/employees/stats'],
     refetchInterval: 5000,
     enabled: !!employee,
@@ -703,24 +703,33 @@ export default function EmployeeDashboard() {
                   {employeeStatsData.employees.map((emp, index) => (
                     <div
                       key={emp.name}
-                      className="flex items-center gap-4 p-4 border rounded-lg bg-card/50 hover-elevate"
+                      className="flex items-center justify-between gap-4 p-4 border rounded-lg bg-card/50 hover-elevate"
                       data-testid={`card-employee-${emp.name}`}
                     >
-                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 font-bold text-blue-600 dark:text-blue-300">
-                        {index + 1}
+                      <div className="flex items-center gap-4 flex-1">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 font-bold text-blue-600 dark:text-blue-300">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold text-foreground" data-testid={`text-employee-name-${index}`}>
+                            {emp.name}
+                          </p>
+                          
+                          <p className="text-sm text-muted-foreground mt-1">
+                            <span className="font-medium">₹{emp.totalAmount.toLocaleString()}</span>
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <p className="font-semibold text-foreground" data-testid={`text-employee-name-${index}`}>
-                          {emp.name}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Total Verifications
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-col items-end gap-2">
                         <Badge className="bg-blue-600 text-white gap-1 text-lg px-3 py-1" data-testid={`badge-count-${index}`}>
                           {emp.count}
                         </Badge>
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground">Total liter</p>
+                          <p className="text-lg font-bold text-green-600 dark:text-green-400" data-testid={`text-amount-divided-${index}`}>
+                            {emp.amountDivided.toFixed(0)}
+                          </p>
+                        </div>
                       </div>
                     </div>
                   ))}
