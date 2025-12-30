@@ -715,9 +715,7 @@ export default function EmployeeDashboard() {
                             {emp.name}
                           </p>
                           
-                          <p className="text-sm text-muted-foreground mt-1">
-                            <span className="font-medium">₹{emp.totalAmount.toLocaleString()}</span>
-                          </p>
+                          
                         </div>
                       </div>
                       <div className="flex flex-col items-end gap-2">
@@ -727,7 +725,7 @@ export default function EmployeeDashboard() {
                         <div className="text-right">
                           <p className="text-xs text-muted-foreground">Total liter</p>
                           <p className="text-lg font-bold text-green-600 dark:text-green-400" data-testid={`text-amount-divided-${index}`}>
-                            {emp.amountDivided.toFixed(0)}
+                            {emp.amountDivided.toFixed(0)} L
                           </p>
                         </div>
                       </div>
