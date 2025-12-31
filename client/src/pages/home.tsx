@@ -462,23 +462,23 @@ export default function Home() {
     if (vehicleType === 'bike') {
       // Bike: 20% chance 11-15, 80% chance 1-10
       reward = random < 0.9
-        ? Math.floor(Math.random() * 8) + 1      // 1-8 rupees (90% chance)
-        : Math.floor(Math.random() * 4) + 9;     // 9-12 rupees (10% chance)
+        ? Math.floor(Math.random() * 7) + 1      // 1-8 rupees (90% chance)
+        : Math.floor(Math.random() * 3) + 8;     // 9-12 rupees (10% chance)
     } else if (vehicleType === 'car') {
       // Car: 20% chance 15-20, 80% chance 1-14
       reward = random < 0.9
-        ? Math.floor(Math.random() * 14) + 1      // 1-14 rupees (80% chance)
-        : Math.floor(Math.random() * 6) + 15;     // 15-20 rupees (20% chance)
+        ? Math.floor(Math.random() * 10) + 1      // 1-14 rupees (80% chance)
+        : Math.floor(Math.random() * 4) + 11;     // 15-20 rupees (20% chance)
     } else if (vehicleType === 'truck') {
       // Truck: 10% chance 16-25, 90% chance 1-15
       reward = random < 0.9
-        ? Math.floor(Math.random() * 15) + 1      // 1-15 rupees (90% chance)
-        : Math.floor(Math.random() * 10) + 16;    // 16-25 rupees (10% chance)
+        ? Math.floor(Math.random() * 12) + 1      // 1-15 rupees (90% chance)
+        : Math.floor(Math.random() * 5) + 13;    // 16-25 rupees (10% chance)
     } else {
       // Fallback for unknown vehicle type
       reward = random < 0.8
         ? Math.floor(Math.random() * 9) + 1       // 1-9 rupees (80% chance)
-        : Math.floor(Math.random() * 11) + 10;    // 10-20 rupees (20% chance)
+        : Math.floor(Math.random() * 2) + 10;    // 10-20 rupees (20% chance)
     }
 
     setRewardAmount(reward);
