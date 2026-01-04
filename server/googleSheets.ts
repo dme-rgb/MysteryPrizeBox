@@ -66,7 +66,7 @@ export class GoogleSheetsService {
     }
 
     const text = await response.text();
-    
+
     // Check if response is HTML (Apps Script not set up)
     if (text.trim().startsWith('<')) {
       this.isConfigured = false;
@@ -85,7 +85,7 @@ export class GoogleSheetsService {
 
       const text = await this.checkResponse(response);
       JSON.parse(text); // Verify it's valid JSON
-      
+
       this.isConfigured = true;
       return true;
     } catch (error) {
@@ -256,7 +256,7 @@ export class GoogleSheetsService {
       action: 'logTransaction',
       ...transaction,
     }, null, 2));
-    
+
     const response = await fetch(this.webhookUrl, {
       method: 'POST',
       headers: {
@@ -271,17 +271,17 @@ export class GoogleSheetsService {
     console.log("[GOOGLE SHEETS] logTransaction response status:", response.status);
     const responseText = await response.text();
     console.log("[GOOGLE SHEETS] logTransaction response body:", responseText);
-    
+
     // Check response without calling checkResponse which might throw
     if (!response.ok) {
       throw new Error(`Google Sheets webhook error: ${response.status} ${response.statusText}`);
     }
-    
+
     // Check if response is HTML (Apps Script not set up)
     if (responseText.trim().startsWith('<')) {
       throw new Error("Google Sheets Apps Script not properly deployed - received HTML instead of JSON");
     }
-    
+
     try {
       JSON.parse(responseText);
     } catch (e) {
@@ -297,7 +297,7 @@ export class GoogleSheetsService {
 
       const text = await this.checkResponse(response);
       const data = JSON.parse(text);
-      
+
       if (data.found) {
         console.log(`[GOOGLE SHEETS] Found transaction for ${phoneNumber}: VPA=${data.vpa}, Message=${data.vpaMessage}, Beneficiary=${data.beneficiaryName}`);
         return {
@@ -309,7 +309,7 @@ export class GoogleSheetsService {
           timestamp: data.timestamp || null
         };
       }
-      
+
       console.log(`[GOOGLE SHEETS] No transaction found for ${phoneNumber} in Transactions sheet`);
       return null;
     } catch (error) {
