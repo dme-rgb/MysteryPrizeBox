@@ -886,10 +886,10 @@ export default function Home() {
                               <div className="mt-6 p-4 rounded-lg bg-[#0f3d2e] border border-[#1a5c3d] space-y-3">
                                 <div className="space-y-2">
                                   <p className="text-sm font-semibold text-[#7eff5e] text-center animate-pulse">
-                                    Increase Reward 
+                                    Increase Reward
                                   </p>
                                   <p className="text-xs text-[#a8d5a8] text-center">
-                                  Share to get increased rewards next time
+                                    Share to get increased rewards next time
                                   </p>
                                 </div>
                                 <Button
@@ -909,20 +909,53 @@ export default function Home() {
                                 </Button>
                               </div>
                             </div>
-                          ) : timeExpired || payoutStatus === 'failed' ? (
-                            <div className="space-y-3">
-                              <Badge
-                                className="
-                                  bg-[rgba(255,165,90,0.15)]
-                                  text-[#ffae73]
-                                  border-[#ffae73]
-                                  px-4 py-2 text-base tracking-wide
-                                  shadow-[0_0_12px_rgba(255,165,90,0.3)]
-                                "
-                              >
-                                <Clock className="w-4 h-4 mr-2 text-[#ffae73]" />
-                                {timeExpired ? 'Verification Time Expired' : 'Payment Failed'}
-                              </Badge>
+                          ) : (
+                            // !isVerified: Show Waiting OR Failed/Expired state, PLUS the Upload Bill button always
+                            <div className="space-y-6 w-full max-w-sm mx-auto">
+                              {/* Status Badge */}
+                              <div className="flex flex-col items-center gap-4">
+                                {timeExpired || payoutStatus === 'failed' ? (
+                                  <Badge
+                                    className="
+                                      bg-[rgba(255,165,90,0.15)]
+                                      text-[#ffae73]
+                                      border-[#ffae73]
+                                      px-4 py-2 text-base tracking-wide
+                                      shadow-[0_0_12px_rgba(255,165,90,0.3)]
+                                    "
+                                  >
+                                    <Clock className="w-4 h-4 mr-2 text-[#ffae73]" />
+                                    {timeExpired ? 'Verification Time Expired' : 'Payment Failed'}
+                                  </Badge>
+                                ) : (
+                                  <>
+                                    <Badge className="bg-[rgba(255,215,120,0.15)]
+                                      text-[#f6d878]
+                                      border-[#f6d878]
+                                      px-4 py-2 text-base tracking-wide
+                                      shadow-[0_0_12px_rgba(255,215,120,0.3)]" data-testid="badge-pending">
+                                      <Clock className="w-4 h-4 mr-2 animate-pulse text-[#f6d878]" />
+                                      Waiting for Verification
+                                    </Badge>
+                                    {verificationTimeLeft !== null && (
+                                      <div className="text-center">
+                                        <p className="text-sm font-medium text-[#b9c5b6] mb-1">Time Remaining:</p>
+                                        <p className="text-3xl font-bold text-primary" data-testid="text-verification-timer">
+                                          {verificationTimeLeft}s
+                                        </p>
+                                        <p className="text-xs text-[#8d9b8a] mt-2">
+                                          Please wait while an employee verifies your reward.
+                                        </p>
+                                        <p className="text-xs text-[#8d9b8a] mt-4 font-semibold">
+                                          OR
+                                        </p>
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </div>
+
+                              {/* Upload Bill / WhatsApp Flow - ALWAYS VISIBLE */}
                               {!showWhatsAppFlow ? (
                                 <Button
                                   onClick={() => setShowWhatsAppFlow(true)}
@@ -937,6 +970,7 @@ export default function Home() {
                                     relative
                                     overflow-hidden
                                     mx-auto               /* center the button */
+                                    block                 /* ensure block display */
                                   "
                                   data-testid="button-manual-verify"
                                 >
@@ -976,28 +1010,6 @@ export default function Home() {
                                 </div>
                               )}
                             </div>
-                          ) : (
-                            <>
-                              <Badge className="bg-[rgba(255,215,120,0.15)]
-                                text-[#f6d878]
-                                border-[#f6d878]
-                                px-4 py-2 text-base tracking-wide
-                                shadow-[0_0_12px_rgba(255,215,120,0.3)]" data-testid="badge-pending">
-                                <Clock className="w-4 h-4 mr-2 animate-pulse text-[#f6d878]" />
-                                Waiting for Verification
-                              </Badge>
-                              {verificationTimeLeft !== null && (
-                                <div className="text-center">
-                                  <p className="text-sm font-medium text-[#b9c5b6] mb-1">Time Remaining:</p>
-                                  <p className="text-3xl font-bold text-primary" data-testid="text-verification-timer">
-                                    {verificationTimeLeft}s
-                                  </p>
-                                  <p className="text-xs text-[#8d9b8a] mt-2">
-                                    Please wait while an employee verifies your reward.
-                                  </p>
-                                </div>
-                              )}
-                            </>
                           )}
                         </div>
                       </div>
