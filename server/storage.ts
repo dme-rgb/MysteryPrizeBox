@@ -106,15 +106,15 @@ export class MemStorage implements IStorage {
       },
       {
         id: randomUUID(),
-        username: "extra1",
-        password: "BRCextra5235",
-        name: "EXTRA1",
+        username: "dageshwari",
+        password: "BRCdageshwari5235",
+        name: "DAGESHWARI",
       },
       {
         id: randomUUID(),
-        username: "extra2",
-        password: "BRCextra54565",
-        name: "EXTRA2",
+        username: "kapil",
+        password: "BRCkapil54565",
+        name: "KAPIL",
       },
     ];
 
