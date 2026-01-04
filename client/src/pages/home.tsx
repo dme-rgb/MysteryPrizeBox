@@ -25,6 +25,7 @@ interface Customer {
   phoneNumber: string;
   vehicleNumber: string;
   vehicleType?: string; // bike, car, or truck
+  fuelAmount: number | null;
   rewardAmount: number | null;
   isVerified: boolean;
   alreadyPlayedToday: boolean;
@@ -52,21 +53,17 @@ export default function Home() {
   const [alreadyPlayedError, setAlreadyPlayedError] = useState(false);
   const [tellYourFriendExpired, setTellYourFriendExpired] = useState(false);
   const [tellYourFriendTimeLeft, setTellYourFriendTimeLeft] = useState<number | null>(null);
-  
-  // Truck-specific states
-  const [truckProceedVerification, setTruckProceedVerification] = useState(false);
-  const [truckDoubleRewardRequested, setTruckDoubleRewardRequested] = useState(false);
-  const [truckHas2xCooldown, setTruckHas2xCooldown] = useState(false);
-  const [daysUntilNextDouble, setDaysUntilNextDouble] = useState(0);
+
+
 
   const WHATSAPP_NUMBER = "+918817828153";
   const LOCATION_LINK = "https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A";
-  
+
   // Audio references
   const bgMusicRef = React.useRef<HTMLAudioElement | null>(null);
   const boxOpeningSoundRef = React.useRef<HTMLAudioElement | null>(null);
   const [audioInitialized, setAudioInitialized] = useState(false);
-  
+
   // Initialize audio elements on mount
   useEffect(() => {
     // Create background music element
@@ -76,14 +73,14 @@ export default function Home() {
       bgAudio.volume = 0.3;
       bgMusicRef.current = bgAudio;
     }
-    
+
     // Create box opening sound element
     if (!boxOpeningSoundRef.current) {
       const openSound = new Audio('https://files.catbox.moe/bhtmen.mp3');
       openSound.volume = 0.5;
       boxOpeningSoundRef.current = openSound;
     }
-    
+
     return () => {
       // Cleanup
       if (bgMusicRef.current) {
@@ -91,7 +88,7 @@ export default function Home() {
       }
     };
   }, []);
-  
+
   // Start background music on first user interaction
   useEffect(() => {
     const startAudio = () => {
@@ -102,10 +99,10 @@ export default function Home() {
         setAudioInitialized(true);
       }
     };
-    
+
     window.addEventListener('click', startAudio);
     window.addEventListener('touchstart', startAudio);
-    
+
     return () => {
       window.removeEventListener('click', startAudio);
       window.removeEventListener('touchstart', startAudio);
@@ -137,34 +134,7 @@ export default function Home() {
     staleTime: 0, // Always fresh when invalidated
   });
 
-  // Check if customer has recent 2x request (7-day cooldown) - works for all vehicle types
-  const { data: doubleRewardCooldownData } = useQuery<{ hasRecentRequest: boolean; daysUntilAvailable: number }>({
-    queryKey: ['/api/double-reward/recent', customerData?.vehicleNumber],
-    enabled: !!customerData?.vehicleNumber,
-    staleTime: 0,
-    refetchInterval: 60000, // Re-check every 60 seconds to detect when 7-day cooldown expires
-  });
 
-  // Update truck 2x cooldown state and auto-set pending when on cooldown
-  useEffect(() => {
-    if (doubleRewardCooldownData && customerData?.vehicleNumber) {
-      setTruckHas2xCooldown(doubleRewardCooldownData.hasRecentRequest);
-      setDaysUntilNextDouble(doubleRewardCooldownData.daysUntilAvailable);
-      
-      // If truck is on cooldown, mark them as pending in the backend for the employee dashboard
-      if (doubleRewardCooldownData.hasRecentRequest && !truckDoubleRewardRequested) {
-        // Mark them as pending in the backend for the employee dashboard (DO NOT set truckProceedVerification to true)
-        // This allows the cooldown countdown message to display properly
-        fetch('/api/truck/mark-pending-from-cooldown', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ vehicleNumber: customerData.vehicleNumber }),
-        }).catch(() => {
-          // Silently fail if marking fails, frontend state is already set
-        });
-      }
-    }
-  }, [doubleRewardCooldownData, customerData?.vehicleNumber, truckDoubleRewardRequested]);
 
   // Poll for verification status every 2 seconds while waiting (continue polling even after timeout for a short grace period)
   const { data: verificationStatus } = useQuery<{ verified: boolean; vehicleNumber: string; prize: number | null }>({
@@ -193,7 +163,7 @@ export default function Home() {
       if (customerData?.vehicleNumber) {
         queryClient.invalidateQueries({ queryKey: ['/api/vehicles', customerData.vehicleNumber, 'total-verified-amount'] });
       }
-      
+
       // Fetch actual payment status from backend after a short delay
       setTimeout(async () => {
         try {
@@ -211,7 +181,7 @@ export default function Home() {
             setPayoutStatus('success');
             setPayoutTransactionId(`TXN-${Date.now()}`);
           }
-          
+
           // Fetch transaction details (VPA message and beneficiary name)
           if (customerData?.phoneNumber) {
             try {
@@ -312,7 +282,7 @@ export default function Home() {
         });
         return;
       }
-      
+
       // Update with real ID from backend
       setCustomerId(data.id);
       toast({
@@ -393,12 +363,12 @@ export default function Home() {
   const handleFormSubmit = (data: { phoneNumber: string; vehicleNumber: string }) => {
     // Generate a default name based on phone number for backend compatibility
     const defaultName = `Customer-${data.phoneNumber.slice(-4)}`;
-    
+
     // Show mystery box immediately with a temporary ID
     const tempId = `temp-${Date.now()}`;
     setCustomerId(tempId);
     setShowFormModal(false);
-    
+
     // Make the API call in the background
     createCustomerMutation.mutate({
       name: defaultName,
@@ -415,13 +385,13 @@ export default function Home() {
     if (bgMusicRef.current) {
       bgMusicRef.current.pause();
     }
-    
+
     if (boxOpeningSoundRef.current) {
       boxOpeningSoundRef.current.currentTime = 0;
       boxOpeningSoundRef.current.play().catch(() => {
         // Sound playback failed
       });
-      
+
       // Resume background music after box opening sound finishes
       const soundDuration = 2000; // Approximate duration in ms
       setTimeout(() => {
@@ -454,32 +424,10 @@ export default function Home() {
       // Audio playback might fail
     }
 
-    // Generate random reward amount based on vehicle type
-    let reward: number;
-    const random = Math.random();
-    const vehicleType = customerData?.vehicleType;
-
-    if (vehicleType === 'bike') {
-      // Bike: 20% chance 11-15, 80% chance 1-10
-      reward = random < 0.9
-        ? Math.floor(Math.random() * 7) + 1      // 1-8 rupees (90% chance)
-        : Math.floor(Math.random() * 3) + 8;     // 9-12 rupees (10% chance)
-    } else if (vehicleType === 'car') {
-      // Car: 20% chance 15-20, 80% chance 1-14
-      reward = random < 0.9
-        ? Math.floor(Math.random() * 10) + 1      // 1-14 rupees (80% chance)
-        : Math.floor(Math.random() * 4) + 11;     // 15-20 rupees (20% chance)
-    } else if (vehicleType === 'truck') {
-      // Truck: 10% chance 16-25, 90% chance 1-15
-      reward = random < 0.9
-        ? Math.floor(Math.random() * 12) + 1      // 1-15 rupees (90% chance)
-        : Math.floor(Math.random() * 5) + 13;    // 16-25 rupees (10% chance)
-    } else {
-      // Fallback for unknown vehicle type
-      reward = random < 0.8
-        ? Math.floor(Math.random() * 9) + 1       // 1-9 rupees (80% chance)
-        : Math.floor(Math.random() * 2) + 10;    // 10-20 rupees (20% chance)
-    }
+    // Calculate reward based on vehicle type and fuel amount
+    const fuelAmount = customerData?.fuelAmount || 0;
+    const vehicleType = customerData?.vehicleType || 'bike';
+    const reward = calculateReward(vehicleType, fuelAmount);
 
     setRewardAmount(reward);
 
@@ -524,16 +472,13 @@ export default function Home() {
     setPayoutTransactionId(null);
     setTellYourFriendExpired(false);
     setTellYourFriendTimeLeft(null);
-    // Reset truck-specific states
-    setTruckProceedVerification(false);
-    setTruckDoubleRewardRequested(false);
-    setTruckHas2xCooldown(false);
-    setDaysUntilNextDouble(0);
+    setTellYourFriendExpired(false);
+    setTellYourFriendTimeLeft(null);
   };
 
   const handleWhatsAppUpload = () => {
     if (!customerData) return;
-    
+
     const timestamp = new Date().toLocaleString('en-IN', {
       timeZone: 'Asia/Kolkata',
       day: '2-digit',
@@ -542,12 +487,12 @@ export default function Home() {
       hour: '2-digit',
       minute: '2-digit',
     });
-    
+
     const message = `Vehicle Number: ${customerData.vehicleNumber}%0ATimestamp: ${timestamp}%0A%0APlease find my bill photo attached for verification.`;
-    
+
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER.replace('+', '')}?text=${message}`;
     window.open(whatsappUrl, '_blank');
-    
+
     setShowWhatsAppFlow(false);
     toast({
       title: "WhatsApp Opened",
@@ -557,127 +502,30 @@ export default function Home() {
 
   const handleTellYourFriend = () => {
     if (!rewardAmount) return;
-    
+
     // Get total winnings for the share URL
     const totalWinnings = customerVerifiedData?.totalAmount || 0;
-    
+
     // Create shareable URL with OG meta tags for image preview
     const shareUrl = `/share?prize=${rewardAmount}${totalWinnings > rewardAmount ? `&total=${totalWinnings}` : ''}`;
     const fullShareUrl = `${window.location.origin}${shareUrl}`;
-    
+
     // Create the detailed message with prize info
     const totalMessage = totalWinnings > rewardAmount ? `\n\nTotal winnings so far: ₹${totalWinnings}` : '';
     const detailedMessage = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${rewardAmount} back instantly! 🎁\n\nTry your luck here & let me know!${totalMessage}\n\n`;
-    
+
     // Open WhatsApp with both the message and shareable link
     const fullMessage = encodeURIComponent(`${detailedMessage}\n\nView details: ${fullShareUrl}`);
     const whatsappUrl = `https://wa.me/?text=${fullMessage}`;
     window.open(whatsappUrl, '_blank');
-    
+
     toast({
       title: "WhatsApp Opened!",
       description: "Share the message with the link - image preview will appear!",
     });
   };
 
-  // Truck: Handle "Proceed for Verification" button
-  const handleTruckProceedVerification = async () => {
-    if (!customerData?.vehicleNumber) return;
-    
-    try {
-      // Mark on backend that truck is proceeding for verification
-      const res = await fetch(`/api/truck/proceed-verification/${encodeURIComponent(customerData.vehicleNumber)}`, {
-        method: 'POST',
-        credentials: 'include',
-      });
-      
-      if (!res.ok) {
-        throw new Error('Failed to mark proceed for verification');
-      }
-      
-      setTruckProceedVerification(true);
-    } catch (error: any) {
-      console.error('Error marking proceed for verification:', error);
-      toast({
-        title: "Error",
-        description: "Failed to proceed. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
-  // Handle "Double Your Reward" button for all vehicle types
-  const handleDoubleYourReward = async () => {
-    if (!customerData || !rewardAmount || !customerId) return;
-    
-    try {
-      // Create double reward request for all vehicle types
-      const res = await fetch('/api/double-reward/request', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customerId,
-          customerName: customerData.name,
-          phoneNumber: customerData.phoneNumber,
-          vehicleNumber: customerData.vehicleNumber,
-          originalReward: rewardAmount,
-        }),
-        credentials: 'include',
-      });
-      
-      if (!res.ok) {
-        throw new Error('Failed to create double reward request');
-      }
-      
-      setTruckDoubleRewardRequested(true);
-      
-      // Get doubled prize amount
-      const doubledPrize = rewardAmount * 2;
-      
-      // Get total winnings for the share URL
-      const totalWinnings = customerVerifiedData?.totalAmount || 0;
-      
-      // Create shareable URL with OG meta tags for rich preview
-      const shareUrl = `/share?prize=${doubledPrize}${totalWinnings > doubledPrize ? `&total=${totalWinnings}` : ''}`;
-      const fullShareUrl = `${window.location.origin}${shareUrl}`;
-      
-      // Create message based on vehicle type
-      let message = '';
-      if (customerData.vehicleType === 'truck') {
-        // Hindi message for truck drivers
-        message = `Bhaiyo, JioBP Siltara par badhiya offer chal raha hai! 🚛⛽
-
-100 litre tel dalwao aur Mystery Box kholo. Mujhe toh ₹${doubledPrize} ka cashback seedha UPI mein mila. Diesel bhi full aur upar se inaam bhi! 🎁
-
-Aap bhi try karo, pump Raipur Bilaspur road par hai.
-
-View my details: ${fullShareUrl}`;
-      } else {
-        // English message for bike and car - Tell Your Friends
-        message = `Tell Your Friends! I just won ₹${doubledPrize} at JioBP Siltara Mystery Box! 🎁⛽
-
-Play the mystery box game and win instant cashback. Double your reward by telling friends!
-
-Check it out: ${fullShareUrl}`;
-      }
-      
-      // Open WhatsApp with message and shareable link
-      const fullMessage = encodeURIComponent(message);
-      const whatsappUrl = `https://wa.me/?text=${fullMessage}`;
-      window.open(whatsappUrl, '_blank');
-      
-      toast({
-        title: "Request Submitted!",
-        description: "Shared with rich preview! Link shows image, title & description on WhatsApp.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to request double reward",
-        variant: "destructive",
-      });
-    }
-  };
 
   // 45-second verification timeout
   useEffect(() => {
@@ -686,7 +534,7 @@ Check it out: ${fullShareUrl}`;
     }
 
     setVerificationTimeLeft(45);
-    
+
     const interval = setInterval(() => {
       setVerificationTimeLeft((prev) => {
         if (prev === null || prev <= 1) {
@@ -703,7 +551,7 @@ Check it out: ${fullShareUrl}`;
   const isGoogleSheetsConfigured = healthData?.googleSheets ?? true;
 
   return (
-    <div 
+    <div
       className=" min-h-screen flex flex-col relative overflow-x-hidden mx-auto"
       style={{
         backgroundImage: `url(${bgImage})`,
@@ -727,7 +575,7 @@ Check it out: ${fullShareUrl}`;
       <div className="relative w-full z-10 px-7 pt-[0px] pb-[0px] pl-[34px] pr-[40px]">
         {!customerId ? (
           // Splash Screen with Mystery Box Image and CLICK TO OPEN button
-          (<div 
+          (<div
             className="max-h-screen flex flex-col items-center justify-center relative z-9"
             style={{
               backgroundImage: `url(${bgImage})`,
@@ -737,12 +585,12 @@ Check it out: ${fullShareUrl}`;
             }}
           >
             {/* Mystery Box Image */}
-            <img 
-              src={mysteryBoxImg} 
-              alt="Mystery Box" 
+            <img
+              src={mysteryBoxImg}
+              alt="Mystery Box"
               className="w-37 h-50 object-contain mb-12"
             />
-            
+
             {/* CLICK TO OPEN Button */}
             <Button
               onClick={handleClickToOpen}
@@ -756,15 +604,15 @@ Check it out: ${fullShareUrl}`;
             {/* Employee Login Link - Bottom Right */}
             <div className="fixed bottom-7 right-3 z-50">
               <Link href="/employee">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   size="sm"
                   className="gap-2 text-xs font-medium"
                   data-testid="button-employee-login"
                 >
                   <div className="flex flex-row items-center justify-center gap-1">
-                  <LogIn className="w-4 h-4" />
-                  Employee Login</div>
+                    <LogIn className="w-4 h-4" />
+                    Employee Login</div>
                 </Button>
               </Link>
             </div>
@@ -791,32 +639,32 @@ Check it out: ${fullShareUrl}`;
           (<>
             {/* Customer's Total Verified Rewards - Only on mystery box screen */}
             {!showReward && customerVerifiedData && customerVerifiedData.totalAmount > 0 && (
-            <div className="w-full py-0 px-0 mb-10 mt-6">  
-              <div 
-                className="w-full mx-auto rounded-2xl shadow-lg py-2 px-6 flex items-center justify-center gap-2"
-                style={{
-                  background: "linear-gradient(180deg, #F6E27A 4%, #D4A631 100%)",
-                  border: "3px solid #E5C45A",
-                  boxShadow: "0px 4px 15px rgba(0,0,0,0.35), inset 0px 0px 10px rgba(255,255,255,0.4)",
-                  borderRadius: "16px",
-                }}
-              >
-                <p className="text-l font-bold text-black tracking-wide">
-                    Your Total Verified Cashback:
-                  </p>
-                <span
-                  className="text-2xl font-extrabold text-golden-yellow"
+              <div className="w-full py-0 px-0 mb-10 mt-6">
+                <div
+                  className="w-full mx-auto rounded-2xl shadow-lg py-2 px-6 flex items-center justify-center gap-2"
                   style={{
-                    textShadow: "0px 2px 4px rgba(0,0,0,0.4)"
+                    background: "linear-gradient(180deg, #F6E27A 4%, #D4A631 100%)",
+                    border: "3px solid #E5C45A",
+                    boxShadow: "0px 4px 15px rgba(0,0,0,0.35), inset 0px 0px 10px rgba(255,255,255,0.4)",
+                    borderRadius: "16px",
                   }}
                 >
-                  ₹{customerVerifiedData.totalAmount}
-                </span>
+                  <p className="text-l font-bold text-black tracking-wide">
+                    Your Total Verified Cashback:
+                  </p>
+                  <span
+                    className="text-2xl font-extrabold text-golden-yellow"
+                    style={{
+                      textShadow: "0px 2px 4px rgba(0,0,0,0.4)"
+                    }}
+                  >
+                    ₹{customerVerifiedData.totalAmount}
+                  </span>
                 </div>
               </div>
             )}
             <div className="text-center mb-12 space-y-4 relative z-10">
-             
+
               {alreadyPlayedError && (
                 <Alert variant="destructive" data-testid="alert-already-played">
                   <AlertTriangle className="h-4 w-4" />
@@ -826,7 +674,7 @@ Check it out: ${fullShareUrl}`;
                   </AlertDescription>
                 </Alert>
               )}
-              
+
               {customerData?.alreadyPlayedToday && (
                 <Alert className="bg-yellow-500/10 border-yellow-500/20">
                   <AlertCircle className="h-4 w-4 text-yellow-500" />
@@ -841,36 +689,36 @@ Check it out: ${fullShareUrl}`;
               {!showReward ? (
                 <MysteryBox onOpen={handleOpen} isOpening={isOpening} isOpened={isOpened} disabled={customerData?.alreadyPlayedToday || createCustomerMutation.isPending} />
               ) : rewardAmount ? (
-                <div 
+                <div
                   className="relative"
                   style={{
                     animation: 'prizeCardEmerge 0.8s cubic-bezier(0.34, 1.56, 0.64, 1)',
                   }}
                 >
                   {/* Sparkles for prize card */}
-                  <Sparkles 
-                    trigger={prizeCardSparkles} 
-                    count={80} 
-                    scale={5} 
-                    size={7} 
-                    speed={0.3} 
-                    opacity={0.6} 
+                  <Sparkles
+                    trigger={prizeCardSparkles}
+                    count={80}
+                    scale={5}
+                    size={7}
+                    speed={0.3}
+                    opacity={0.6}
                     color="#B4FF64"
                   />
-                  <Sparkles 
-                    trigger={prizeCardSparkles} 
-                    count={50} 
-                    scale={3.5} 
-                    size={9} 
-                    speed={0.2} 
-                    opacity={0.4} 
+                  <Sparkles
+                    trigger={prizeCardSparkles}
+                    count={50}
+                    scale={3.5}
+                    size={9}
+                    speed={0.2}
+                    opacity={0.4}
                     color="#B4FF64"
                     noise={0.4}
                   />
-                    <div className="relative flex justify-center w-full">
+                  <div className="relative flex justify-center w-full">
                     {/* Reward Card */}
-                        <div
-                          className="
+                    <div
+                      className="
                             relative
                             w-full max-w-sm
                             p-8 rounded-3xl
@@ -879,17 +727,17 @@ Check it out: ${fullShareUrl}`;
                             bg-[#0b3b2a] 
                             border-[5px] border-[#f5d67a]
                           "
-                          style={{
-                            backgroundImage:
-                              "radial-gradient(circle at top 20%, rgba(15,66,42,0.95), rgba(5,25,17,0.85))",
-                          }}
-                        >
-                          
+                      style={{
+                        backgroundImage:
+                          "radial-gradient(circle at top 20%, rgba(15,66,42,0.95), rgba(5,25,17,0.85))",
+                      }}
+                    >
+
                       {/* Card background shimmer */}
                       <div className="absolute inset-0 rounded-4xl pointer-events-none"
                         style={{
                           background:
-                          'radial-gradient(circle at 50% 20%, rgba(255,223,120,0.25) 0%, rgba(0,0,0,0) 65%)',
+                            'radial-gradient(circle at 50% 20%, rgba(255,223,120,0.25) 0%, rgba(0,0,0,0) 65%)',
 
                         }}
                       />
@@ -903,12 +751,12 @@ Check it out: ${fullShareUrl}`;
                             You won
                           </p>
                         </div>
-                         {/* Amount */}
-                         <div>
-                           <p className="text-4xl font-bold text-[#ffe38a] drop-shadow-[0_0_10px_rgba(255,215,0,0.6)]">
-                             ₹{rewardAmount} Cashback
-                           </p>
-                         </div>
+                        {/* Amount */}
+                        <div>
+                          <p className="text-4xl font-bold text-[#ffe38a] drop-shadow-[0_0_10px_rgba(255,215,0,0.6)]">
+                            ₹{rewardAmount} Cashback
+                          </p>
+                        </div>
 
                         {/* Rupee Icon */}
                         <div className="relative flex justify-center py-6">
@@ -947,34 +795,34 @@ Check it out: ${fullShareUrl}`;
                             "
                             style={{
                               boxShadow:
-                                "inset 0 0 0 8px #be8f2e, 0 0 40px rgba(190, 143, 46,0.9)" 
-                                  // ↑ inner border (same gold shade)
-                                  // second value = your original glow
+                                "inset 0 0 0 8px #be8f2e, 0 0 40px rgba(190, 143, 46,0.9)"
+                              // ↑ inner border (same gold shade)
+                              // second value = your original glow
                             }}
                           >
                             <IndianRupee className="w-14 h-14 text-[#be8f2e]" />
                           </div>
                         </div>
 
-                        
+
                         {/* Verification Status */}
                         <div className="pt-4 space-y-3">
                           {isVerified ? (
                             <div className="space-y-3">
-                                <Badge
-                                  className="
+                              <Badge
+                                className="
                                     bg-[rgba(255,215,120,0.15)]
                                     text-[#f6d878]
                                     border-[#f6d878]
                                     px-4 py-2 text-base tracking-wide
                                     shadow-[0_0_12px_rgba(255,215,120,0.3)]
                                   "
-                                  data-testid="badge-verified"
-                                >
-                                  <CheckCircle className="w-4 h-4 mr-2 text-[#f6d878]" />
-                                    Verified
-                                  </Badge>
-                              
+                                data-testid="badge-verified"
+                              >
+                                <CheckCircle className="w-4 h-4 mr-2 text-[#f6d878]" />
+                                Verified
+                              </Badge>
+
                               {/* Payment Status */}
                               <div className="mt-4 p-4 rounded-lg bg-[#8A987B] border border-[#1a5c3d]">
                                 {payoutStatus === 'success' ? (
@@ -1038,10 +886,10 @@ Check it out: ${fullShareUrl}`;
                               <div className="mt-6 p-4 rounded-lg bg-[#0f3d2e] border border-[#1a5c3d] space-y-3">
                                 <div className="space-y-2">
                                   <p className="text-sm font-semibold text-[#7eff5e] text-center animate-pulse">
-                                    Bonus Rewards
+                                    Increase Reward 
                                   </p>
                                   <p className="text-xs text-[#a8d5a8] text-center">
-                                    ₹1 for each share, upto 2x your reward
+                                  Share to get increased rewards next time
                                   </p>
                                 </div>
                                 <Button
@@ -1091,7 +939,7 @@ Check it out: ${fullShareUrl}`;
                                     mx-auto               /* center the button */
                                   "
                                   data-testid="button-manual-verify"
-                                  >
+                                >
                                   {/* Shine */}
                                   <span className="
                                     absolute inset-0
@@ -1099,11 +947,11 @@ Check it out: ${fullShareUrl}`;
                                     bg-gradient-to-b from-white/40 to-transparent
                                     pointer-events-none
                                   " />
-                                   Upload Bill for Verification
+                                  Upload Bill for Verification
                                 </Button>
                               ) : (
-                              <div className="space-y-3 p-4 bg-[#0b221a] rounded-lg border border-[#1a3c2d] shadow-lg">
-                                <p className="text-sm text-center text-[#d5e2cd]">
+                                <div className="space-y-3 p-4 bg-[#0b221a] rounded-lg border border-[#1a3c2d] shadow-lg">
+                                  <p className="text-sm text-center text-[#d5e2cd]">
                                     Send your bill photo to WhatsApp number:
                                   </p>
                                   <p className="text-lg font-bold text-[#f6d878] text-center" data-testid="text-whatsapp-number">
@@ -1128,122 +976,7 @@ Check it out: ${fullShareUrl}`;
                                 </div>
                               )}
                             </div>
-                          ) : !truckProceedVerification && !truckDoubleRewardRequested && !truckHas2xCooldown ? (
-                            /* Show 2x button for all vehicle types before verification */
-                            customerData?.vehicleType === 'truck' ? (
-                              <div className="space-y-4">
-                                <Button
-                                  onClick={handleDoubleYourReward}
-                                  className="w-full gap-2 py-4
-                                  bg-gradient-to-b from-amber-400 to-amber-600
-                                  hover:from-amber-500 hover:to-amber-700
-                                  text-black font-bold text-base
-                                  shadow-[0_4px_0_#b45309,0_6px_15px_rgba(0,0,0,0.3)]
-                                  border border-amber-300
-                                  rounded-xl"
-                                  data-testid="button-double-reward"
-                                >
-                                  <span className="text-xl">2x</span>
-                                  Double Your Reward
-                                </Button>
-                                <Button
-                                  onClick={handleTruckProceedVerification}
-                                  className="w-full gap-2 py-3
-                                  bg-gradient-to-b from-green-500 to-green-700
-                                  hover:from-green-600 hover:to-green-800
-                                  text-white font-semibold
-                                  shadow-[0_4px_0_#166534,0_6px_15px_rgba(0,0,0,0.3)]
-                                  border border-green-400
-                                  rounded-xl"
-                                  data-testid="button-proceed-verification"
-                                >
-                                  <CheckCircle className="w-4 h-4" />
-                                  Proceed for Verification
-                                </Button>
-                                <p className="text-xs text-center text-[#8d9b8a]">
-                                  Double Reward: Share with friends & get 2x cashback after verification
-                                </p>
-                              </div>
-                            ) : (
-                              <div className="space-y-3">
-                                <Button
-                                  onClick={handleDoubleYourReward}
-                                  className="w-full gap-2 py-4
-                                  bg-gradient-to-b from-amber-400 to-amber-600
-                                  hover:from-amber-500 hover:to-amber-700
-                                  text-black font-bold text-base
-                                  shadow-[0_4px_0_#b45309,0_6px_15px_rgba(0,0,0,0.3)]
-                                  border border-amber-300
-                                  rounded-xl"
-                                  data-testid="button-double-reward"
-                                >
-                                  <span className="text-xl">2x</span>
-                                  Double Your Reward
-                                </Button>
-                                <p className="text-xs text-center text-[#8d9b8a]">
-                                  Verify your full tank entry for 2x
-                                </p>
-                              </div>
-                            )
-                          ) : truckHas2xCooldown && !truckProceedVerification && !truckDoubleRewardRequested ? (
-                            /* 2x button on cooldown - show in pending list directly (all vehicle types) */
-                            <>
-                              <Badge className="bg-[rgba(255,165,0,0.15)]
-                                text-[#ffa500]
-                                border-[#ffa500]
-                                px-4 py-2 text-base tracking-wide
-                                shadow-[0_0_12px_rgba(255,165,0,0.3)]" data-testid="badge-cooldown-pending">
-                                <Clock className="w-4 h-4 mr-2 animate-pulse text-[#ffa500]" />
-                                Waiting for Verification
-                              </Badge>
-                              <div className="text-center p-3 bg-[#0b221a] rounded-lg border border-[#1a3c2d]">
-                                <p className="text-sm text-[#d5e2cd]">
-                                  Please wait while an employee verifies your reward.
-                                </p>
-                                <p className="text-xs text-[#8d9b8a] mt-2">
-                                  2x button will be available in {daysUntilNextDouble} day{daysUntilNextDouble !== 1 ? 's' : ''}.
-                                </p>
-                              </div>
-                            </>
-                          ) : truckDoubleRewardRequested ? (
-                            /* Double reward requested - waiting for employee verification (all vehicle types) */
-                            <div className="space-y-3">
-                              <Badge className="bg-[rgba(255,165,0,0.15)]
-                                text-[#ffa500]
-                                border-[#ffa500]
-                                px-4 py-2 text-base tracking-wide
-                                shadow-[0_0_12px_rgba(255,165,0,0.3)]" data-testid="badge-double-reward-pending">
-                                <Clock className="w-4 h-4 mr-2 animate-pulse text-[#ffa500]" />
-                                Double Reward Pending
-                              </Badge>
-                              <div className="text-center p-3 bg-[#0b221a] rounded-lg border border-[#1a3c2d]">
-                                <p className="text-sm text-[#d5e2cd]">
-                                  Your double reward request is pending employee verification.
-                                </p>
-                                <p className="text-xs text-[#8d9b8a] mt-2">
-                                  Once verified, you'll receive the doubled cashback!
-                                </p>
-                              </div>
-                            </div>
-                          ) : truckProceedVerification ? (
-                            /* Verified - show Tell Your Friend button (all vehicle types) */
-                            <div className="space-y-3">
-                              <Badge className="bg-[rgba(255,215,120,0.15)]
-                                text-[#f6d878]
-                                border-[#f6d878]
-                                px-4 py-2 text-base tracking-wide
-                                shadow-[0_0_12px_rgba(255,215,120,0.3)]" data-testid="badge-truck-pending">
-                                <Clock className="w-4 h-4 mr-2 animate-pulse text-[#f6d878]" />
-                                Waiting for Verification
-                              </Badge>
-                              <div className="text-center p-3 bg-[#0b221a] rounded-lg border border-[#1a3c2d]">
-                                <p className="text-sm text-[#d5e2cd]">
-                                  Please wait while an employee verifies your reward.
-                                </p>
-                              </div>
-                            </div>
                           ) : (
-                            /* Non-truck: Regular verification flow */
                             <>
                               <Badge className="bg-[rgba(255,215,120,0.15)]
                                 text-[#f6d878]
@@ -1326,4 +1059,73 @@ Check it out: ${fullShareUrl}`;
       </div>
     </div>
   );
+}
+
+// Helper function to calculate reward based on rules
+function calculateReward(vehicleType: string, fuelAmount: number): number {
+  const random = Math.random();
+
+  // Normalize vehicle type
+  const type = vehicleType.toLowerCase();
+
+  if (type === 'truck') {
+    // Truck Logic
+    if (fuelAmount <= 9500) {
+      // 0 to 9500: ₹1-₹10
+      return Math.floor(Math.random() * 10) + 1;
+    } else if (fuelAmount > 9500 && fuelAmount <= 19000) {
+      // 9501 to 19000: ₹10-₹30
+      return Math.floor(Math.random() * 21) + 10;
+    } else if (fuelAmount > 19000 && fuelAmount <= 28500) {
+      // 19001 to 28500: ₹20-₹40
+      return Math.floor(Math.random() * 21) + 20;
+    } else {
+      // Above 28501: ₹40-50
+      return Math.floor(Math.random() * 11) + 40;
+    }
+  } else {
+    // Bike/Car Logic (and fallback)
+    // Bike/Car Logic (and fallback)
+    if (fuelAmount <= 500) {
+      // 0-500: ₹1 to ₹5 (80% till ₹3, 20% till ₹5)
+      // ₹1-3 (80%), ₹4-5 (20%)
+      if (random < 0.8) {
+        return Math.floor(Math.random() * 3) + 1; // 1-3
+      } else {
+        return Math.floor(Math.random() * 2) + 4; // 4-5
+      }
+    } else if (fuelAmount > 500 && fuelAmount <= 2000) {
+      // 501-2000: ₹5 to ₹20
+      // 90% between ₹8 to ₹12, 10% between ₹12 to ₹15
+      if (random < 0.9) {
+        return Math.floor(Math.random() * 5) + 8; // 8-12
+      } else {
+        return Math.floor(Math.random() * 3) + 13; // 13-15
+      }
+    } else if (fuelAmount > 2000 && fuelAmount <= 3000) {
+      // 2001-3000: ₹10 to ₹30
+      // 60%: ₹12 to ₹15
+      // 30%: ₹16 to ₹20
+      // 10%: ₹20 to ₹30
+      if (random < 0.6) {
+        return Math.floor(Math.random() * 4) + 12; // 12-15
+      } else if (random < 0.9) {
+        return Math.floor(Math.random() * 5) + 16; // 16-20
+      } else {
+        return Math.floor(Math.random() * 10) + 21; // 21-30
+      }
+    } else {
+      // 3001+: ₹15 to ₹50
+      // 60%: ₹22 to ₹25
+      // 30%: ₹28 to ₹32
+      // 10%: ₹35-₹50
+      if (random < 0.6) {
+        return Math.floor(Math.random() * 4) + 22; // 22-25
+      } else if (random < 0.9) {
+        return Math.floor(Math.random() * 5) + 28; // 28-32
+      } else {
+        return Math.floor(Math.random() * 16) + 35; // 35-50
+      }
+    }
+  }
 }
