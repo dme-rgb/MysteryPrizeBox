@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion } from "framer-motion";
+// @ts-ignore
 import confetti from "canvas-confetti";
 
 interface Particle {
@@ -22,10 +23,10 @@ export default function ParticleEffect({ trigger, type }: ParticleEffectProps) {
 
   useEffect(() => {
     if (!trigger) return;
-      
+
     const newParticles: Particle[] = [];
     const count = type === 'burst' ? 30 : 50;
-    const colors = type === 'burst' 
+    const colors = type === 'burst'
       ? ['#ffd700', '#5ba085', '#41886e', '#ffffff']
       : ['#ffd700', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f7b731'];
 
@@ -71,7 +72,7 @@ export default function ParticleEffect({ trigger, type }: ParticleEffectProps) {
             // @ts-ignore
             '--tx': `${particle.tx}px`,
             '--ty': `${particle.ty}px`,
-            animation: type === 'burst' 
+            animation: type === 'burst'
               ? `particleBurst 1s ease-out forwards`
               : `confettiFall 2s ease-out forwards`,
             animationDelay: `${particle.delay}ms`,
