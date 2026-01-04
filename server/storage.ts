@@ -1,11 +1,11 @@
-import { type User, type InsertUser, type Customer, type InsertCustomer, type Employee, type InsertEmployee, type DoubleRewardRequest, type InsertDoubleRewardRequest } from "@shared/schema";
+import { type User, type InsertUser, type Customer, type InsertCustomer, type Employee, type InsertEmployee } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   createCustomer(customer: InsertCustomer): Promise<Customer>;
   getCustomer(id: string): Promise<Customer | undefined>;
   updateCustomerReward(id: string, rewardAmount: number): Promise<Customer>;
@@ -14,24 +14,15 @@ export interface IStorage {
   getTotalVerifiedRewards(): Promise<number>;
   getAllCustomers(): Promise<Customer[]>;
   getUnverifiedCustomers(): Promise<Customer[]>;
-  
+
   getEmployee(id: string): Promise<Employee | undefined>;
   getEmployeeByUsername(username: string): Promise<Employee | undefined>;
   createEmployee(employee: InsertEmployee): Promise<Employee>;
-  
+
   setPaymentStatus(customerId: string, status: 'success' | 'failed', transactionId?: string): Promise<void>;
   getPaymentStatus(customerId: string): Promise<{ status: 'success' | 'failed' | null; transactionId: string | null }>;
-  
-  // Double Reward operations for truck drivers
-  createDoubleRewardRequest(request: InsertDoubleRewardRequest): Promise<DoubleRewardRequest>;
-  getDoubleRewardRequests(): Promise<DoubleRewardRequest[]>;
-  getUnverifiedDoubleRewardRequests(): Promise<DoubleRewardRequest[]>;
-  verifyDoubleRewardRequest(id: string, verifiedBy: string): Promise<DoubleRewardRequest>;
-  deleteDoubleRewardRequest(id: string): Promise<void>;
-  
-  // Truck verification path tracking
-  markTruckProceedForVerification(vehicleNumber: string): Promise<void>;
-  getTrucksProceedingForVerification(): Promise<Set<string>>;
+
+
 }
 
 export class MemStorage implements IStorage {
@@ -39,20 +30,18 @@ export class MemStorage implements IStorage {
   private customers: Map<string, Customer>;
   private employees: Map<string, Employee>;
   private paymentStatus: Map<string, { status: 'success' | 'failed'; transactionId: string | null }>;
-  private doubleRewardRequests: Map<string, DoubleRewardRequest>;
-  private trucksProceedingForVerification: Set<string>;
+
 
   constructor() {
     this.users = new Map();
     this.customers = new Map();
     this.employees = new Map();
     this.paymentStatus = new Map();
-    this.doubleRewardRequests = new Map();
-    this.trucksProceedingForVerification = new Set();
-    
+
+
     this.initDefaultEmployee();
   }
-  
+
   private initDefaultEmployee() {
     const employees: Employee[] = [
       {
@@ -128,7 +117,7 @@ export class MemStorage implements IStorage {
         name: "EXTRA2",
       },
     ];
-    
+
     employees.forEach(emp => this.employees.set(emp.id, emp));
   }
 
@@ -154,6 +143,7 @@ export class MemStorage implements IStorage {
     const customer: Customer = {
       ...insertCustomer,
       id,
+      fuelAmount: insertCustomer.fuelAmount || null,
       rewardAmount: null,
       verified: false,
       alreadyPlayedToday: false,
@@ -206,92 +196,37 @@ export class MemStorage implements IStorage {
   async getAllCustomers(): Promise<Customer[]> {
     return Array.from(this.customers.values());
   }
-  
+
   async getUnverifiedCustomers(): Promise<Customer[]> {
     return Array.from(this.customers.values()).filter(
       (customer) => customer.verified === false && customer.rewardAmount !== null
     );
   }
-  
+
   async getEmployee(id: string): Promise<Employee | undefined> {
     return this.employees.get(id);
   }
-  
+
   async getEmployeeByUsername(username: string): Promise<Employee | undefined> {
     return Array.from(this.employees.values()).find(
       (employee) => employee.username === username,
     );
   }
-  
+
   async createEmployee(insertEmployee: InsertEmployee): Promise<Employee> {
     const id = randomUUID();
     const employee: Employee = { ...insertEmployee, id };
     this.employees.set(id, employee);
     return employee;
   }
-  
+
   async setPaymentStatus(customerId: string, status: 'success' | 'failed', transactionId?: string): Promise<void> {
     this.paymentStatus.set(customerId, { status, transactionId: transactionId || null });
   }
-  
+
   async getPaymentStatus(customerId: string): Promise<{ status: 'success' | 'failed' | null; transactionId: string | null }> {
     const payment = this.paymentStatus.get(customerId);
     return payment || { status: null, transactionId: null };
-  }
-  
-  // Double Reward operations for truck drivers
-  async createDoubleRewardRequest(request: InsertDoubleRewardRequest): Promise<DoubleRewardRequest> {
-    const id = randomUUID();
-    const doubleRewardRequest: DoubleRewardRequest = {
-      ...request,
-      id,
-      verified: false,
-      verifiedAt: null,
-      verifiedBy: null,
-      createdAt: new Date(),
-    };
-    this.doubleRewardRequests.set(id, doubleRewardRequest);
-    return doubleRewardRequest;
-  }
-  
-  async getDoubleRewardRequests(): Promise<DoubleRewardRequest[]> {
-    return Array.from(this.doubleRewardRequests.values());
-  }
-  
-  async getUnverifiedDoubleRewardRequests(): Promise<DoubleRewardRequest[]> {
-    return Array.from(this.doubleRewardRequests.values()).filter(
-      (request) => request.verified === false
-    );
-  }
-  
-  async verifyDoubleRewardRequest(id: string, verifiedBy: string): Promise<DoubleRewardRequest> {
-    const request = this.doubleRewardRequests.get(id);
-    if (!request) {
-      throw new Error("Double reward request not found");
-    }
-    const updated: DoubleRewardRequest = {
-      ...request,
-      verified: true,
-      verifiedAt: new Date(),
-      verifiedBy,
-    };
-    this.doubleRewardRequests.set(id, updated);
-    return updated;
-  }
-
-  async deleteDoubleRewardRequest(id: string): Promise<void> {
-    if (!this.doubleRewardRequests.has(id)) {
-      throw new Error("Double reward request not found");
-    }
-    this.doubleRewardRequests.delete(id);
-  }
-  
-  async markTruckProceedForVerification(vehicleNumber: string): Promise<void> {
-    this.trucksProceedingForVerification.add(vehicleNumber.toUpperCase());
-  }
-  
-  async getTrucksProceedingForVerification(): Promise<Set<string>> {
-    return new Set(this.trucksProceedingForVerification);
   }
 }
 
