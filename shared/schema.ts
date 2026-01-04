@@ -45,6 +45,7 @@ export const customers = pgTable("customers", {
   phoneNumber: text("phone_number").notNull(),
   vehicleNumber: text("vehicle_number").notNull(),
   vehicleType: text("vehicle_type"), // bike, car, or truck
+  fuelAmount: integer("fuel_amount"),
   rewardAmount: integer("reward_amount"),
   verified: boolean("verified").default(false),
   alreadyPlayedToday: boolean("already_played_today").default(false),
@@ -56,40 +57,19 @@ export const insertCustomerSchema = createInsertSchema(customers).pick({
   phoneNumber: true,
   vehicleNumber: true,
   vehicleType: true,
+  fuelAmount: true,
 }).extend({
   name: z.string().min(2, "Name must be at least 2 characters"),
   phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
   vehicleNumber: z.string().min(2, "Vehicle number is required"),
   vehicleType: z.enum(["bike", "car", "truck"]),
+  fuelAmount: z.number().min(1, "Fuel amount is required").optional(),
 });
 
 export type InsertCustomer = z.infer<typeof insertCustomerSchema>;
 export type Customer = typeof customers.$inferSelect;
 
-// Double Reward Requests table for truck drivers
-export const doubleRewardRequests = pgTable("double_reward_requests", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  customerId: varchar("customer_id").notNull(),
-  customerName: text("customer_name").notNull(),
-  phoneNumber: text("phone_number").notNull(),
-  vehicleNumber: text("vehicle_number").notNull(),
-  originalReward: integer("original_reward").notNull(),
-  verified: boolean("verified").default(false),
-  verifiedAt: timestamp("verified_at"),
-  verifiedBy: text("verified_by"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
 
-export const insertDoubleRewardRequestSchema = createInsertSchema(doubleRewardRequests).pick({
-  customerId: true,
-  customerName: true,
-  phoneNumber: true,
-  vehicleNumber: true,
-  originalReward: true,
-});
-
-export type InsertDoubleRewardRequest = z.infer<typeof insertDoubleRewardRequestSchema>;
-export type DoubleRewardRequest = typeof doubleRewardRequests.$inferSelect;
 
 // Vehicle number normalization function
 export function normalizeVehicleNumber(vehicleNumber: string): string {
