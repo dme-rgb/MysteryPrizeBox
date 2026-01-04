@@ -6,7 +6,7 @@ function doPost(e) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = ss.getSheetByName("Customer detail");
     const data = JSON.parse(e.postData.contents);
-    
+
     if (data.action === "logTransaction") {
       // Log transaction to Transactions sheet with all 20 fields
       let transactionSheet = ss.getSheetByName("Transactions");
@@ -14,7 +14,7 @@ function doPost(e) {
         transactionSheet = ss.insertSheet("Transactions");
         transactionSheet.appendRow([
           "Vehicle Number",
-          "Customer Name", 
+          "Customer Name",
           "Phone Number",
           "Amount",
           "Transaction ID",
@@ -35,7 +35,7 @@ function doPost(e) {
           "VPA Message"
         ]);
       }
-      
+
       transactionSheet.appendRow([
         data.vehicleNumber || "",
         data.customerName || "",
@@ -58,13 +58,13 @@ function doPost(e) {
         data.vpaStatus || "",
         data.vpaMessage || ""
       ]);
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         status: "success",
         message: "Transaction logged"
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     if (data.action === "add") {
       // Add new customer entry
       sheet.appendRow([
@@ -74,28 +74,28 @@ function doPost(e) {
         data.vehicleNumber,
         data.timestamp,
         data.verified || "No",
-        "", // Amount column (initially empty)
+        data.amount || "", // Amount column (previously empty, now stores fuel amount)
         "", // Verified By column (initially empty)
         "", // Verification Timestamp column (initially empty)
         data.vehicleType || "", // Vehicle Type (bike, car, truck)
         data.doubleRewardDate || "", // Double Reward Date (when 2x was used)
         0 // Link Opens counter (Column L)
       ]);
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         status: "success",
         message: "Customer added"
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     if (data.action === "updateReward") {
       // Update reward for a vehicle
       const vehicleNumber = data.vehicleNumber;
       const prize = data.prize;
-      
+
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();
-      
+
       // Find the row with this vehicle number (most recent)
       for (let i = values.length - 1; i >= 1; i--) {
         if (values[i][3] === vehicleNumber) {
@@ -103,19 +103,19 @@ function doPost(e) {
           break;
         }
       }
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         status: "success"
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     if (data.action === "verify") {
       // Verify reward for a vehicle
       const vehicleNumber = data.vehicleNumber;
-      
+
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();
-      
+
       // Find the row with this vehicle number (most recent)
       for (let i = values.length - 1; i >= 1; i--) {
         if (values[i][3] === vehicleNumber) {
@@ -123,22 +123,22 @@ function doPost(e) {
           break;
         }
       }
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         status: "success"
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     if (data.action === "verifyAndSetAmount") {
       // Verify reward and set the payout amount for a vehicle
       const vehicleNumber = data.vehicleNumber;
       const amount = data.amount;
       const verifierName = data.verifierName || "Unknown";
       const verificationTimestamp = data.verificationTimestamp || new Date().toISOString();
-      
+
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();
-      
+
       // Find the row with this vehicle number (most recent)
       for (let i = values.length - 1; i >= 1; i--) {
         if (values[i][3] === vehicleNumber) {
@@ -151,31 +151,31 @@ function doPost(e) {
           break;
         }
       }
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         status: "success"
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     if (data.action === "incrementLinkOpens") {
       // Increment link opens counter for a customer by prize amount (today's entry)
       const prize = data.prize;
-      
+
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();
-      
+
       // Extract just the date part (YYYY-MM-DD) from today's date
       const today = new Date();
-      const todayDatePart = today.getFullYear() + '-' + 
-                           String(today.getMonth() + 1).padStart(2, '0') + '-' + 
-                           String(today.getDate()).padStart(2, '0');
-      
+      const todayDatePart = today.getFullYear() + '-' +
+        String(today.getMonth() + 1).padStart(2, '0') + '-' +
+        String(today.getDate()).padStart(2, '0');
+
       // Find today's entry with this prize amount
       for (let i = values.length - 1; i >= 1; i--) {
         const entryPrize = String(values[i][2]); // Column C (prize)
         const entryTimestamp = String(values[i][4]);
         const entryDatePart = entryTimestamp.split('T')[0]; // Extract date part
-        
+
         // Match today's entry with the same prize amount
         if (entryPrize === prize && entryDatePart === todayDatePart) {
           // Increment the link opens counter in Column L (index 11)
@@ -184,30 +184,30 @@ function doPost(e) {
           break;
         }
       }
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         status: "success"
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     if (data.action === "updateDoubleRewardDate") {
       // Update the double reward date for a vehicle (when 2x reward was used)
       const vehicleNumber = data.vehicleNumber;
       const doubleRewardDate = data.doubleRewardDate;
-      
+
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();
-      
+
       // Extract just the date part (YYYY-MM-DD) from the timestamp to avoid timezone issues
       const rewardDatePart = doubleRewardDate.split('T')[0]; // "2025-12-20"
-      
+
       // Find the row with this vehicle number (most recent, today's entry)
       for (let i = values.length - 1; i >= 1; i--) {
         if (values[i][3] === vehicleNumber) {
           // Get the date part from the entry timestamp
           const entryTimestamp = String(values[i][4]);
           const entryDatePart = entryTimestamp.split('T')[0]; // "2025-12-20"
-          
+
           // Only update today's entry
           if (entryDatePart === rewardDatePart) {
             sheet.getRange(i + 1, 11).setValue(doubleRewardDate); // Column K (double reward date)
@@ -215,12 +215,12 @@ function doPost(e) {
           }
         }
       }
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         status: "success"
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
   } catch (error) {
     return ContentService.createTextOutput(JSON.stringify({
       status: "error",
@@ -234,13 +234,13 @@ function doGet(e) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const sheet = ss.getSheetByName("Customer detail");
     const action = e.parameter.action;
-    
+
     if (action === "getTransactionByPhone") {
       // Retrieve cached transaction details from Transactions sheet by phone number
       // Returns VPA, account holder name, and VPA message if found
       const phoneNumber = e.parameter.phone;
       const transactionSheet = ss.getSheetByName("Transactions");
-      
+
       if (!transactionSheet) {
         return ContentService.createTextOutput(JSON.stringify({
           found: false,
@@ -250,10 +250,10 @@ function doGet(e) {
           vpaMessage: null
         })).setMimeType(ContentService.MimeType.JSON);
       }
-      
+
       const dataRange = transactionSheet.getDataRange();
       const values = dataRange.getValues();
-      
+
       // Search for most recent transaction with this phone number (SUCCESS or FAILED)
       // Column C (index 2): Phone Number
       // Column I (index 8): Beneficiary Name
@@ -271,7 +271,7 @@ function doGet(e) {
         const accountHolderName = values[i][15];
         const vpaStatus = values[i][18];
         const vpaMessage = values[i][19];
-        
+
         // Match phone number (normalize format)
         // Return data if:
         // 1. VPA exists and is valid (SUCCESS), OR
@@ -279,7 +279,7 @@ function doGet(e) {
         if (rowPhone === searchPhone) {
           const hasValidVPA = vpa && String(vpa).trim() !== "N/A" && String(vpa).trim() !== "";
           const hasMessage = vpaMessage && String(vpaMessage).trim() !== "";
-          
+
           if (hasValidVPA || hasMessage) {
             console.log(`[SHEET VPA CACHE] Found transaction for ${phoneNumber}: VPA=${vpa}, Message=${vpaMessage}, Beneficiary=${beneficiaryName}, Status=${vpaStatus}`);
             return ContentService.createTextOutput(JSON.stringify({
@@ -293,7 +293,7 @@ function doGet(e) {
           }
         }
       }
-      
+
       console.log(`[SHEET VPA CACHE] No cached VPA found for ${phoneNumber}`);
       return ContentService.createTextOutput(JSON.stringify({
         found: false,
@@ -304,12 +304,12 @@ function doGet(e) {
         timestamp: null
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     if (action === "getAll") {
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();
       const customers = [];
-      
+
       // Skip header row
       for (let i = 1; i < values.length; i++) {
         customers.push({
@@ -326,17 +326,17 @@ function doGet(e) {
           doubleRewardDate: values[i][10] || null // When 2x reward was used
         });
       }
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         customers: customers
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     if (action === "getByVehicle") {
       const vehicleNumber = e.parameter.vehicleNumber;
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();
-      
+
       // Find the first occurrence of this vehicle (oldest entry)
       for (let i = 1; i < values.length; i++) {
         if (values[i][3] === vehicleNumber) {
@@ -355,26 +355,26 @@ function doGet(e) {
           })).setMimeType(ContentService.MimeType.JSON);
         }
       }
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         customer: null
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     if (action === "getTodayByVehicle") {
       const vehicleNumber = e.parameter.vehicleNumber;
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();
-      
+
       // Check if vehicle played today
       for (let i = 1; i < values.length; i++) {
         if (values[i][3] === vehicleNumber) {
           const entryDate = new Date(values[i][4]);
           entryDate.setHours(0, 0, 0, 0);
-          
+
           if (entryDate.getTime() === today.getTime()) {
             return ContentService.createTextOutput(JSON.stringify({
               customer: {
@@ -392,12 +392,12 @@ function doGet(e) {
           }
         }
       }
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         customer: null
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     if (action === "getTodayVerifiedCustomers") {
       // Get today's verified customers with VPA info from Transactions sheet
       const dataRange = sheet.getDataRange();
@@ -405,14 +405,14 @@ function doGet(e) {
       const transactionSheet = ss.getSheetByName("Transactions");
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       const verifiedCustomers = [];
-      
+
       // Iterate through Customer Detail sheet
       for (let i = 1; i < values.length; i++) {
         const entryDate = new Date(values[i][4]);
         entryDate.setHours(0, 0, 0, 0);
-        
+
         // Check if verified and from today
         if (values[i][5] === "Yes" && entryDate.getTime() === today.getTime()) {
           const phoneNumber = String(values[i][1]).trim();
@@ -421,12 +421,12 @@ function doGet(e) {
           let vpaAddress = null;
           let beneficiaryName = null;
           let transactionTimestamp = null;
-          
+
           // Look up VPA from Transactions sheet
           if (transactionSheet) {
             const txnDataRange = transactionSheet.getDataRange();
             const txnValues = txnDataRange.getValues();
-            
+
             // Search for most recent successful transaction with this phone number
             // Columns: A=Vehicle, B=Name, C=Phone, D=Amount, E=TxnID, F=RefID, G=UPI, H=PaymentMode, I=BenName, J=BulkPEStatus, K=BulkPEMsg, L=Status, M=Error, N=Timestamp, O=VPAAddress, P=VPAAcctHolder, Q=VPATxnID, R=VPARefID, S=VPAStatus, T=VPAMsg
             for (let j = txnValues.length - 1; j >= 1; j--) {
@@ -444,7 +444,7 @@ function doGet(e) {
               }
             }
           }
-          
+
           verifiedCustomers.push({
             name: values[i][0],
             number: values[i][1],
@@ -464,37 +464,37 @@ function doGet(e) {
           });
         }
       }
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         customers: verifiedCustomers
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     if (action === "getVerifiedCount") {
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();
       let count = 0;
-      
+
       // Count verified rewards
       for (let i = 1; i < values.length; i++) {
         if (values[i][5] === "Yes" && values[i][2] !== "") {
           count++;
         }
       }
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         count: count
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     if (action === "getVerifiedCountToday") {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();
       let count = 0;
-      
+
       // Count verified rewards from today only
       for (let i = 1; i < values.length; i++) {
         if (values[i][5] === "Yes" && values[i][2] !== "") {
@@ -505,18 +505,18 @@ function doGet(e) {
           }
         }
       }
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         count: count
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
     if (action === "getTotalVerifiedAmount") {
       const vehicleNumber = e.parameter.vehicleNumber;
       const dataRange = sheet.getDataRange();
       const values = dataRange.getValues();
       let totalAmount = 0;
-      
+
       // Sum all verified rewards for this vehicle
       for (let i = 1; i < values.length; i++) {
         if (values[i][3] === vehicleNumber && values[i][5] === "Yes" && values[i][2] !== "") {
@@ -524,12 +524,12 @@ function doGet(e) {
           totalAmount += prize;
         }
       }
-      
+
       return ContentService.createTextOutput(JSON.stringify({
         totalAmount: totalAmount
       })).setMimeType(ContentService.MimeType.JSON);
     }
-    
+
   } catch (error) {
     return ContentService.createTextOutput(JSON.stringify({
       status: "error",
