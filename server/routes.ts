@@ -15,7 +15,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const txnData = await googleSheetsService.getTransactionByPhone(phone);
-      
+
       if (txnData && txnData.found) {
         return res.json({
           vpaMessage: txnData.vpaMessage || null,
@@ -23,7 +23,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           vpa: txnData.vpa || null,
         });
       }
-      
+
       res.json({
         vpaMessage: null,
         beneficiaryName: null,
@@ -39,17 +39,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/health", async (req, res) => {
     try {
       const isConfigured = await googleSheetsService.healthCheck();
-      res.json({ 
+      res.json({
         googleSheets: isConfigured,
-        message: isConfigured 
-          ? "Google Sheets is configured and working" 
+        message: isConfigured
+          ? "Google Sheets is configured and working"
           : "Google Sheets is not configured. Please set up the Apps Script code."
       });
     } catch (error: any) {
-      res.status(503).json({ 
+      res.status(503).json({
         googleSheets: false,
         message: "Google Sheets health check failed",
-        error: error.message 
+        error: error.message
       });
     }
   });
@@ -62,7 +62,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Normalize and validate vehicle number
       const normalized = normalizeVehicleNumber(vehicleNumber);
       const validation = validateVehicleNumber(normalized);
-      
+
       if (!validation.isValid) {
         return res.status(400).json({
           error: "invalid_vehicle_number",
@@ -98,14 +98,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ valid: true });
     } catch (error: any) {
       console.error("Validation error:", error);
-      
+
       if (error instanceof GoogleSheetsNotConfiguredError) {
-        return res.status(503).json({ 
+        return res.status(503).json({
           error: "google_sheets_not_configured",
-          message: "Google Sheets is not configured. Please complete the setup first." 
+          message: "Google Sheets is not configured. Please complete the setup first."
         });
       }
-      
+
       res.status(500).json({ error: error.message });
     }
   });
@@ -118,7 +118,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Normalize and validate vehicle number
       const normalized = normalizeVehicleNumber(validatedData.vehicleNumber);
       const validation = validateVehicleNumber(normalized);
-      
+
       if (!validation.isValid) {
         return res.status(400).json({
           error: "invalid_vehicle_number",
@@ -155,8 +155,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         ...validatedData,
         vehicleNumber: normalized,
         vehicleType: validatedData.vehicleType,
+        fuelAmount: validatedData.fuelAmount,
       });
-      
+
       // Mark as already played if applicable
       let finalCustomer = customer;
       if (alreadyPlayedToday) {
@@ -169,13 +170,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(finalCustomer);
     } catch (error: any) {
       console.error("Create customer error:", error);
-      
+
       if (error instanceof GoogleSheetsNotConfiguredError) {
-        return res.status(503).json({ 
-          error: "Google Sheets is not configured. Please complete the setup first." 
+        return res.status(503).json({
+          error: "Google Sheets is not configured. Please complete the setup first."
         });
       }
-      
+
       res.status(400).json({ error: error.message });
     }
   });
@@ -208,9 +209,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.patch("/api/customers/:id/reward", async (req, res) => {
     try {
       const { rewardAmount } = req.body;
-      
-      if (!rewardAmount || rewardAmount < 1 || rewardAmount > 25) {
-        return res.status(400).json({ error: "Reward amount must be between 1 and 25 rupees" });
+
+      if (!rewardAmount || rewardAmount < 1 || rewardAmount > 50) {
+        return res.status(400).json({ error: "Reward amount must be between 1 and 50 rupees (UPDATED)" });
       }
 
       const customer = await storage.getCustomer(req.params.id);
@@ -234,6 +235,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           prize: rewardAmount,
           vehicleNumber: customer.vehicleNumber,
           vehicleType: customer.vehicleType || undefined, // Send vehicle type (bike, car, truck) to Google Sheets
+          amount: customer.fuelAmount || undefined, // Send fuel amount to 'amount' column (Column G)
           timestamp: new Date().toISOString(),
           verified: false,
         });
@@ -245,13 +247,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updatedCustomer);
     } catch (error: any) {
       console.error("Update reward error:", error);
-      
+
       if (error instanceof GoogleSheetsNotConfiguredError) {
-        return res.status(503).json({ 
-          error: "Google Sheets is not configured. Please complete the setup first." 
+        return res.status(503).json({
+          error: "Google Sheets is not configured. Please complete the setup first."
         });
       }
-      
+
       res.status(500).json({ error: error.message });
     }
   });
@@ -276,13 +278,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updatedCustomer);
     } catch (error: any) {
       console.error("Verify reward error:", error);
-      
+
       if (error instanceof GoogleSheetsNotConfiguredError) {
-        return res.status(503).json({ 
-          error: "Google Sheets is not configured. Please complete the setup first." 
+        return res.status(503).json({
+          error: "Google Sheets is not configured. Please complete the setup first."
         });
       }
-      
+
       res.status(500).json({ error: error.message });
     }
   });
@@ -295,12 +297,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ totalVerifiedRewards: verifiedCount });
     } catch (error: any) {
       console.error("Get stats error:", error);
-      
+
       if (error instanceof GoogleSheetsNotConfiguredError) {
         // Return 0 when not configured (setup screen will be shown)
         return res.json({ totalVerifiedRewards: 0 });
       }
-      
+
       res.status(500).json({ error: error.message });
     }
   });
@@ -309,17 +311,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/employee/login", async (req, res) => {
     try {
       const { username, password } = employeeLoginSchema.parse(req.body);
-      
+
       const employee = await storage.getEmployeeByUsername(username);
-      
+
       if (!employee || employee.password !== password) {
         return res.status(401).json({ error: "Invalid username or password" });
       }
-      
-      res.json({ 
-        id: employee.id, 
-        username: employee.username, 
-        name: employee.name 
+
+      res.json({
+        id: employee.id,
+        username: employee.username,
+        name: employee.name
       });
     } catch (error: any) {
       console.error("Employee login error:", error);
@@ -331,58 +333,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/employee/unverified-customers", async (req, res) => {
     try {
       const allCustomers = await googleSheetsService.getAllCustomers();
-      
+
       // Filter for today's date
       const today = new Date().toISOString().split('T')[0];
       const todaysCustomers = allCustomers.filter((customer) => {
         const customerDate = customer.timestamp.split('T')[0];
         return customerDate === today;
       });
-      
+
+      // Fetch local unverified customers to get fuelAmount
+      const localUnverified = await storage.getUnverifiedCustomers();
+
       // Get all vehicles that have at least one verified entry today
       const verifiedVehicles = new Set(
         todaysCustomers
           .filter(c => c.verified === true)
           .map(c => c.vehicleNumber)
       );
-      
-      // Get all vehicles with unverified 2x double reward requests
-      const unverifiedDoubleRewardRequests = await storage.getUnverifiedDoubleRewardRequests();
-      const vehiclesWithUnverified2x = new Set(
-        unverifiedDoubleRewardRequests.map(req => req.vehicleNumber)
-      );
-      
-      // Get all double reward requests (to check which trucks have been verified through 2x)
-      const allDoubleRewardRequests = await storage.getDoubleRewardRequests();
-      const truckVehiclesWithVerified2x = new Set(
-        allDoubleRewardRequests
-          .filter(req => req.verified === true)
-          .map(req => req.vehicleNumber)
-      );
-      
-      // Get trucks that chose "Proceed for Verification" (standard path without 2x)
-      const trucksProceedingForVerification = await storage.getTrucksProceedingForVerification();
-      
+
       // Filter for unverified customers with valid prizes, excluding vehicles that are already verified or have unverified 2x requests
       const unverifiedCustomers = todaysCustomers
         .filter((customer) => {
           const prize = Number(customer.prize);
           const hasValidPrize = !isNaN(prize) && prize > 0;
-          
+
           // Exclude if: verified, invalid prize, already verified for this vehicle, or has unverified 2x request
-          const basicExclusions = customer.verified !== true && 
-                                 hasValidPrize &&
-                                 !verifiedVehicles.has(customer.vehicleNumber) &&
-                                 !vehiclesWithUnverified2x.has(customer.vehicleNumber);
-          
-          // For truck customers: ONLY show if they have a verified 2x request OR clicked "Proceed for Verification"
-          if (customer.vehicleType === 'truck') {
-            const hasVerified2x = truckVehiclesWithVerified2x.has(customer.vehicleNumber);
-            const isProceedingNormally = trucksProceedingForVerification.has(customer.vehicleNumber.toUpperCase());
-            return basicExclusions && (hasVerified2x || isProceedingNormally);
-          }
-          
-          // For non-truck customers: show normally
+          const basicExclusions = customer.verified !== true &&
+            hasValidPrize &&
+            !verifiedVehicles.has(customer.vehicleNumber);
+
           return basicExclusions;
         })
         .sort((a, b) => {
@@ -399,60 +378,68 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
           return unique;
         }, [] as typeof todaysCustomers)
+        .map(c => {
+          const normalizedSheetVehicle = normalizeVehicleNumber(c.vehicleNumber);
+          const local = localUnverified.find(l => normalizeVehicleNumber(l.vehicleNumber) === normalizedSheetVehicle);
+          return {
+            ...c,
+            fuelAmount: c.amount || local?.fuelAmount || null // Map Google Sheets 'amount' column to 'fuelAmount', fallback to local storage
+          };
+        })
         .reverse(); // Reverse to show most recent first overall
-      
+
       res.json({ customers: unverifiedCustomers });
     } catch (error: any) {
       console.error("Get unverified customers error:", error);
-      
+
       if (error instanceof GoogleSheetsNotConfiguredError) {
-        return res.status(503).json({ 
-          error: "Google Sheets is not configured. Please complete the setup first." 
+        return res.status(503).json({
+          error: "Google Sheets is not configured. Please complete the setup first."
         });
       }
-      
+
       res.status(500).json({ error: error.message });
     }
   });
 
-    // Get employee statistics - all employees with their total verification counts and total amount
+  // Get employee statistics - all employees with their total verification counts and total amount
   app.get("/api/employees/stats", async (req, res) => {
     try {
       const allCustomers = await googleSheetsService.getAllCustomers();
-      
+
       // Count verifications and total amount by employee (verifiedBy field)
       const employeeStats = new Map<string, { name: string; count: number; totalAmount: number; amountDivided: number }>();
-      
+
       allCustomers.forEach(customer => {
         if (customer.verified && customer.verifiedBy) {
           const name = customer.verifiedBy;
           const existing = employeeStats.get(name) || { name, count: 0, totalAmount: 0, amountDivided: 0 };
           const amount = customer.amount || 0;
           const newTotalAmount = existing.totalAmount + amount;
-          
-          employeeStats.set(name, { 
-            name, 
+
+          employeeStats.set(name, {
+            name,
             count: existing.count + 1,
             totalAmount: newTotalAmount,
             amountDivided: parseFloat((newTotalAmount / 95).toFixed(2))
           });
         }
       });
-      
+
       // Convert to sorted array
       const stats = Array.from(employeeStats.values())
         .sort((a, b) => b.count - a.count); // Sort by count descending
-      
+
       res.json({ employees: stats });
     } catch (error: any) {
       console.error("Get employee stats error:", error);
-      
+
       if (error instanceof GoogleSheetsNotConfiguredError) {
-        return res.status(503).json({ 
-          error: "Google Sheets is not configured. Please complete the setup first." 
+        return res.status(503).json({
+          error: "Google Sheets is not configured. Please complete the setup first."
         });
       }
-      
+
       res.status(500).json({ error: error.message });
     }
   });
@@ -461,7 +448,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/employee/verified-customers", async (req, res) => {
     try {
       const allCustomers = await googleSheetsService.getAllCustomers();
-      
+
       // Filter for today's verified customers
       const today = new Date().toISOString().split('T')[0];
       const verifiedCustomers = allCustomers
@@ -475,7 +462,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           const bTime = new Date(b.timestamp).getTime();
           return bTime - aTime;
         });
-      
+
       // For each verified customer, fetch VPA data from transactions
       const customersWithVPA = await Promise.all(
         verifiedCustomers.map(async (customer) => {
@@ -487,9 +474,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             );
             const text = await response.text();
             const data = JSON.parse(text);
-            
+
             console.log(`[VPA Lookup] Phone: ${customer.number}, Found: ${data.found}, VPA: ${data.vpa}, Message: ${data.vpaMessage}`);
-            
+
             return {
               ...customer,
               vpa: data.vpa || null,
@@ -504,17 +491,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
           }
         })
       );
-      
+
       res.json({ customers: customersWithVPA });
     } catch (error: any) {
       console.error("Get verified customers error:", error);
-      
+
       if (error instanceof GoogleSheetsNotConfiguredError) {
-        return res.status(503).json({ 
-          error: "Google Sheets is not configured. Please complete the setup first." 
+        return res.status(503).json({
+          error: "Google Sheets is not configured. Please complete the setup first."
         });
       }
-      
+
       res.status(500).json({ error: error.message });
     }
   });
@@ -523,41 +510,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/employee/verify/:vehicleNumber", async (req, res) => {
     try {
       const { vehicleNumber } = req.params;
-      const { amount, verifierName } = req.body;
-      
+      const { verifierName } = req.body;
+
       // Normalize vehicle number
       const normalized = normalizeVehicleNumber(vehicleNumber);
-      
-      // Get customer details from Google Sheets before verifying
-      const customerEntry = await googleSheetsService.getTodaysCustomerByVehicle(normalized);
-      
-      if (!customerEntry) {
-        return res.status(404).json({ error: "Customer not found" });
+
+      // Get the customer by vehicle number (we need the ID and fuel amount)
+      // Since storage doesn't have getByVehicle, we filter
+      const unverified = await storage.getUnverifiedCustomers();
+      const customer = unverified.find(c => c.vehicleNumber === normalized);
+
+      if (!customer) {
+        return res.status(404).json({ error: "Customer not found or already verified" });
       }
-      
-      // Verify in Google Sheets with verifier name and verification timestamp
-      await googleSheetsService.verifyReward(normalized, amount, verifierName, new Date().toISOString());
-      
-      // Also update in local storage if exists
-      const allCustomers = await storage.getAllCustomers();
-      const customer = allCustomers.find(c => normalizeVehicleNumber(c.vehicleNumber) === normalized);
-      if (customer) {
-        await storage.verifyCustomerReward(customer.id);
+
+      // Check if fuel amount exists
+      if (!customer.fuelAmount) {
+        return res.status(400).json({ error: "Fuel amount missing for this customer" });
       }
-      
+
+      const amountToRecord = customer.fuelAmount;
+
+      // Update in Google Sheets - use the stored fuel amount
+      await googleSheetsService.verifyReward(
+        normalized,
+        amountToRecord,
+        verifierName || "Unknown",
+        new Date().toISOString()
+      );
+
+      // Mark as verified in local storage
+      await storage.verifyCustomerReward(customer.id);
+
       // Initiate payout via BulkPE
       let payoutResult = null;
       let payoutError = null;
       const bulkpe = getBulkPEService();
       // Always use actual prize/reward amount for BulkPE payout (this is the actual winning amount)
       // The employee-entered amount is just for tracking/recording
-      const prizeAmount = Number(customerEntry.prize);
+      const prizeAmount = Number(customer.rewardAmount);
       const referenceId = `FUELRUSH-${normalized}-${Date.now()}`;
-      
-      if (bulkpe && Number.isFinite(prizeAmount) && prizeAmount > 0 && customerEntry.number) {
+
+      if (bulkpe && Number.isFinite(prizeAmount) && prizeAmount > 0 && customer.phoneNumber) {
         try {
-          const phoneStr = String(customerEntry.number).trim();
-          
+          const phoneStr = String(customer.phoneNumber).trim();
+
           // Step 1: Check if VPA exists in Transactions sheet from previous transaction
           console.log(`[PAYOUT] Step 1: Checking Transactions sheet for cached VPA for ${phoneStr}`);
           let cachedVPA = null;
@@ -571,27 +568,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
           } catch (cacheErr: any) {
             console.log(`[PAYOUT] Error checking Transactions sheet:`, cacheErr.message);
           }
-          
+
           payoutResult = await bulkpe.initiatePayout({
             amount: prizeAmount,
             phoneNumber: phoneStr,
-            beneficiaryName: customerEntry.name || `Customer-${phoneStr.slice(-4)}`,
+            beneficiaryName: customer.name || `Customer-${phoneStr.slice(-4)}`,
             referenceId,
             note: `FUEL RUSH Cashback - Rs.${prizeAmount}`,
             cachedVPA: (cachedVPA && cachedVPA.vpa) ? { vpa: cachedVPA.vpa, accountHolderName: cachedVPA.accountHolderName || undefined } : undefined
           });
           console.log("Payout initiated successfully:", JSON.stringify(payoutResult, null, 2));
-          
+
           // Log successful transaction to Google Sheets
           // Extract all VPA response fields
           const responseUpi = (payoutResult as any).vpaUsed || 'N/A';
-          const finalBeneficiaryName = (payoutResult as any).accountHolderNameFromVpa || customerEntry.name || `Customer-${phoneStr.slice(-4)}`;
+          const finalBeneficiaryName = (payoutResult as any).accountHolderNameFromVpa || customer.name || `Customer-${phoneStr.slice(-4)}`;
           const txnId = payoutResult.data?.transaction_id || (payoutResult.data as any)?.transcation_id || 'N/A';
-          
+
           const transaction: TransactionLog = {
             vehicleNumber: normalized,
-            customerName: customerEntry.name || 'N/A',
-            phoneNumber: customerEntry.number,
+            customerName: customer.name || 'N/A',
+            phoneNumber: customer.phoneNumber,
             amount: prizeAmount,
             transactionId: txnId,
             referenceId,
@@ -610,26 +607,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
             vpaStatus: payoutResult.data?.status || 'SUCCESS',
             vpaMessage: payoutResult.data?.message || 'Transaction Success',
           };
-          
+
           try {
             console.log("[TRANSACTION LOG] Attempting to log successful transaction:", JSON.stringify(transaction, null, 2));
             await googleSheetsService.logTransaction(transaction);
             console.log("[TRANSACTION LOG] Successfully logged transaction to Google Sheets");
             // Store in local storage too
-            await storage.setPaymentStatus(customerEntry.number, 'success', transaction.transactionId);
+            await storage.setPaymentStatus(customer.phoneNumber, 'success', transaction.transactionId);
           } catch (sheetErr: any) {
             console.error("[TRANSACTION LOG ERROR] Failed to log transaction to Google Sheets:", sheetErr);
           }
         } catch (err: any) {
           payoutError = err.message;
-          console.error(`[PAYOUT FAILED] Vehicle: ${vehicleNumber}, Phone: ${customerEntry.number}, Amount: ${prizeAmount}, Error: ${err.message}`);
-          
+          console.error(`[PAYOUT FAILED] Vehicle: ${vehicleNumber}, Phone: ${customer.phoneNumber}, Amount: ${prizeAmount}, Error: ${err.message}`);
+
           // Log failed transaction to Google Sheets
-          const finalBeneficiaryNameFailed = customerEntry.name || `Customer-${customerEntry.number.slice(-4)}`;
+          const finalBeneficiaryNameFailed = customer.name || `Customer-${customer.phoneNumber.slice(-4)}`;
           const transaction: TransactionLog = {
             vehicleNumber: normalized,
-            customerName: customerEntry.name || 'N/A',
-            phoneNumber: customerEntry.number,
+            customerName: customer.name || 'N/A',
+            phoneNumber: customer.phoneNumber,
             amount: prizeAmount,
             transactionId: 'FAILED',
             referenceId,
@@ -648,13 +645,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
             vpaStatus: 'FAILED',
             vpaMessage: payoutError,
           };
-          
+
           try {
             console.log("[TRANSACTION LOG] Attempting to log failed transaction:", JSON.stringify(transaction, null, 2));
             await googleSheetsService.logTransaction(transaction);
             console.log("[TRANSACTION LOG] Successfully logged failed transaction to Google Sheets");
             // Store in local storage too
-            await storage.setPaymentStatus(customerEntry.number, 'failed', 'FAILED');
+            await storage.setPaymentStatus(customer.phoneNumber, 'failed');
           } catch (sheetErr: any) {
             console.error("[TRANSACTION LOG ERROR] Failed to log failed transaction to Google Sheets:", sheetErr);
           }
@@ -662,25 +659,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else if (!bulkpe) {
         console.warn("[PAYOUT SKIPPED] BulkPE service not configured");
       } else {
-        console.warn(`[PAYOUT SKIPPED] Invalid data - Prize: ${customerEntry.prize}, Phone: ${customerEntry.number}`);
+        console.warn(`[PAYOUT SKIPPED] Invalid data - Prize: ${customer.rewardAmount}, Phone: ${customer.phoneNumber}`);
       }
-      
-      res.json({ 
-        success: true, 
-        vehicleNumber: normalized, 
+
+      res.json({
+        success: true,
+        vehicleNumber: normalized,
         payout: payoutResult,
         paymentStatus: payoutResult ? 'success' : 'no_payout',
-        errorMessage: payoutError 
+        errorMessage: payoutError
       });
     } catch (error: any) {
       console.error("Employee verify error:", error);
-      
+
       if (error instanceof GoogleSheetsNotConfiguredError) {
-        return res.status(503).json({ 
-          error: "Google Sheets is not configured. Please complete the setup first." 
+        return res.status(503).json({
+          error: "Google Sheets is not configured. Please complete the setup first."
         });
       }
-      
+
       res.status(500).json({ error: error.message });
     }
   });
@@ -689,70 +686,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/employee/remove/:vehicleNumber", async (req, res) => {
     try {
       const { vehicleNumber } = req.params;
-      
+
       // Normalize vehicle number
       const normalized = normalizeVehicleNumber(vehicleNumber);
-      
+
       // Remove from verification list in Google Sheets
       await googleSheetsService.removeFromVerification(normalized);
-      
+
       res.json({ success: true, vehicleNumber: normalized });
     } catch (error: any) {
       console.error("Employee remove error:", error);
-      
+
       if (error instanceof GoogleSheetsNotConfiguredError) {
-        return res.status(503).json({ 
-          error: "Google Sheets is not configured. Please complete the setup first." 
+        return res.status(503).json({
+          error: "Google Sheets is not configured. Please complete the setup first."
         });
       }
-      
+
       res.status(500).json({ error: error.message });
     }
   });
 
-  // Mark truck as proceeding for verification (standard path without 2x)
-  app.post("/api/truck/proceed-verification/:vehicleNumber", async (req, res) => {
-    try {
-      const { vehicleNumber } = req.params;
-      const normalized = normalizeVehicleNumber(vehicleNumber);
-      
-      await storage.markTruckProceedForVerification(normalized);
-      
-      res.json({ success: true, vehicleNumber: normalized });
-    } catch (error: any) {
-      console.error("Mark truck proceed verification error:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
+
 
   // Check verification status for a customer by vehicle number
   app.get("/api/customers/verification-status/:vehicleNumber", async (req, res) => {
     try {
       const { vehicleNumber } = req.params;
-      
+
       // Normalize vehicle number
       const normalized = normalizeVehicleNumber(vehicleNumber);
-      
+
       const todayEntry = await googleSheetsService.getTodaysCustomerByVehicle(normalized);
-      
+
       if (!todayEntry) {
         return res.status(404).json({ error: "Customer not found" });
       }
-      
-      res.json({ 
+
+      res.json({
         verified: todayEntry.verified === true,
         vehicleNumber: normalized,
         prize: todayEntry.prize
       });
     } catch (error: any) {
       console.error("Check verification status error:", error);
-      
+
       if (error instanceof GoogleSheetsNotConfiguredError) {
-        return res.status(503).json({ 
-          error: "Google Sheets is not configured. Please complete the setup first." 
+        return res.status(503).json({
+          error: "Google Sheets is not configured. Please complete the setup first."
         });
       }
-      
+
       res.status(500).json({ error: error.message });
     }
   });
@@ -762,7 +746,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const { customerId } = req.params;
       const paymentStatus = await storage.getPaymentStatus(customerId);
-      res.json({ 
+      res.json({
         paymentStatus: paymentStatus.status,
         transactionId: paymentStatus.transactionId
       });
@@ -776,11 +760,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/track-link-open", async (req, res) => {
     try {
       const { prize } = req.body;
-      
+
       if (!prize) {
         return res.status(400).json({ error: "Prize amount is required" });
       }
-      
+
       // Update link opens counter in Google Sheets
       await googleSheetsService.incrementLinkOpens(prize);
       res.json({ success: true });
@@ -807,19 +791,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const prize = req.query.prize as string || "0";
       const total = req.query.total as string;
       const location = "https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A";
-      
+
       const totalWinnings = total && parseInt(total) > parseInt(prize) ? ` Total winnings so far: ₹${total}` : '';
       const descriptionText = `⛽ Just fuelled up at JioBP Siltara and played their Mystery Box game. Got ₹${prize} back instantly! 🎁 Try your luck here & let me know!${totalWinnings}`;
       const shortDescription = descriptionText.substring(0, 160);
-      
+
       const appUrl = req.get('host') || 'localhost:5000';
       const protocol = req.protocol || 'http';
       // Use proper URL encoding for the screenshot filename with spaces
       const imageUrl = `${protocol}://${appUrl}/Screenshot%202025-12-19%20164618.png`;
-      
+
       const escapedTitle = escapeHtml(`🎁 I Won ₹${prize} Cashback - JioBP Siltara Mystery Box!`);
       const escapedDesc = escapeHtml(shortDescription);
-      
+
       const html = `
 <!DOCTYPE html>
 <html lang="en">
@@ -930,7 +914,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 </body>
 </html>
       `;
-      
+
       res.setHeader('Content-Type', 'text/html; charset=utf-8');
       res.send(html);
     } catch (error: any) {
@@ -939,182 +923,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // === DOUBLE REWARD ENDPOINTS FOR TRUCK DRIVERS ===
-  
-  // Create a double reward request (when truck driver clicks "Double Your Reward")
-  app.post("/api/double-reward/request", async (req, res) => {
-    try {
-      const { customerId, customerName, phoneNumber, vehicleNumber, originalReward } = req.body;
-      
-      if (!customerId || !customerName || !phoneNumber || !vehicleNumber || !originalReward) {
-        return res.status(400).json({ error: "Missing required fields" });
-      }
-      
-      const request = await storage.createDoubleRewardRequest({
-        customerId,
-        customerName,
-        phoneNumber,
-        vehicleNumber,
-        originalReward,
-      });
-      
-      // Update Google Sheets with the 2x reward date for today's entry
-      const normalized = normalizeVehicleNumber(vehicleNumber);
-      try {
-        await googleSheetsService.updateDoubleRewardDate(normalized, new Date().toISOString());
-      } catch (sheetError: any) {
-        console.error("Failed to update 2x reward date in Google Sheets:", sheetError);
-        // Don't fail the entire request if Google Sheets update fails
-      }
-      
-      res.json({ success: true, request });
-    } catch (error: any) {
-      console.error("Create double reward request error:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-  
-  // Check if customer has a recent 2x request (within 7 days) - Check Google Sheets for persistent data
-  app.get("/api/double-reward/recent/:vehicleNumber", async (req, res) => {
-    try {
-      const { vehicleNumber } = req.params;
-      const normalized = normalizeVehicleNumber(vehicleNumber);
-      
-      // First check Google Sheets for the actual 2x reward date (source of truth for persistence)
-      const allCustomers = await googleSheetsService.getAllCustomers();
-      const customerEntries = allCustomers.filter((c) => {
-        try {
-          return c.vehicleNumber && normalizeVehicleNumber(String(c.vehicleNumber)) === normalized;
-        } catch {
-          return false;
-        }
-      });
-      
-      // Find the most recent entry with a doubleRewardDate
-      const recentWithDoubleReward = customerEntries
-        .filter((c) => c.doubleRewardDate && c.doubleRewardDate.trim())
-        .sort((a, b) => new Date(b.doubleRewardDate!).getTime() - new Date(a.doubleRewardDate!).getTime())
-        [0];
-      
-      if (!recentWithDoubleReward) {
-        return res.json({ hasRecentRequest: false, daysUntilAvailable: 0 });
-      }
-      
-      // Extract just the date part (YYYY-MM-DD) to avoid time/timezone issues
-      const today = new Date().toISOString().split('T')[0]; // "2025-12-20"
-      const rewardDateStr = recentWithDoubleReward.doubleRewardDate!.split('T')[0]; // "2025-12-20"
-      
-      const today_date = new Date(today);
-      const reward_date = new Date(rewardDateStr);
-      
-      const daysSince = (today_date.getTime() - reward_date.getTime()) / (1000 * 60 * 60 * 24);
-      
-      if (daysSince < 7) {
-        const daysUntilAvailable = Math.ceil(7 - daysSince);
-        return res.json({ hasRecentRequest: true, daysUntilAvailable });
-      }
-      
-      res.json({ hasRecentRequest: false, daysUntilAvailable: 0 });
-    } catch (error: any) {
-      console.error("Check recent double reward request error:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
 
-  // Mark a truck as pending for verification (when on 2x cooldown)
-  app.post("/api/truck/mark-pending-from-cooldown", async (req, res) => {
-    try {
-      const { vehicleNumber } = req.body;
-      if (!vehicleNumber) {
-        return res.status(400).json({ error: "Vehicle number is required" });
-      }
-      
-      const normalized = normalizeVehicleNumber(vehicleNumber);
-      await storage.markTruckProceedForVerification(normalized);
-      res.json({ success: true });
-    } catch (error: any) {
-      console.error("Mark truck pending error:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-  
-  // Get all unverified double reward requests (for employee dashboard)
-  app.get("/api/double-reward/unverified", async (req, res) => {
-    try {
-      const requests = await storage.getUnverifiedDoubleRewardRequests();
-      res.json({ requests });
-    } catch (error: any) {
-      console.error("Get unverified double reward requests error:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-  
-  // Delete a double reward request
-  app.delete("/api/double-reward/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      
-      // Get the request first to know the vehicle number
-      const requests = await storage.getDoubleRewardRequests();
-      const request = requests.find(r => r.id === id);
-      
-      if (request) {
-        // Mark the truck as "Proceed for Verification" so it appears in the pending list
-        await storage.markTruckProceedForVerification(request.vehicleNumber);
-      }
-      
-      await storage.deleteDoubleRewardRequest(id);
-      res.json({ success: true });
-    } catch (error: any) {
-      console.error("Delete double reward request error:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
-  
-  // Verify a double reward request (updates existing customer with doubled reward)
-  app.post("/api/double-reward/verify/:id", async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { verifierName } = req.body;
-      
-      if (!verifierName) {
-        return res.status(400).json({ error: "Verifier name is required" });
-      }
-      
-      // Get the double reward request
-      const request = await storage.verifyDoubleRewardRequest(id, verifierName);
-      
-      // Calculate doubled reward
-      const doubledReward = request.originalReward * 2;
-      
-      // Update the customer's reward amount with doubled value
-      const customer = await storage.getCustomer(request.customerId);
-      if (!customer) {
-        throw new Error("Customer not found");
-      }
-      
-      // Update customer with doubled reward amount in storage
-      await storage.updateCustomerReward(request.customerId, doubledReward);
-      
-      // Update the existing Google Sheets entry with doubled reward (not add new)
-      // Do NOT mark customer as verified yet - only update the amount
-      // Employee must verify from the PENDING list to mark customer as verified
-      await googleSheetsService.updateReward(request.vehicleNumber, doubledReward);
-      
-      // Mark the 2x request as verified so customer moves from 2x list to pending list
-      // This does NOT verify the customer - just confirms the 2x request was processed
-      await storage.verifyDoubleRewardRequest(request.id, verifierName);
-      
-      res.json({ 
-        success: true, 
-        request,
-        doubledReward 
-      });
-    } catch (error: any) {
-      console.error("Verify double reward request error:", error);
-      res.status(500).json({ error: error.message });
-    }
-  });
 
   const httpServer = createServer(app);
 
