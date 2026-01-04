@@ -21,6 +21,7 @@ const formSchema = z.object({
   vehicleType: z.enum(["bike", "car", "truck"], {
     errorMap: () => ({ message: "Please select a vehicle type" })
   }),
+  fuelAmount: z.coerce.number().min(1, "Fuel amount must be greater than 0"),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -37,25 +38,26 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
       phoneNumber: '',
       vehicleNumber: '',
       vehicleType: undefined,
+      fuelAmount: undefined,
     },
   });
-  
+
 
   return (
     <div className="w-full max-w-sm space-y-2">
-      <img 
-        src={fuelRushLogo} 
-        alt="FUEL RUSH Logo" 
+      <img
+        src={fuelRushLogo}
+        alt="FUEL RUSH Logo"
         className="w-200 h-30 mx-auto -mt-4"
       />
 
       <div className="text-center space-y-4">
-        
+
         <h2 className="text-xl font-bold text-white" data-testid="text-form-title">
           Enter Contest
         </h2>
         <h2 className="text-sm text-white" data-testid="text-form-title">
-          Payment will be sent to your UPI account  
+          Payment will be sent to your UPI account
         </h2>
       </div>
 
@@ -103,7 +105,7 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
               </FormItem>
             )}
           />
-      
+
           <FormField
             control={form.control}
             name="vehicleNumber"
@@ -159,11 +161,10 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
                       type="button"
                       onClick={() => field.onChange('bike')}
                       data-testid="button-vehicle-bike"
-                      className={`flex-1 py-3 rounded-xl font-bold transition-all ${
-                        field.value === 'bike'
+                      className={`flex-1 py-3 rounded-xl font-bold transition-all ${field.value === 'bike'
                           ? 'bg-gradient-to-b from-[#ffe28a] to-[#d19c00] text-black border border-[#f8e7a0] shadow-[0_4px_0_#b68600]'
                           : 'bg-transparent border-2 border-[#e8c253] text-white hover:bg-[#e8c253]/20'
-                      }`}
+                        }`}
                     >
                       🏍️ Bike
                     </Button>
@@ -171,11 +172,10 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
                       type="button"
                       onClick={() => field.onChange('car')}
                       data-testid="button-vehicle-car"
-                      className={`flex-1 py-3 rounded-xl font-bold transition-all ${
-                        field.value === 'car'
+                      className={`flex-1 py-3 rounded-xl font-bold transition-all ${field.value === 'car'
                           ? 'bg-gradient-to-b from-[#ffe28a] to-[#d19c00] text-black border border-[#f8e7a0] shadow-[0_4px_0_#b68600]'
                           : 'bg-transparent border-2 border-[#e8c253] text-white hover:bg-[#e8c253]/20'
-                      }`}
+                        }`}
                     >
                       🚗 Car
                     </Button>
@@ -183,14 +183,57 @@ export default function CustomerForm({ onSubmit, isSubmitting }: CustomerFormPro
                       type="button"
                       onClick={() => field.onChange('truck')}
                       data-testid="button-vehicle-truck"
-                      className={`flex-1 py-3 rounded-xl font-bold transition-all ${
-                        field.value === 'truck'
+                      className={`flex-1 py-3 rounded-xl font-bold transition-all ${field.value === 'truck'
                           ? 'bg-gradient-to-b from-[#ffe28a] to-[#d19c00] text-black border border-[#f8e7a0] shadow-[0_4px_0_#b68600]'
                           : 'bg-transparent border-2 border-[#e8c253] text-white hover:bg-[#e8c253]/20'
-                      }`}
+                        }`}
                     >
                       🚛 Truck
                     </Button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="fuelAmount"
+            render={({ field }) => (
+              <FormItem>
+                <FormControl>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-yellow-400">₹</span>
+                    <Input
+                      type="number"
+                      placeholder="Fuel Amount"
+                      className="
+                        pl-12 py-3 w-full
+                        bg-transparent
+                        text-white
+                        placeholder:text-yellow-200/70
+
+                        rounded-xl
+                        border-2 border-[#e8c253]
+
+                        shadow-[0_0_12px_rgba(255,215,0,0.4),inset_0_0_8px_rgba(255,215,0,0.25)]
+
+                        relative
+                        before:content-['']
+                        before:absolute before:left-0 before:right-0 before:top-1/2 before:h-[1px]
+                        before:bg-yellow-300/40
+                        before:blur-sm
+
+                        focus:outline-none
+                        focus:border-yellow-300
+                        focus:shadow-[0_0_15px_rgba(255,230,150,0.7),inset_0_0_10px_rgba(255,230,150,0.5)]
+                      "
+
+                      data-testid="input-fuel-amount"
+                      aria-label="Fuel Amount"
+                      {...field}
+                    />
                   </div>
                 </FormControl>
                 <FormMessage />
