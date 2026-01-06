@@ -595,7 +595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             upi: responseUpi,
             paymentMode: 'UPI',
             beneficiaryName: finalBeneficiaryName,
-            bulkpeStatus: 'INITIATED', // Distinct status to prove code update
+            bulkpeStatus: payoutResult.data?.status || 'PENDING',
             bulkpeMessage: payoutResult.data?.message || 'Transaction Initiated',
             status: 'success',
             timestamp: new Date().toISOString(),
@@ -604,7 +604,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             vpaAccountHolderName: (payoutResult as any).accountHolderNameFromVpa || 'N/A',
             vpaTransactionId: payoutResult.data?.transaction_id || (payoutResult.data as any)?.transcation_id || 'N/A',
             vpaReferenceId: payoutResult.data?.reference_id || 'N/A',
-            vpaStatus: 'SUCCESS-VERIFIED', // Distinct status to prove code update
+            vpaStatus: 'SUCCESS', // VPA is valid (verified successfully)
             vpaMessage: payoutResult.data?.message || 'Transaction Success',
           };
 
