@@ -595,7 +595,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             upi: responseUpi,
             paymentMode: 'UPI',
             beneficiaryName: finalBeneficiaryName,
-            bulkpeStatus: payoutResult.data?.status || 'PENDING',
+            bulkpeStatus: payoutResult.data?.status || 'SUCCESS',
             bulkpeMessage: payoutResult.data?.message || 'Transaction Initiated',
             status: 'success',
             timestamp: new Date().toISOString(),
