@@ -1101,42 +1101,42 @@ function calculateReward(vehicleType: string, fuelAmount: number): number {
     if (fuelAmount <= 500) {
       // 0-500: ₹1 to ₹5 (80% till ₹3, 20% till ₹5)
       // ₹1-3 (80%), ₹4-5 (20%)
-      if (random < 0.8) {
+      if (random < 0.9) {
         return Math.floor(Math.random() * 3) + 1; // 1-3
       } else {
         return Math.floor(Math.random() * 2) + 4; // 4-5
       }
     } else if (fuelAmount > 500 && fuelAmount <= 2000) {
-      // 501-2000: ₹5 to ₹20
-      // 90% between ₹8 to ₹12, 10% between ₹12 to ₹15
+      // 501-2000: ₹6 to ₹14
+      // 90% between ₹6 to ₹11, 10% between ₹12 to ₹14
       if (random < 0.9) {
-        return Math.floor(Math.random() * 5) + 8; // 8-12
+        return Math.floor(Math.random() * 6) + 6; // 6-11
       } else {
-        return Math.floor(Math.random() * 3) + 13; // 13-15
+        return Math.floor(Math.random() * 3) + 12; // 12-14
       }
-    } else if (fuelAmount > 2000 && fuelAmount <= 3000) {
-      // 2001-3000: ₹10 to ₹30
-      // 60%: ₹12 to ₹15
-      // 30%: ₹16 to ₹20
-      // 10%: ₹20 to ₹30
-      if (random < 0.6) {
-        return Math.floor(Math.random() * 4) + 12; // 12-15
+    } else if (fuelAmount > 2001 && fuelAmount <= 3000) {
+      // 2001-3000: ₹12 to ₹25
+      // 60%: ₹12 to ₹14
+      // 30%: ₹15 to ₹20
+      // 10%: ₹20 to ₹25
+      if (random < 0.7) {
+        return Math.floor(Math.random() * 3) + 12; // 12-15
       } else if (random < 0.9) {
-        return Math.floor(Math.random() * 5) + 16; // 16-20
+        return Math.floor(Math.random() * 6) + 15; // 16-20
       } else {
-        return Math.floor(Math.random() * 10) + 21; // 21-30
+        return Math.floor(Math.random() * 6) + 20; // 21-30
       }
     } else {
       // 3001+: ₹15 to ₹50
       // 60%: ₹22 to ₹25
       // 30%: ₹28 to ₹32
       // 10%: ₹35-₹50
-      if (random < 0.6) {
-        return Math.floor(Math.random() * 4) + 22; // 22-25
+      if (random < 0.7) {
+        return Math.floor(Math.random() * 4) + 20; // 20-23
       } else if (random < 0.9) {
-        return Math.floor(Math.random() * 5) + 28; // 28-32
+        return Math.floor(Math.random() * 6) + 24; // 24-29
       } else {
-        return Math.floor(Math.random() * 16) + 35; // 35-50
+        return Math.floor(Math.random() * 16) + 30; // 30-45
       }
     }
   }
