@@ -1119,24 +1119,24 @@ function calculateReward(vehicleType: string, fuelAmount: number): number {
       // 60%: ₹12 to ₹14
       // 30%: ₹15 to ₹20
       // 10%: ₹20 to ₹25
-      if (random < 0.7) {
+      if (random < 0.8) {
         return Math.floor(Math.random() * 3) + 12; // 12-15
       } else if (random < 0.9) {
         return Math.floor(Math.random() * 6) + 15; // 16-20
       } else {
-        return Math.floor(Math.random() * 6) + 20; // 21-30
+        return Math.floor(Math.random() * 6) + 20; // 21-25
       }
     } else {
       // 3001+: ₹15 to ₹50
       // 60%: ₹22 to ₹25
       // 30%: ₹28 to ₹32
       // 10%: ₹35-₹50
-      if (random < 0.7) {
+      if (random < 0.8) {
         return Math.floor(Math.random() * 4) + 20; // 20-23
       } else if (random < 0.9) {
         return Math.floor(Math.random() * 6) + 24; // 24-29
       } else {
-        return Math.floor(Math.random() * 16) + 30; // 30-45
+        return Math.floor(Math.random() * 14) + 30; // 30-45
       }
     }
   }
