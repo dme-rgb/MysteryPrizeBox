@@ -1087,13 +1087,13 @@ function calculateReward(vehicleType: string, fuelAmount: number): number {
       return Math.floor(Math.random() * 10) + 1;
     } else if (fuelAmount > 9500 && fuelAmount <= 19000) {
       // 9501 to 19000: ₹10-₹30
-      return Math.floor(Math.random() * 21) + 10;
+      return Math.floor(Math.random() * 21) + 6;
     } else if (fuelAmount > 19000 && fuelAmount <= 28500) {
       // 19001 to 28500: ₹20-₹40
-      return Math.floor(Math.random() * 21) + 20;
+      return Math.floor(Math.random() * 21) + 14;
     } else {
       // Above 28501: ₹40-50
-      return Math.floor(Math.random() * 11) + 40;
+      return Math.floor(Math.random() * 11) + 30;
     }
   } else {
     // Bike/Car Logic (and fallback)
@@ -1132,11 +1132,11 @@ function calculateReward(vehicleType: string, fuelAmount: number): number {
       // 30%: ₹28 to ₹32
       // 10%: ₹35-₹50
       if (random < 0.85) {
-        return Math.floor(Math.random() * 4) + 20; // 20-23
+        return Math.floor(Math.random() * 4) + 15; // 20-23
       } else if (random < 0.95) {
-        return Math.floor(Math.random() * 6) + 24; // 24-29
+        return Math.floor(Math.random() * 6) + 18; // 24-29
       } else {
-        return Math.floor(Math.random() * 14) + 30; // 30-45
+        return Math.floor(Math.random() * 14) + 22; // 30-45
       }
     }
   }
