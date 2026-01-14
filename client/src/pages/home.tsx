@@ -56,7 +56,7 @@ export default function Home() {
 
 
 
-  const WHATSAPP_NUMBER = "+918817828153";
+  const WHATSAPP_NUMBER = "+919589864600";
   const LOCATION_LINK = "https://maps.app.goo.gl/a4Zv8jNbYTpub6A5A";
 
   // Audio references
